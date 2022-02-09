@@ -17,6 +17,7 @@
  */
 package gov.nasa.jpf.vm;
 
+import fr.irif.events.TrEventRegister;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.JPFException;
@@ -1860,20 +1861,33 @@ public class ThreadInfo extends InfoObject
       while (pc != null) {
         nextPc = executeInstruction();
 
-        if (ss.breakTransition()) {
-          if (ss.extendTransition()){
-            continue outer;
+        //IRIF:
+        /*if(TrEventRegister.getEventRegister().isLastInstructionTransactional()){
+            //ChoiceGenerator cg = ss.getChoiceGenerator();
+            breakTransition("Database");
             
-          } else {
-            if (executedInstructions == 0){ // a CG from a re-executed insn
-              if (isEmptyTransitionEnabled()){ // treat as a new state if empty transitions are enabled
-                ss.setForced(true);
-              }
-            }
-            return;
+        }*/
+          if(TrEventRegister.getEventRegister().isLastInstructionTransactional()){
+              ss.setNextChoiceGenerator(ss.getChoiceGenerator());
+              TrEventRegister.getEventRegister().setChoiceGeneratorShared(true);
           }
+          if (ss.breakTransition() || TrEventRegister.getEventRegister().isLastInstructionTransactional()) {
+              TrEventRegister.getEventRegister().setLastInstructionTransactional(false);
 
-        } else {        
+
+              if (ss.extendTransition()){
+                continue outer;
+
+              } else {
+                if (executedInstructions == 0){ // a CG from a re-executed insn
+                  if (isEmptyTransitionEnabled()){ // treat as a new state if empty transitions are enabled
+                    ss.setForced(true);
+                  }
+                }
+                return;
+              }
+
+        } else {
           pc = nextPc;
         }
       }
@@ -1904,6 +1918,16 @@ public class ThreadInfo extends InfoObject
     // this is the pre-execution notification, during which a listener can perform
     // on-the-fly instrumentation or even replace the instruction alltogether
     vm.notifyExecuteInstruction(this, pc);
+    //System.out.println(this.getCallerStackFrame() + "\n"+ pc.getInstructionIndex()+"\n"+pc.getFileLocation()+"\n---");
+    if(pc instanceof JVMInvokeInstruction && ((JVMInvokeInstruction) pc).getInvokedMethodName().equals("chocolate(Ljava/lang/String;Ljava/lang/String;)V")){
+        JVMInvokeInstruction call = (JVMInvokeInstruction) pc;
+        String s = call.getInvokedMethodName();
+        /*System.out.println(s.substring(0,s.length() - call.getInvokedMethodSignature().length()));
+        System.out.println(pc+"\n---");
+        System.out.println(VM.getVM().getClass());
+        System.out.println(pc.getClass());*/
+
+    }
 
     if ((pendingSUTExceptionRequest == null) && ((attributes & ATTR_SKIP_INSN_EXEC) == 0)){
         try {
@@ -1952,7 +1976,9 @@ public class ThreadInfo extends InfoObject
    */
   public Instruction executeInstructionHidden () {
     Instruction pc = getPC();
-    SystemState ss = vm.getSystemState();
+    System.out.println("Hi! I'm hidden :)\n"+pc);
+
+      SystemState ss = vm.getSystemState();
     KernelState ks = vm.getKernelState();
 
     nextPc = null; // reset in case pc.execute() blows (this could be behind an exception firewall)

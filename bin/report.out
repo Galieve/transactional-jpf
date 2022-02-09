@@ -1,0 +1,1136 @@
+----------------------------------- search started
+Thread 0 transaction 0 BEGIN event  executed.
+----------------------------------- [1] forward: 0 visited
+Thread 0 transaction 0 WRITE event (x = 0) executed.
+----------------------------------- [2] forward: 1 new
+Thread 0 transaction 0 WRITE event (y = 0) executed.
+----------------------------------- [3] forward: 2 new
+Thread 0 transaction 0 END event  executed.
+----------------------------------- [4] forward: 3 new
+----------------------------------- [5] forward: 4 new
+----------------------------------- [6] forward: 5 visited
+----------------------------------- [7] forward: 6 visited
+----------------------------------- [8] forward: 7 visited
+----------------------------------- [9] forward: 8 visited
+----------------------------------- [10] forward: 9 visited
+----------------------------------- [11] forward: 11 visited
+----------------------------------- [12] forward: 13 visited
+----------------------------------- [13] forward: 16 visited
+----------------------------------- [14] forward: 19 visited
+Thread 1 transaction 0 BEGIN event  executed.
+----------------------------------- [15] forward: 20 visited
+Thread 1 transaction 0 WRITE event (x = 1) executed.
+----------------------------------- [16] forward: 23 new
+Thread 1 transaction 0 WRITE event (y = 1) executed.
+----------------------------------- [17] forward: 24 new
+Thread 1 transaction 0 END event  executed.
+----------------------------------- [18] forward: 25 new
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 29 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 1.
+----------------------------------- [23] forward: 31 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 1.
+----------------------------------- [24] forward: 32 new
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [25] forward: 33 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [26] forward: 34 new
+----------------------------------- [27] forward: 35 new
+----------------------------------- [28] forward: 36 visited
+----------------------------------- [29] forward: 37 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [30] forward: 38 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 2.
+----------------------------------- [31] forward: 39 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (d = y)
+	(y = 1) -> (y = 0)
+----------------------------------- [32] done: 40
+----------------------------------- [32] forward: 40 visited
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (c = x)
+	(x = 2) -> (x = 1)
+----------------------------------- [31] done: 39
+----------------------------------- [31] forward: 39 visited
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+Starting SWAP mode.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+----------------------------------- [30] backtrack: 38
+----------------------------------- [29] backtrack: 37
+----------------------------------- [28] backtrack: 36
+----------------------------------- [27] backtrack: 35
+----------------------------------- [26] backtrack: 34
+----------------------------------- [25] backtrack: 33
+----------------------------------- [24] backtrack: 32
+----------------------------------- [23] backtrack: 31
+----------------------------------- [22] backtrack: 29
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 30 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 1.
+----------------------------------- [23] forward: 45 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [24] forward: 46 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [25] forward: 47 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [26] forward: 48 new
+----------------------------------- [27] forward: 49 new
+----------------------------------- [28] forward: 51 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [29] forward: 52 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 1.
+----------------------------------- [30] forward: 53 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 2.
+----------------------------------- [31] forward: 54 new
+SWAP mode ended.
+----------------------------------- [31] done: 54
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [32] forward: 55 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [33] forward: 56 new
+----------------------------------- [34] forward: 57 new
+----------------------------------- [35] forward: 44 visited end
+----------------------------------- [35] done: 44
+Branch ended.
+----------------------------------- [34] backtrack: 57
+----------------------------------- [33] backtrack: 56
+----------------------------------- [32] backtrack: 55
+----------------------------------- [31] backtrack: 54
+Starting RESTORE mode.
+----------------------------------- [31] done: 54
+----------------------------------- [30] backtrack: 53
+----------------------------------- [29] backtrack: 52
+----------------------------------- [28] backtrack: 51
+----------------------------------- [27] backtrack: 49
+----------------------------------- [26] backtrack: 48
+----------------------------------- [25] backtrack: 47
+----------------------------------- [24] backtrack: 46
+----------------------------------- [23] backtrack: 45
+----------------------------------- [22] backtrack: 30
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 29 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 1.
+----------------------------------- [23] forward: 31 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 1.
+----------------------------------- [24] forward: 32 new
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [25] forward: 33 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [26] forward: 34 new
+----------------------------------- [27] forward: 35 new
+----------------------------------- [28] forward: 36 visited
+----------------------------------- [29] forward: 37 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [30] forward: 38 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 1.
+----------------------------------- [31] forward: 39 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+RESTORE mode ended.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (d = y)
+	(y = 1) -> (y = 0)
+----------------------------------- [32] done: 40
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 0.
+----------------------------------- [32] forward: 40 visited
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+Starting SWAP mode.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+----------------------------------- [30] backtrack: 38
+----------------------------------- [29] backtrack: 37
+----------------------------------- [28] backtrack: 36
+----------------------------------- [27] backtrack: 35
+----------------------------------- [26] backtrack: 34
+----------------------------------- [25] backtrack: 33
+----------------------------------- [24] backtrack: 32
+----------------------------------- [23] backtrack: 31
+----------------------------------- [22] backtrack: 29
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 30 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 1.
+----------------------------------- [23] forward: 45 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 0.
+----------------------------------- [24] forward: 46 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [25] forward: 47 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [26] forward: 48 new
+----------------------------------- [27] forward: 49 new
+----------------------------------- [28] forward: 51 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [29] forward: 52 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 1.
+----------------------------------- [30] forward: 53 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 2.
+----------------------------------- [31] forward: 54 new
+SWAP mode ended.
+----------------------------------- [31] done: 54
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [32] forward: 55 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [33] forward: 56 new
+----------------------------------- [34] forward: 57 new
+----------------------------------- [35] forward: 44 visited end
+----------------------------------- [35] done: 44
+Branch ended.
+----------------------------------- [34] backtrack: 57
+----------------------------------- [33] backtrack: 56
+----------------------------------- [32] backtrack: 55
+----------------------------------- [31] backtrack: 54
+Starting RESTORE mode.
+----------------------------------- [31] done: 54
+----------------------------------- [30] backtrack: 53
+----------------------------------- [29] backtrack: 52
+----------------------------------- [28] backtrack: 51
+----------------------------------- [27] backtrack: 49
+----------------------------------- [26] backtrack: 48
+----------------------------------- [25] backtrack: 47
+----------------------------------- [24] backtrack: 46
+----------------------------------- [23] backtrack: 45
+----------------------------------- [22] backtrack: 30
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 29 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 1.
+----------------------------------- [23] forward: 31 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 1.
+----------------------------------- [24] forward: 32 new
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [25] forward: 33 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [26] forward: 34 new
+----------------------------------- [27] forward: 35 new
+----------------------------------- [28] forward: 36 visited
+----------------------------------- [29] forward: 37 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [30] forward: 38 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 1.
+----------------------------------- [31] forward: 39 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 0.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+RESTORE mode ended.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (c = x)
+	(x = 1) -> (x = 0)
+----------------------------------- [31] done: 39
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 0.
+----------------------------------- [31] forward: 39 visited
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+Starting SWAP mode.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+----------------------------------- [30] backtrack: 38
+----------------------------------- [29] backtrack: 37
+----------------------------------- [28] backtrack: 36
+----------------------------------- [27] backtrack: 35
+----------------------------------- [26] backtrack: 34
+----------------------------------- [25] backtrack: 33
+----------------------------------- [24] backtrack: 32
+----------------------------------- [23] backtrack: 31
+----------------------------------- [22] backtrack: 29
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 30 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 0.
+----------------------------------- [23] forward: 45 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [24] forward: 46 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [25] forward: 47 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [26] forward: 48 new
+----------------------------------- [27] forward: 49 new
+----------------------------------- [28] forward: 51 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [29] forward: 52 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 1.
+----------------------------------- [30] forward: 53 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 2.
+----------------------------------- [31] forward: 54 new
+SWAP mode ended.
+----------------------------------- [31] done: 54
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [32] forward: 55 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [33] forward: 56 new
+----------------------------------- [34] forward: 57 new
+----------------------------------- [35] forward: 44 visited end
+----------------------------------- [35] done: 44
+Branch ended.
+----------------------------------- [34] backtrack: 57
+----------------------------------- [33] backtrack: 56
+----------------------------------- [32] backtrack: 55
+----------------------------------- [31] backtrack: 54
+Starting RESTORE mode.
+----------------------------------- [31] done: 54
+----------------------------------- [30] backtrack: 53
+----------------------------------- [29] backtrack: 52
+----------------------------------- [28] backtrack: 51
+----------------------------------- [27] backtrack: 49
+----------------------------------- [26] backtrack: 48
+----------------------------------- [25] backtrack: 47
+----------------------------------- [24] backtrack: 46
+----------------------------------- [23] backtrack: 45
+----------------------------------- [22] backtrack: 30
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 29 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 1.
+----------------------------------- [23] forward: 31 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 1.
+----------------------------------- [24] forward: 32 new
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [25] forward: 33 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [26] forward: 34 new
+----------------------------------- [27] forward: 35 new
+----------------------------------- [28] forward: 36 visited
+----------------------------------- [29] forward: 37 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [30] forward: 38 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 0.
+----------------------------------- [31] forward: 39 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+RESTORE mode ended.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (d = y)
+	(y = 1) -> (y = 0)
+----------------------------------- [32] done: 40
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 0.
+----------------------------------- [32] forward: 40 visited
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+Starting SWAP mode.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+----------------------------------- [30] backtrack: 38
+----------------------------------- [29] backtrack: 37
+----------------------------------- [28] backtrack: 36
+----------------------------------- [27] backtrack: 35
+----------------------------------- [26] backtrack: 34
+----------------------------------- [25] backtrack: 33
+----------------------------------- [24] backtrack: 32
+----------------------------------- [23] backtrack: 31
+----------------------------------- [22] backtrack: 29
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 30 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 0.
+----------------------------------- [23] forward: 45 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 0.
+----------------------------------- [24] forward: 46 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [25] forward: 47 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [26] forward: 48 new
+----------------------------------- [27] forward: 49 new
+----------------------------------- [28] forward: 51 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [29] forward: 52 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 1.
+----------------------------------- [30] forward: 53 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 2.
+----------------------------------- [31] forward: 54 new
+SWAP mode ended.
+----------------------------------- [31] done: 54
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [32] forward: 55 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [33] forward: 56 new
+----------------------------------- [34] forward: 57 new
+----------------------------------- [35] forward: 44 visited end
+----------------------------------- [35] done: 44
+Branch ended.
+----------------------------------- [34] backtrack: 57
+----------------------------------- [33] backtrack: 56
+----------------------------------- [32] backtrack: 55
+----------------------------------- [31] backtrack: 54
+Starting RESTORE mode.
+----------------------------------- [31] done: 54
+----------------------------------- [30] backtrack: 53
+----------------------------------- [29] backtrack: 52
+----------------------------------- [28] backtrack: 51
+----------------------------------- [27] backtrack: 49
+----------------------------------- [26] backtrack: 48
+----------------------------------- [25] backtrack: 47
+----------------------------------- [24] backtrack: 46
+----------------------------------- [23] backtrack: 45
+----------------------------------- [22] backtrack: 30
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 29 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 1.
+----------------------------------- [23] forward: 31 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 1.
+----------------------------------- [24] forward: 32 new
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [25] forward: 33 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [26] forward: 34 new
+----------------------------------- [27] forward: 35 new
+----------------------------------- [28] forward: 36 visited
+----------------------------------- [29] forward: 37 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [30] forward: 38 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 0.
+----------------------------------- [31] forward: 39 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 0.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+RESTORE mode ended.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+----------------------------------- [30] backtrack: 38
+----------------------------------- [29] backtrack: 37
+----------------------------------- [28] backtrack: 36
+----------------------------------- [27] backtrack: 35
+----------------------------------- [26] backtrack: 34
+----------------------------------- [25] backtrack: 33
+----------------------------------- [24] backtrack: 32
+Branch forked: change of write-read for event Thread 2 transaction 0 READ event (b = y)
+	(y = 1) -> (y = 0)
+----------------------------------- [24] done: 32
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 0.
+----------------------------------- [24] forward: 32 visited
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [25] forward: 58 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [26] forward: 34 new
+----------------------------------- [27] forward: 35 new
+----------------------------------- [28] forward: 36 visited
+----------------------------------- [29] forward: 37 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [30] forward: 38 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 2.
+----------------------------------- [31] forward: 39 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (d = y)
+	(y = 1) -> (y = 0)
+----------------------------------- [32] done: 40
+----------------------------------- [32] forward: 40 visited
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (c = x)
+	(x = 2) -> (x = 1)
+----------------------------------- [31] done: 39
+----------------------------------- [31] forward: 39 visited
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (d = y)
+	(y = 1) -> (y = 0)
+----------------------------------- [32] done: 40
+----------------------------------- [32] forward: 40 visited
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (c = x)
+	(x = 1) -> (x = 0)
+----------------------------------- [31] done: 39
+----------------------------------- [31] forward: 39 visited
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (d = y)
+	(y = 1) -> (y = 0)
+----------------------------------- [32] done: 40
+----------------------------------- [32] forward: 40 visited
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+----------------------------------- [30] backtrack: 38
+----------------------------------- [29] backtrack: 37
+----------------------------------- [28] backtrack: 36
+----------------------------------- [27] backtrack: 35
+----------------------------------- [26] backtrack: 34
+----------------------------------- [25] backtrack: 58
+----------------------------------- [24] backtrack: 32
+----------------------------------- [23] backtrack: 31
+Branch forked: change of write-read for event Thread 2 transaction 0 READ event (a = x)
+	(x = 1) -> (x = 0)
+----------------------------------- [23] done: 31
+----------------------------------- [23] forward: 31 visited
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 1.
+----------------------------------- [24] forward: 32 new
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [25] forward: 58 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [26] forward: 34 new
+----------------------------------- [27] forward: 35 new
+----------------------------------- [28] forward: 36 visited
+----------------------------------- [29] forward: 37 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [30] forward: 38 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 2.
+----------------------------------- [31] forward: 39 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (d = y)
+	(y = 1) -> (y = 0)
+----------------------------------- [32] done: 40
+----------------------------------- [32] forward: 40 visited
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (c = x)
+	(x = 2) -> (x = 1)
+----------------------------------- [31] done: 39
+----------------------------------- [31] forward: 39 visited
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+Starting SWAP mode.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+----------------------------------- [30] backtrack: 38
+----------------------------------- [29] backtrack: 37
+----------------------------------- [28] backtrack: 36
+----------------------------------- [27] backtrack: 35
+----------------------------------- [26] backtrack: 34
+----------------------------------- [25] backtrack: 58
+----------------------------------- [24] backtrack: 32
+----------------------------------- [23] backtrack: 31
+----------------------------------- [22] backtrack: 29
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 30 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 1.
+----------------------------------- [23] forward: 45 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [24] forward: 46 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [25] forward: 47 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [26] forward: 48 new
+----------------------------------- [27] forward: 49 new
+----------------------------------- [28] forward: 51 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [29] forward: 52 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 0.
+----------------------------------- [30] forward: 53 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 2.
+----------------------------------- [31] forward: 54 new
+SWAP mode ended.
+----------------------------------- [31] done: 54
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [32] forward: 55 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [33] forward: 56 new
+----------------------------------- [34] forward: 57 new
+----------------------------------- [35] forward: 44 visited end
+----------------------------------- [35] done: 44
+Branch ended.
+----------------------------------- [34] backtrack: 57
+----------------------------------- [33] backtrack: 56
+----------------------------------- [32] backtrack: 55
+----------------------------------- [31] backtrack: 54
+Starting RESTORE mode.
+----------------------------------- [31] done: 54
+----------------------------------- [30] backtrack: 53
+----------------------------------- [29] backtrack: 52
+----------------------------------- [28] backtrack: 51
+----------------------------------- [27] backtrack: 49
+----------------------------------- [26] backtrack: 48
+----------------------------------- [25] backtrack: 47
+----------------------------------- [24] backtrack: 46
+----------------------------------- [23] backtrack: 45
+----------------------------------- [22] backtrack: 30
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 29 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 0.
+----------------------------------- [23] forward: 31 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 1.
+----------------------------------- [24] forward: 32 new
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [25] forward: 33 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [26] forward: 34 new
+----------------------------------- [27] forward: 35 new
+----------------------------------- [28] forward: 36 visited
+----------------------------------- [29] forward: 37 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [30] forward: 38 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 1.
+----------------------------------- [31] forward: 39 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+RESTORE mode ended.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (d = y)
+	(y = 1) -> (y = 0)
+----------------------------------- [32] done: 40
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 0.
+----------------------------------- [32] forward: 40 visited
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+Starting SWAP mode.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+----------------------------------- [30] backtrack: 38
+----------------------------------- [29] backtrack: 37
+----------------------------------- [28] backtrack: 36
+----------------------------------- [27] backtrack: 35
+----------------------------------- [26] backtrack: 34
+----------------------------------- [25] backtrack: 33
+----------------------------------- [24] backtrack: 32
+----------------------------------- [23] backtrack: 31
+----------------------------------- [22] backtrack: 29
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 30 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 1.
+----------------------------------- [23] forward: 45 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 0.
+----------------------------------- [24] forward: 46 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [25] forward: 47 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [26] forward: 48 new
+----------------------------------- [27] forward: 49 new
+----------------------------------- [28] forward: 51 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [29] forward: 52 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 0.
+----------------------------------- [30] forward: 53 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 2.
+----------------------------------- [31] forward: 54 new
+SWAP mode ended.
+----------------------------------- [31] done: 54
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [32] forward: 55 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [33] forward: 56 new
+----------------------------------- [34] forward: 57 new
+----------------------------------- [35] forward: 44 visited end
+----------------------------------- [35] done: 44
+Branch ended.
+----------------------------------- [34] backtrack: 57
+----------------------------------- [33] backtrack: 56
+----------------------------------- [32] backtrack: 55
+----------------------------------- [31] backtrack: 54
+Starting RESTORE mode.
+----------------------------------- [31] done: 54
+----------------------------------- [30] backtrack: 53
+----------------------------------- [29] backtrack: 52
+----------------------------------- [28] backtrack: 51
+----------------------------------- [27] backtrack: 49
+----------------------------------- [26] backtrack: 48
+----------------------------------- [25] backtrack: 47
+----------------------------------- [24] backtrack: 46
+----------------------------------- [23] backtrack: 45
+----------------------------------- [22] backtrack: 30
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 29 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 0.
+----------------------------------- [23] forward: 31 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 1.
+----------------------------------- [24] forward: 32 new
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [25] forward: 33 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [26] forward: 34 new
+----------------------------------- [27] forward: 35 new
+----------------------------------- [28] forward: 36 visited
+----------------------------------- [29] forward: 37 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [30] forward: 38 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 1.
+----------------------------------- [31] forward: 39 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 0.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+RESTORE mode ended.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+Branch forked: change of write-read for event Thread 3 transaction 0 READ event (c = x)
+	(x = 1) -> (x = 0)
+----------------------------------- [31] done: 39
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 0.
+----------------------------------- [31] forward: 39 visited
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+----------------------------------- [35] forward: 43 new
+----------------------------------- [36] forward: 44 visited end
+----------------------------------- [36] done: 44
+Branch ended.
+----------------------------------- [35] backtrack: 43
+----------------------------------- [34] backtrack: 42
+Starting SWAP mode.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+----------------------------------- [31] backtrack: 39
+----------------------------------- [30] backtrack: 38
+----------------------------------- [29] backtrack: 37
+----------------------------------- [28] backtrack: 36
+----------------------------------- [27] backtrack: 35
+----------------------------------- [26] backtrack: 34
+----------------------------------- [25] backtrack: 33
+----------------------------------- [24] backtrack: 32
+----------------------------------- [23] backtrack: 31
+----------------------------------- [22] backtrack: 29
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 30 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 0.
+----------------------------------- [23] forward: 45 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [24] forward: 46 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [25] forward: 47 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [26] forward: 48 new
+----------------------------------- [27] forward: 49 new
+----------------------------------- [28] forward: 51 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [29] forward: 52 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 0.
+----------------------------------- [30] forward: 53 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 2.
+----------------------------------- [31] forward: 54 new
+SWAP mode ended.
+----------------------------------- [31] done: 54
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [32] forward: 55 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [33] forward: 56 new
+----------------------------------- [34] forward: 57 new
+----------------------------------- [35] forward: 44 visited end
+----------------------------------- [35] done: 44
+Branch ended.
+----------------------------------- [34] backtrack: 57
+----------------------------------- [33] backtrack: 56
+----------------------------------- [32] backtrack: 55
+----------------------------------- [31] backtrack: 54
+Starting RESTORE mode.
+----------------------------------- [31] done: 54
+----------------------------------- [30] backtrack: 53
+----------------------------------- [29] backtrack: 52
+----------------------------------- [28] backtrack: 51
+----------------------------------- [27] backtrack: 49
+----------------------------------- [26] backtrack: 48
+----------------------------------- [25] backtrack: 47
+----------------------------------- [24] backtrack: 46
+----------------------------------- [23] backtrack: 45
+----------------------------------- [22] backtrack: 30
+----------------------------------- [21] backtrack: 28
+----------------------------------- [20] backtrack: 27
+----------------------------------- [19] backtrack: 26
+----------------------------------- [18] backtrack: 25
+----------------------------------- [19] forward: 26 new
+----------------------------------- [20] forward: 27 visited
+----------------------------------- [21] forward: 28 visited
+Thread 2 transaction 0 BEGIN event  executed.
+----------------------------------- [22] forward: 29 visited
+Thread 2 transaction 0 READ event (a = x) executed.
+	a reads x = 0.
+----------------------------------- [23] forward: 31 new
+Thread 2 transaction 0 READ event (b = y) executed.
+	b reads y = 1.
+----------------------------------- [24] forward: 32 new
+Thread 2 transaction 0 WRITE event (x = 2) executed.
+----------------------------------- [25] forward: 33 new
+Thread 2 transaction 0 END event  executed.
+----------------------------------- [26] forward: 34 new
+----------------------------------- [27] forward: 35 new
+----------------------------------- [28] forward: 36 visited
+----------------------------------- [29] forward: 37 visited
+Thread 3 transaction 0 BEGIN event  executed.
+----------------------------------- [30] forward: 38 visited
+Thread 3 transaction 0 READ event (c = x) executed.
+	c reads x = 0.
+----------------------------------- [31] forward: 39 new
+Thread 3 transaction 0 READ event (d = y) executed.
+	d reads y = 1.
+----------------------------------- [32] forward: 40 new
+Thread 3 transaction 0 WRITE event (y = 2) executed.
+----------------------------------- [33] forward: 41 new
+Thread 3 transaction 0 END event  executed.
+----------------------------------- [34] forward: 42 new
+RESTORE mode ended.
+----------------------------------- [34] done: 42
+----------------------------------- [33] backtrack: 41
+----------------------------------- [32] backtrack: 40
+Branch forked: change of write-read for event Thread 3 transaction 0 READ ev

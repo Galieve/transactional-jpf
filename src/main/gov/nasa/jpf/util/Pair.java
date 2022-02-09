@@ -24,7 +24,7 @@ public class Pair<A,B> {
   
   // final so that we don't need getters
   public final A _1;
-  public final B _2;
+  public B _2;
   
   public Pair(A a, B b) { 
     this._1 = a; 

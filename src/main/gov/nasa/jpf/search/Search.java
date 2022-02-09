@@ -51,7 +51,7 @@ public abstract class Search {
   protected Error currentError = null;
   protected ArrayList<Error> errors = new ArrayList<Error>();
 
-  protected int       depth = 0;
+  protected int      depth = 0;
   protected VM       vm;
 
   protected ArrayList<Property> properties;

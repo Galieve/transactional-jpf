@@ -1,2 +1,3 @@
 +listener=gov.nasa.jpf.listener.ExecTracker
-target=HelloWorld
+
+target=Test

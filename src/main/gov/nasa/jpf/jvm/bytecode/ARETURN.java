@@ -28,7 +28,7 @@ import gov.nasa.jpf.vm.bytecode.ReturnValueInstruction;
  * ..., objectref  => [empty]
  */
 public class ARETURN extends JVMReturnInstruction implements ReturnValueInstruction {
-  int ret;
+  protected int ret;
   
   @Override
   public int getReturnTypeSize() {
