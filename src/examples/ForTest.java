@@ -3,18 +3,6 @@ import java.util.*;
 public class ForTest {
 
     public static void main(String [] args) throws InterruptedException {
-        TreeSet<Integer> a = new TreeSet<>(Arrays.asList(1,2,3,5,6));
-
-        /*
-        System.out.println(  "2h: " + a.higher(2));
-        System.out.println(  "2l: " + a.lower(2));
-
-        System.out.println("0h: " + a.higher(0));
-        System.out.println( "0l: " +   a.lower(0));
-
-        System.out.println("4h: " + a.higher(4));
-        System.out.println( "4l: " +   a.lower(4));
-        */
 
         TRDatabase dbMain = TRDatabase.getDatabase();
         dbMain.begin();

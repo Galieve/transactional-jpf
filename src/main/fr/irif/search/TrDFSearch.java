@@ -84,7 +84,11 @@ public class TrDFSearch extends DFSearch {
                 ++depth;
                 notifyStateAdvanced();
                 //if e.getType() != READ, fakeRead was false, so we don't have to care about this case
+                // If it is not an end state and we restoring some unknown event, this event maybe not available. In that case, we just ommit it.
+            } else if(p._1 && database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.RESTORE && e.getType() == TransactionalEvent.Type.UNKNOWN){
+                guidePath.removeFirst();
             }
+
         }
         if(database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.SWAP) {
             WriteTransactionalEvent w = (WriteTransactionalEvent)
@@ -146,8 +150,9 @@ public class TrDFSearch extends DFSearch {
             //We are backtracking and there is no local instruction nor the event we are searching for.
             else{
                 n = null;
-                //This case should never appear, if it does, this program is wrong
-                System.out.println("DEBUG: error?");
+                //This case should never appear, if it does, this program is wrong (non-if version)
+                if(database.getDatabaseBacktrackMode() != GuideInfo.BacktrackTypes.RESTORE)
+                    System.out.println("DEBUG: error?");
             }
         }
         trEventRegister.setFakeRead(false);
