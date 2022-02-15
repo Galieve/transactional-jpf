@@ -23,7 +23,7 @@ public class TrDFSearch extends DFSearch {
     public TrDFSearch(Config config, VM vm) {
         super(config, vm);
         database = Database.getDatabase(config);
-        trEventRegister = TrEventRegister.getEventRegister();
+        trEventRegister = TrEventRegister.getEventRegister(config);
         msgListener = null;
     }
 
@@ -63,9 +63,9 @@ public class TrDFSearch extends DFSearch {
                     if (e.getType() == TransactionalEvent.Type.READ) {
                         ReadTransactionalEvent rPast = (ReadTransactionalEvent) e;
                         ReadTransactionalEvent r = (ReadTransactionalEvent)
-                                database.getEventFromInstruction(rPast.getInstruction());
+                                database.getEventFromEventData(rPast.getEventData());
                         WriteTransactionalEvent w = (WriteTransactionalEvent)
-                                database.getEventFromInstruction(rPast.getWriteEvent().getInstruction());
+                                database.getEventFromEventData(rPast.getWriteEvent().getEventData());
                         if (w != null && guidePath.size() != 1) {
                             database.changeWriteRead(w, r);
                         }
@@ -75,7 +75,7 @@ public class TrDFSearch extends DFSearch {
                             database.changeWriteRead(r.getWriteEvent(),r);
                         }
                         //If rPast.getBacktrackInstruction() == null, it is ok
-                        r.setBacktrackInstruction(rPast.getBacktrackInstruction());
+                        r.setBacktrackEvent(rPast.getBacktrackEvent());
 
                     }
                     guidePath.removeFirst();
@@ -92,9 +92,9 @@ public class TrDFSearch extends DFSearch {
         }
         if(database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.SWAP) {
             WriteTransactionalEvent w = (WriteTransactionalEvent)
-                    database.getEventFromInstruction(wSwap.getInstruction());
+                    database.getEventFromEventData(wSwap.getEventData());
             ReadTransactionalEvent r = (ReadTransactionalEvent)
-                    database.getEventFromInstruction(prev.getInstruction());
+                    database.getEventFromEventData(prev.getEventData());
 
             database.changeWriteRead(w, r);
             //r.setBacktrackEvent(database.getEventFromInstruction(init.getInstruction()));
@@ -198,7 +198,7 @@ public class TrDFSearch extends DFSearch {
             return false;
         }
 
-        trEventRegister.addContextToPath();
+        //trEventRegister.addInvokeVirtual();
 
         currentError = null;
 
@@ -207,11 +207,11 @@ public class TrDFSearch extends DFSearch {
 
         checkPropertyViolation();
 
-        if(!ret) {
-            trEventRegister.removeContextFromPath();
+        /*if(!ret) {
+            trEventRegister.addReturn();
         }
-        trEventRegister.printPath();
 
+         */
 
         return ret;
     }
@@ -251,9 +251,7 @@ public class TrDFSearch extends DFSearch {
                     break;
             }
         }
-
-        trEventRegister.printPath();
-        trEventRegister.removeContextFromPath();
+        //trEventRegister.addReturn();
 
         return vm.backtrack();
     }

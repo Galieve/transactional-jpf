@@ -80,7 +80,7 @@ public class SystemState {
       }
     }
     
-    Memento (SystemState ss) {
+    Memento(SystemState ss) {
       nextCg = ss.nextCg;      
       curCg = ss.curCg;
       
@@ -640,7 +640,7 @@ public class SystemState {
     
     return false;
   }
-  
+
   public ClosedMemento getRestorer( Object key){
     if (restorers != null){
       return restorers.get(key);

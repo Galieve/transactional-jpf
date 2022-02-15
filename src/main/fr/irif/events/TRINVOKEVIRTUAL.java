@@ -29,8 +29,6 @@ public class TRINVOKEVIRTUAL extends INVOKEVIRTUAL {
 
         }
 
-        trEventRegister.addCall(this.toString()+ this.getLineNumber());
-
         return super.execute(ti);
     }
 }

@@ -9,6 +9,8 @@ import gov.nasa.jpf.vm.VM;
 
 public class TrSystemState extends SystemState {
 
+
+
     public TrSystemState(Config config, TrSingleProcessVM trSingleProcessVM) {
         super(config, trSingleProcessVM);
     }
@@ -39,16 +41,5 @@ public class TrSystemState extends SystemState {
         super.executeNextTransition(vm);
     }
 
-    /*
-    @Override
-    protected void advance(VM vm, ChoiceGenerator<?> cg) {
-        Database.getDatabase();
-        if(Database.getDatabase().isDatabaseBacktrackMode()){
 
-        }
-        else{
-            super.advance(vm, cg);
-        }
-    }
-    */
 }

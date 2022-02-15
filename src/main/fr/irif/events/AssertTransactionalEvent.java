@@ -1,19 +1,17 @@
 package fr.irif.events;
 
 import fr.irif.database.Database;
-import fr.irif.database.OracleData;
 import gov.nasa.jpf.vm.Instruction;
 
-import java.awt.geom.IllegalPathStateException;
 import java.util.ArrayList;
 
 public class AssertTransactionalEvent extends TransactionalEvent{
 
     protected Database database;
 
-    protected AssertTransactionalEvent(Instruction i, ArrayList<String> args, OracleData oOrder,
-                                       int obsSeqIdx, int transactionId, int threadId, int sesId, int poId, String callPath) {
-        super(i, args, Type.ASSERT, oOrder, obsSeqIdx, transactionId, threadId, sesId, poId, callPath);
+    protected AssertTransactionalEvent(EventData eventData, ArrayList<String> args,
+                                       int obsSeqIdx, int threadId, int trId, int sesId, int poId) {
+        super(eventData, args, Type.ASSERT, obsSeqIdx, threadId, trId, sesId, poId);
         database = Database.getDatabase();
     }
 

@@ -1,6 +1,5 @@
 package fr.irif.events;
 
-import fr.irif.database.OracleData;
 import gov.nasa.jpf.vm.Instruction;
 
 import java.util.ArrayList;
@@ -8,10 +7,10 @@ import java.util.ArrayList;
 public class EndTransactionalEvent extends TransactionalEvent{
 
 
-    protected EndTransactionalEvent(Instruction i, ArrayList<String> args, OracleData time,
-                                    int obsIdx, int transactionId, int threadId, int sesId, int poId, String callPath) {
+    protected EndTransactionalEvent(EventData eventData, ArrayList<String> args,
+                                    int obsIdx, int threadId, int trId, int sesId, int poId) {
 
-        super(i, args, Type.END, time, obsIdx, transactionId, threadId, sesId, poId, callPath);
+        super(eventData, args, Type.END, obsIdx, threadId, trId, sesId, poId);
     }
 
     @Override

@@ -1,12 +1,11 @@
 package fr.irif.events;
 
-import fr.irif.database.OracleData;
 import gov.nasa.jpf.vm.Instruction;
 
 public class UnknownEvent extends TransactionalEvent{
-    public UnknownEvent(Instruction i, OracleData oOrder) {
+    public UnknownEvent(EventData eventData) {
 
-        super(i, null, Type.UNKNOWN, oOrder, -1, -1, -1, -1, -1, null);
+        super(eventData, null, Type.UNKNOWN, -1, -1, -1, -1, -1);
     }
 
     @Override

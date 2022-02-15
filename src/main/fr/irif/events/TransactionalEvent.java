@@ -1,8 +1,5 @@
 package fr.irif.events;
 
-import fr.irif.database.OracleData;
-import gov.nasa.jpf.vm.Instruction;
-
 import java.util.ArrayList;
 
 public abstract class TransactionalEvent{
@@ -11,15 +8,11 @@ public abstract class TransactionalEvent{
         BEGIN, READ, WRITE, END, ASSERT, UNKNOWN
     }
 
-    protected Instruction instruction;
+    protected EventData eventData;
 
     protected ArrayList<String> args;
 
     protected Type type;
-
-    protected OracleData oracleOrder;
-
-    protected int transactionId;
 
     protected int threadId;
 
@@ -29,25 +22,33 @@ public abstract class TransactionalEvent{
 
     protected int poId;
 
-    protected String callPath;
+    protected int trId;
 
-    protected TransactionalEvent(Instruction i, ArrayList<String> args, Type t, OracleData oOrder,
-                                 int obsSeqIdx, int transactionId, int threadId, int sesId, int poId, String callPath){
-        instruction = i;
+    protected TransactionalEvent(EventData eventData, ArrayList<String> args, Type t,
+                                 int obsSeqIdx, int threadId, int trId, int sesId, int poId){
+        this.eventData = eventData;
         this.args = args;
         type = t;
-        oracleOrder = oOrder;
-        this.transactionId = transactionId;
         this.threadId = threadId;
         this.observationSequenceIndex = obsSeqIdx;
         relSOId = sesId;
         this.poId = poId;
-        this.callPath = callPath;
+        this.trId = trId;
     }
 
-    public Instruction getInstruction() {
-        return instruction;
+    public EventData getEventData() {
+        return eventData;
     }
+
+    public int getTransactionId(){
+        return trId;
+    }
+
+    /*public Instruction getInstruction() {
+        return eventData.getInstruction();
+    }
+
+     */
 
     public ArrayList<String> getArgs() {
         return args;
@@ -61,13 +62,12 @@ public abstract class TransactionalEvent{
 
     public abstract String getValue();
 
-    public OracleData getOracleOrder() {
-        return oracleOrder;
-    }
-
+    /*
     public int getTransactionId(){
         return transactionId;
     }
+    
+     */
 
     public int getThreadId() {
         return threadId;
@@ -91,11 +91,11 @@ public abstract class TransactionalEvent{
         return getBaseName() + s;
     }
 
+    /*
     public String getCallPath() {
         return callPath;
     }
-
-    /*public void setTimestamp(int timestamp) {
-        this.timestamp = timestamp;
-    }*/
+    
+     */
+    
 }

@@ -1,20 +1,17 @@
 package fr.irif.events;
 
-import fr.irif.database.OracleData;
-import gov.nasa.jpf.vm.Instruction;
-
 import java.util.ArrayList;
 
 public class ReadTransactionalEvent extends TransactionalEvent{
 
     protected WriteTransactionalEvent writeEvent;
 
-    public Instruction backtrackInstruction;
+    public EventData backtrackEvent;
 
-    protected ReadTransactionalEvent(Instruction i, ArrayList<String> args,
-                                     OracleData time, int obsIdx, int transactionId, int threadId, int sesId, int poId, String callPath) {
-        super(i, args, Type.READ, time, obsIdx, transactionId, threadId, sesId, poId, callPath);
-        backtrackInstruction = null;
+    protected ReadTransactionalEvent(EventData eventData, ArrayList<String> args,
+                                     int obsIdx, int threadId, int trId, int sesId, int poId) {
+        super(eventData, args, Type.READ, obsIdx, threadId, trId, sesId, poId);
+        backtrackEvent = null;
         writeEvent = null;
     }
 
@@ -36,12 +33,12 @@ public class ReadTransactionalEvent extends TransactionalEvent{
         this.writeEvent = writeEvent;
     }
 
-    public Instruction getBacktrackInstruction() {
-        return backtrackInstruction;
+    public EventData getBacktrackEvent() {
+        return backtrackEvent;
     }
 
-    public void setBacktrackInstruction(Instruction backtrackInstruction) {
-        this.backtrackInstruction = backtrackInstruction;
+    public void setBacktrackEvent(EventData backtrackEvent) {
+        this.backtrackEvent = backtrackEvent;
     }
 
     @Override

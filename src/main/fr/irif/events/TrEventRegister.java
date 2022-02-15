@@ -1,14 +1,16 @@
 package fr.irif.events;
 
 import fr.irif.database.Database;
-import fr.irif.database.OracleData;
+import gov.nasa.jpf.Config;
 import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.StackFrame;
 import gov.nasa.jpf.vm.ThreadInfo;
 import gov.nasa.jpf.vm.Transition;
 
-import java.util.ArrayDeque;
+import java.awt.geom.IllegalPathStateException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class TrEventRegister {
 
@@ -24,30 +26,38 @@ public class TrEventRegister {
 
     protected boolean choiceGeneratorShared;
 
-    //protected DatabaseRelations databaseRelations;
+    protected int leadingZerosTrace;
 
     protected boolean fakeRead;
 
     protected static String databaseClassName = "TRDatabase";
 
-    protected ArrayDeque<String> callPath;
-
-    private TrEventRegister(){
+    private TrEventRegister(Config config){
         argsEvent = new ArrayList<>();
         recordArguments = false;
         database = Database.getDatabase();
         choiceGeneratorShared = false;
         //databaseRelations = DatabaseRelations.getDatabaseRelations();
         fakeRead = false;
-        callPath = new ArrayDeque<>();
+        leadingZerosTrace = config.getInt("event_path.leading_zeros",6);
+    }
+
+    public static TrEventRegister getEventRegister(Config config){
+        if(trEventRegisterInstance == null){
+            trEventRegisterInstance = new TrEventRegister(config);
+        }
+        return trEventRegisterInstance;
     }
 
     public static TrEventRegister getEventRegister(){
         if(trEventRegisterInstance == null){
-            trEventRegisterInstance = new TrEventRegister();
+            throw new IllegalPathStateException();
+
         }
         return trEventRegisterInstance;
     }
+
+
 
     public void addArgument(String name){
         argsEvent.add(name);
@@ -76,7 +86,9 @@ public class TrEventRegister {
         return frame.getClassName().equals(databaseClassName) && frame.getMethodName().equals("readInstruction");
     }
 
-   protected String getTransactionalStatementTRINVOKEVIRTUAL(TRINVOKEVIRTUAL j){
+    public String getTransactionalStatement(Instruction i){
+        if(!(i instanceof TRINVOKEVIRTUAL)) return "";
+        TRINVOKEVIRTUAL j = (TRINVOKEVIRTUAL) i;
         if(j.getInvokedMethodClassName().equals(databaseClassName)){
             String s = j.getInvokedMethodName();
             return s.substring(0, s.length() - j.getInvokedMethodSignature().length());
@@ -84,44 +96,59 @@ public class TrEventRegister {
         return "";
     }
 
-    public String getTransactionalStatement(Instruction i){
-        if(!(i instanceof TRINVOKEVIRTUAL)) return "";
-
-        return getTransactionalStatementTRINVOKEVIRTUAL((TRINVOKEVIRTUAL) i);
-
+    public String getStackTrace(ThreadInfo ti){
+        String s = ti.getStackTrace();
+        String[] lines = s.split("\\r?\\n");
+        Collections.reverse(Arrays.asList(lines));
+        for(int i = 0; i < lines.length; ++i){
+            String aux = lines[i].replaceAll( "[^\\d]", "" );
+            if(!aux.equals("")) {
+                String aux2 = String.format("%0" + Math.max(leadingZerosTrace + 1 - aux.length(), 1) + "d%s", 0, aux).substring(1);
+                lines[i] = lines[i].replaceAll(aux, aux2);
+            }
+        }
+        s = String.join("\n", lines);
+        return s;
     }
+
+
 
     public void registerEvent(Instruction parsedInstruction, Instruction i, ThreadInfo ti){
         String statement = getTransactionalStatement(parsedInstruction);
 
         TransactionalEvent t;
-        OracleData oraclePosition = database.getOrAddOraclePosition(i);
+        //EventData oraclePosition = database.getOrAddOraclePosition(i);
         int trId = database.getTransactionalId();
         int soId = database.getTransactionalS0Id(ti.getId());
         int poId = database.getPOId(ti.getId());
-        String s = getCallPath();
+
+        String s = getStackTrace(ti);
+
+        EventData eventData = new EventData(s, i);
         switch (statement){
             case "readInstruction":
-                t = new ReadTransactionalEvent(i, new ArrayList<>(argsEvent), oraclePosition, database.getNumberEvents(),
-                        trId, ti.getId(), soId, poId, s);
+                t = new ReadTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberEvents(),
+                        ti.getId(), trId, soId, poId);
                 break;
             case "writeInstruction":
                 String var =  argsEvent.get(0);
-                t = new WriteTransactionalEvent(i, new ArrayList<>(argsEvent), database.getNumberOfWrites(var),
-                        oraclePosition, database.getNumberEvents(), trId, ti.getId(), soId, poId, s);
+                t = new WriteTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberOfWrites(var),
+                        database.getNumberEvents(), ti.getId(), trId, soId, poId);
                 break;
             case "beginInstruction":
-                t = new BeginTransactionalEvent(i, new ArrayList<>(argsEvent), oraclePosition, database.getNumberEvents(),
-                        trId +1, ti.getId(), soId+1, poId, s);
+                eventData = new EventData(s, i);
+                t = new BeginTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberEvents(),
+                        ti.getId(), trId+1, soId+1, poId);
                 break;
             case "endInstruction":
-                t = new EndTransactionalEvent(i, new ArrayList<>(argsEvent), oraclePosition, database.getNumberEvents(),
-                        trId, ti.getId(), soId, poId, s);
+
+                t = new EndTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberEvents(),
+                        ti.getId(), trId, soId, poId);
                 break;
 
             case "assertInstruction":
-                t = new AssertTransactionalEvent(i, new ArrayList<>(argsEvent), oraclePosition, database.getNumberEvents(),
-                        trId, ti.getId(), soId, poId, s);
+                t = new AssertTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberEvents(),
+                        ti.getId(), trId, soId, poId);
                 break;
             default:
                 throw new IllegalArgumentException(i.toString());
@@ -149,33 +176,8 @@ public class TrEventRegister {
         this.fakeRead = fakeRead;
     }
 
-    public void addContextToPath(){
-        if(!database.isMockAccess())
-            callPath.addLast("");
-    }
 
-    public void addCall(String s){
-        if(!database.isMockAccess()) {
-            String last = callPath.getLast();
-            callPath.removeLast();
-            callPath.addLast(last + " " + s);
-        }
-    }
 
-    public void removeContextFromPath(){
-        if(!database.isMockAccess() && callPath.size() > 0){
-            callPath.removeLast();
-        }
-    }
 
-    public void printPath(){
-        if(!database.isMockAccess() && callPath.size() > 0) {
-            //System.out.println("DEBUG: "+callPath);
-            //System.out.println("DEBUG: " + callPath.getLast()+ " size: "+callPath.size());
-        }
-    }
 
-    protected String getCallPath(){
-        return callPath.toString();
-    }
 }

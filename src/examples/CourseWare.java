@@ -1,6 +1,17 @@
 public class CourseWare {
 
 
+    public static void addOne(int i){
+        TRDatabase db = TRDatabase.getDatabase();
+        db.begin();
+        int n = Integer.parseInt(db.read("numberStudents"));
+        if(n < 1) {
+            db.write("numberStudents", String.valueOf(n + 1));
+            db.write("register[" + i + "]", "1");
+        }
+        db.end();
+    }
+
     public static void main(String [] args) throws InterruptedException {
         TRDatabase dbMain = TRDatabase.getDatabase();
         dbMain.begin();
@@ -12,24 +23,10 @@ public class CourseWare {
 
 
         Thread ses1 = new Thread(() -> {
-            TRDatabase db = TRDatabase.getDatabase();
-            db.begin();
-            int n = Integer.parseInt(db.read("numberStudents"));
-            if(n < 1) {
-                db.write("numberStudents", String.valueOf(n + 1));
-                db.write("register[" + 0 + "]", "1");
-            }
-            db.end();
+            addOne(0);
         });
         Thread ses2 = new Thread(() -> {
-            TRDatabase db = TRDatabase.getDatabase();
-            db.begin();
-            int n = Integer.parseInt(db.read("numberStudents"));
-            if(n < 1) {
-                db.write("numberStudents", String.valueOf(n + 1));
-                db.write("register[" + 1 + "]", "1");
-            }
-            db.end();
+            addOne(1);
         });
 
 

@@ -2,8 +2,10 @@ package fr.irif.events;
 
 import fr.irif.database.Database;
 import gov.nasa.jpf.jvm.bytecode.ARETURN;
-import gov.nasa.jpf.jvm.bytecode.JVMInstructionVisitor;
-import gov.nasa.jpf.vm.*;
+import gov.nasa.jpf.vm.ElementInfo;
+import gov.nasa.jpf.vm.Instruction;
+import gov.nasa.jpf.vm.StackFrame;
+import gov.nasa.jpf.vm.ThreadInfo;
 
 public class TRARETURN extends ARETURN {
 
@@ -18,9 +20,6 @@ public class TRARETURN extends ARETURN {
 
     @Override
     public Instruction execute(ThreadInfo ti) {
-
-        TrEventRegister.getEventRegister().addCall(this.toString()+ this.getLineNumber());
-
 
         if(TrEventRegister.getEventRegister().isTransactionalReturn(ti.getTopFrame())){
 

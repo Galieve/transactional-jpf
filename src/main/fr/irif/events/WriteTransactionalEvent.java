@@ -1,9 +1,7 @@
 package fr.irif.events;
 
-import fr.irif.database.OracleData;
 import gov.nasa.jpf.vm.Instruction;
 
-import java.awt.geom.IllegalPathStateException;
 import java.util.ArrayList;
 
 public class WriteTransactionalEvent extends TransactionalEvent {
@@ -12,9 +10,9 @@ public class WriteTransactionalEvent extends TransactionalEvent {
 
     protected String computedValue;
 
-    protected WriteTransactionalEvent(Instruction i, ArrayList<String> args, int writeIndex, OracleData time,
-                                      int obsIdx, int transactionId, int threadId, int sesId, int poId, String callPath) {
-        super(i, args, Type.WRITE, time, obsIdx,  transactionId, threadId, sesId, poId, callPath);
+    protected WriteTransactionalEvent(EventData eventData, ArrayList<String> args, int writeIndex,
+                                      int obsIdx, int threadId, int trId, int sesId, int poId) {
+        super(eventData, args, Type.WRITE, obsIdx, threadId, trId, sesId, poId);
         this.writeIndex = writeIndex;
     }
 

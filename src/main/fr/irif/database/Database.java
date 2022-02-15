@@ -3,7 +3,6 @@ package fr.irif.database;
 import fr.irif.events.*;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.util.Pair;
-import gov.nasa.jpf.vm.Instruction;
 import gov.nasa.jpf.vm.Transition;
 
 import java.awt.geom.IllegalPathStateException;
@@ -15,7 +14,7 @@ public class Database {
 
     protected ArrayList<TransactionalEvent> events;
 
-    protected HashMap<Instruction, Integer> backtrackPoints;
+    protected HashMap<EventData, Integer> backtrackPoints;
 
     //It points to the event w in writeEventsPerVariable.get(e.getVariable()) such that
     //when e it was added, w was the last event in that list.
@@ -29,7 +28,7 @@ public class Database {
 
     protected HashMap<Integer, Integer> programExtendedOrder;
 
-    protected HashMap<Instruction,TransactionalEvent> instructionsMapped;
+    protected HashMap<EventData,TransactionalEvent> instructionsMapped;
 
     protected boolean mockAccess;
 
@@ -76,9 +75,9 @@ public class Database {
 
     public void addEvent(TransactionalEvent t){
         if(isMockAccess()) return;
-        assert oracle.getInstrucionIndex(t.getInstruction()) != null;
+        addEventToOracle(t.getEventData());
 
-        instructionsMapped.put(t.getInstruction(), t);
+        instructionsMapped.put(t.getEventData(), t);
         events.add(t);
 
         switch (t.getType()) {
@@ -122,7 +121,7 @@ public class Database {
                         TransactionalEvent e = events.get(i);
                         if (e.getTransactionId() != t.getTransactionId()) break;
                         else if (e.getType() == TransactionalEvent.Type.WRITE) {
-                            backtrackPoints.putIfAbsent(e.getInstruction(), readEventsPerVariable.get(e.getVariable()).size() - 1);
+                            backtrackPoints.putIfAbsent(e.getEventData(), readEventsPerVariable.get(e.getVariable()).size() - 1);
                         }
                     }
                 }
@@ -134,22 +133,27 @@ public class Database {
 
     public boolean isExecutingTransactionalEvent(Transition t, TransactionalEvent e){
         if(events.isEmpty() || e == null) return false;
+        String s = TrEventRegister.getEventRegister().getStackTrace(t.getThreadInfo());
+        ArrayList<String> lines = new ArrayList<>(Arrays.asList(s.split("\\n")));
+        lines.remove(lines.size() - 1); //There is one level of extra nesting before the end of a transaction.
+        s = String.join("\n", lines);
         switch (e.getType()){
             case READ:
                 if(t.getStepCount() < 5) return false;
-                else return t.getStep(t.getStepCount() - 4).getInstruction() == e.getInstruction();
+                else return e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 4).getInstruction()));
             case WRITE:
                 if(t.getStepCount() < 5) return false;
-                else return t.getStep(t.getStepCount() - 5).getInstruction() == e.getInstruction();
+                else return e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 5).getInstruction()));
             case BEGIN:
             case END:
                 if(t.getStepCount() < 3) return false;
-                else return t.getStep(t.getStepCount() - 3).getInstruction() == e.getInstruction();
+                else return e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 3).getInstruction()));
             case UNKNOWN:
                 if (t.getStepCount() < 3) return false;
-                else if (t.getStepCount() < 5) return t.getStep(t.getStepCount() - 3).getInstruction() == e.getInstruction();
-                else return t.getStep(t.getStepCount() - 3).getInstruction() == e.getInstruction() ||
-                            t.getStep(t.getStepCount() - 5).getInstruction() == e.getInstruction();
+                else if (t.getStepCount() < 5) return e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 3).getInstruction()));
+                else return e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 3).getInstruction())) ||
+                            e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 4).getInstruction())) ||
+                            e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 5).getInstruction()));
             default:
                 //There is no default
                 return false;
@@ -158,23 +162,22 @@ public class Database {
     }
 
     protected void generateRestorePath(ReadTransactionalEvent r){
-        Instruction backInst = r.getBacktrackInstruction();
-        TransactionalEvent e = instructionsMapped.get(backInst);
+        EventData backEvent = r.getBacktrackEvent();
+        TransactionalEvent e = instructionsMapped.get(backEvent);
         TransactionalEvent w = r.getWriteEvent();
         LinkedList<TransactionalEvent> restorePath = new LinkedList<>();
 
         boolean end = false;
 
         int pi_idx = e.getObservationSequenceIndex()+1;
-        OracleData orac_idx = new OracleData(0,0);
+        EventData orac_idx = new EventData("", null);
         orac_idx = oracle.getNextData(orac_idx);
         while(!end){
-            Instruction i = oracle.getInstruction(orac_idx);
-            if(!instructionsMapped.containsKey(i)){
-                restorePath.add(new UnknownEvent(i, orac_idx));
+            if(!instructionsMapped.containsKey(orac_idx)){
+                restorePath.add(new UnknownEvent(orac_idx));
             }
             else{
-                TransactionalEvent t = instructionsMapped.get(i);
+                TransactionalEvent t = instructionsMapped.get(orac_idx);
                 if(t.getTransactionId() == r.getTransactionId()){
                     restorePath.add(t);
                 }
@@ -259,7 +262,7 @@ public class Database {
                         TransactionalEvent ei = events.get(i);
                         if (ei.getTransactionId() != e.getTransactionId()) break;
                         else if (ei.getType() == TransactionalEvent.Type.WRITE) {
-                            backtrackPoints.remove(ei.getInstruction());
+                            backtrackPoints.remove(ei.getEventData());
                         }
                     }
                 }
@@ -272,7 +275,7 @@ public class Database {
                     for (int i = rSwap.getObservationSequenceIndex() - 1; i >= 0; --i) {
                         //rSwap won't be in the first transaction.
                         if (events.get(i).getType() == TransactionalEvent.Type.END) {
-                            rSwap.setBacktrackInstruction(events.get(i).getInstruction());
+                            rSwap.setBacktrackEvent(events.get(i).getEventData());
                             break;
                         }
                     }
@@ -292,7 +295,7 @@ public class Database {
         if(!isGuided()) {
             guideInfo.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.JPF);
         }
-        instructionsMapped.remove(e.getInstruction());
+        instructionsMapped.remove(e.getEventData());
         events.remove(events.size() - 1);
 
     }
@@ -311,7 +314,7 @@ public class Database {
         if (e.getType() != TransactionalEvent.Type.READ) return false;
         ReadTransactionalEvent r = (ReadTransactionalEvent) e;
         WriteTransactionalEvent w = r.getWriteEvent();
-        if (r.getOracleOrder().compareTo(w.getOracleOrder()) > 0) return false;
+        if (r.getEventData().compareTo(w.getEventData()) > 0) return false;
 
         for(int i = 0; i < r.getTransactionId(); ++i){
             if(history.areWRSO_plusRelated(w.getTransactionId(),i))
@@ -356,7 +359,7 @@ public class Database {
                     return null;
                 case WRITE:
                     WriteTransactionalEvent w = (WriteTransactionalEvent) e;
-                    for (int j = backtrackPoints.get(w.getInstruction()); j >= 0; --j) {
+                    for (int j = backtrackPoints.get(w.getEventData()); j >= 0; --j) {
                         //TODO: revisar
                         ReadTransactionalEvent r = readEventsPerVariable.get(w.getVariable()).get(j);
                         if(history.areWRSO_starRelated(r.getTransactionId(), w.getTransactionId())) continue;
@@ -371,7 +374,7 @@ public class Database {
                         }
 
                         if(delIMA){
-                            backtrackPoints.put(e.getInstruction(),j-1);
+                            backtrackPoints.put(e.getEventData(),j-1);
                             return new Pair<>(w, r);
                         }
                     }
@@ -400,8 +403,8 @@ public class Database {
       guideInfo.resetPath();
     }
 
-    public TransactionalEvent getEventFromInstruction(Instruction i) {
-        return instructionsMapped.get(i);
+    public TransactionalEvent getEventFromEventData(EventData eventData) {
+        return instructionsMapped.get(eventData);
     }
 
     protected void setWriteRead(ReadTransactionalEvent r){
@@ -420,10 +423,9 @@ public class Database {
         history.removeWR(r.getVariable(), w.getTransactionId(), r.getTransactionId());
     }
 
-    public OracleData getOrAddOraclePosition(Instruction i){
-        if(isMockAccess()) return null;
-        oracle.addInstructionIfAbsent(i);
-        return oracle.getInstrucionIndex(i);
+    protected void addEventToOracle(EventData eventData){
+        if(isMockAccess()) return;
+        oracle.addEventDataIfAbsent(eventData);
     }
 
     public boolean isMockAccess() {
