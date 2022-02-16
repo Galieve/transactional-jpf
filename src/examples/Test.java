@@ -1,10 +1,3 @@
-import gov.nasa.jpf.vm.SystemTime;
-
-import java.util.Random;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-
 public class Test {
 
     public static String testString(int a, char b){
@@ -16,9 +9,9 @@ public class Test {
         dbMain.begin();
         dbMain.write("x","0");
         dbMain.write("y","0");
-        //dbMain.write("z","0");
+        dbMain.write("z","0");
         dbMain.end();
-        dbMain.begin();
+        /*
         dbMain.write("x","1");
         String x = dbMain.read("x");
         String y = x + x;
@@ -27,8 +20,11 @@ public class Test {
         dbMain.end();
 
 
+         */
+
 
         /*
+
         Thread ser1 = new Thread(() -> {
 
             TRDatabase db = TRDatabase.getDatabase();
@@ -40,18 +36,21 @@ public class Test {
         Thread ser2 = new Thread(() -> {
             TRDatabase db = TRDatabase.getDatabase();
             db.begin();
-            db.read("x","loc:a");
-            db.read("y","b");
-            db.write("x","loc:a");
-            db.read("x", "c");
+            var a = db.read("x");
+            var b = db.read("y");
+            db.write("x",a);
+            var c = db.read("x");
+            System.out.println("a = "+a+", b = "+b+", c ="+c);
             db.end();
         });
         Thread ser3 = new Thread(() -> {
             TRDatabase db = TRDatabase.getDatabase();
             db.begin();
-            db.read("x","c");
-            db.read("y","d");
+            var d = db.read("x");
+            var e = db.read("y");
             db.write("y","2");
+            System.out.println("d = "+d+", e = "+e);
+
             db.end();
         });
 
@@ -124,17 +123,22 @@ public class Test {
          */
 
 
-        /*
+
         Thread t1 = new Thread(() -> {
             TRDatabase db = TRDatabase.getDatabase();
             db.begin();
-            db.write("x","1");
+            for(int i = 0; i < 3; ++i) {
+                db.write("x", "1.1:"+i);
+            }
             //db.write("y", "1");
-            db.read("x","a");
+            var a = db.read("x");
             //db.read("y","b");
+            System.out.println("a = "+a);
             db.end();
             db.begin();
-            db.write("x","10");
+            if(a.startsWith("4")) {
+                db.write("x", "1.2:0");
+            }
             //db.write("y", "10");
             db.end();
         });
@@ -144,28 +148,39 @@ public class Test {
             db.begin();
             //db.write("x","2");
             //db.write("y", "2");
-            db.read("x","c");
-            db.read("y", "d");
+            var c = db.read("x");
+            var d = db.read("y");
+            System.out.println("c = "+c+", d ="+d);
+
+
             db.end();
         });
 
         Thread t3 = new Thread(() -> {
             TRDatabase db = TRDatabase.getDatabase();
             db.begin();
-            db.read("z", "e");
-            db.write("x","3");
-            db.write("y","3");
+            var e1 = db.read("z");
+            db.write("x","3.0:0");
+            db.write("y","3.0:1");
             db.end();
             db.begin();
-            db.read("x", "e0");
-            db.write("x","30");
-            db.write("y","30");
+            var e2 = db.read("x");
+            for(int i = 0; i < 3; ++i) {
+                if(i %2 == 0){
+                    db.write("x", "3.0:"+(2*(i+1)));
+                }
+                db.write("y", "3.0:"+(2*(i+1)+ 1));
+            }
+            System.out.println("e1 = "+e1+", e2 ="+e2);
+
             db.end();
 
             db.begin();
-            db.read("x", "e1");
-            db.write("x","31");
-            db.write("y","31");
+            var e3 = db.read("x");
+            db.write("x","3.1:0");
+            db.write("y","3.1:1");
+            System.out.println("e3 = "+e3);
+
             db.end();
 
 
@@ -174,13 +189,15 @@ public class Test {
         Thread t4 = new Thread(() -> {
             TRDatabase db = TRDatabase.getDatabase();
             db.begin();
-            db.read("z", "f");
-            db.write("x","4");
-            db.write("y","4");
+            var f = db.read("z");
+            db.write("x","4.0:0");
+            db.write("y","4.0:1");
+            System.out.println("f = "+f);
+
             db.end();
             db.begin();
-            db.write("x","40");
-            db.write("y", "40");
+            db.write("x","4.1:0");
+            db.write("y", "4.1:1");
             db.end();
 
 
@@ -197,7 +214,7 @@ public class Test {
         t3.join();
         t4.join();
 
-         */
+
 
     }
 }

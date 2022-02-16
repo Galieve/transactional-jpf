@@ -10,14 +10,17 @@ public class EventData implements Comparable<EventData>{
 
     Instruction i;
 
+    Integer pos;
+
     //Pair<Integer, Integer> info;
 
 
-    public EventData(String path, Instruction i) {
+    public EventData(String path, Integer pos, Instruction i) {
 
         //TODO: revisar de donde viene este trId.
         this.path = path;
         this.i = i;
+        this.pos = pos;
     }
 
     @Override
@@ -33,7 +36,7 @@ public class EventData implements Comparable<EventData>{
 
         final EventData other = (EventData) obj;
         if (!Objects.equals(this.path, other.path)) return false;
-
+        if(!Objects.equals(this.pos, other.pos)) return false;
         return Objects.equals(this.i, other.i);
     }
 
@@ -48,5 +51,9 @@ public class EventData implements Comparable<EventData>{
 
     public Instruction getInstruction() {
         return i;
+    }
+
+    public Integer getPos() {
+        return pos;
     }
 }

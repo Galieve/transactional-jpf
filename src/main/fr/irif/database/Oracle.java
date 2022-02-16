@@ -31,9 +31,13 @@ public class Oracle {
 
 
     public EventData getNextData(EventData data){
+        int pos = 0;
         String nextPath = oracleOrder.higherKey(data.getPath());
+        if(data.getPath().equals(nextPath)){ //For loop case
+            pos = data.getPos()+1;
+        }
         if(nextPath != null){
-            return new EventData(nextPath, oracleOrder.get(nextPath));
+            return new EventData(nextPath, pos, oracleOrder.get(nextPath));
         }
         else return null;
     }

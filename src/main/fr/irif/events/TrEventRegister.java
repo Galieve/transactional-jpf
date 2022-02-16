@@ -121,10 +121,12 @@ public class TrEventRegister {
         int trId = database.getTransactionalId();
         int soId = database.getTransactionalS0Id(ti.getId());
         int poId = database.getPOId(ti.getId());
-
         String s = getStackTrace(ti);
 
-        EventData eventData = new EventData(s, i);
+        int pos = database.getTimesPathExecuted(s) + 1;
+
+
+        EventData eventData = new EventData(s, pos, i);
         switch (statement){
             case "readInstruction":
                 t = new ReadTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberEvents(),
@@ -136,7 +138,7 @@ public class TrEventRegister {
                         database.getNumberEvents(), ti.getId(), trId, soId, poId);
                 break;
             case "beginInstruction":
-                eventData = new EventData(s, i);
+                eventData = new EventData(s, pos, i);
                 t = new BeginTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberEvents(),
                         ti.getId(), trId+1, soId+1, poId);
                 break;

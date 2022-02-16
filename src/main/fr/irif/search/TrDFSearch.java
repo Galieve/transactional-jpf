@@ -82,7 +82,8 @@ public class TrDFSearch extends DFSearch {
                     prev = e;
                 }
                 ++depth;
-                notifyStateAdvanced();
+                if(!guidePath.isEmpty())
+                    notifyStateAdvanced();
                 //if e.getType() != READ, fakeRead was false, so we don't have to care about this case
                 // If it is not an end state and we restoring some unknown event, this event maybe not available. In that case, we just ommit it.
             } else if(p._1 && database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.RESTORE && e.getType() == TransactionalEvent.Type.UNKNOWN){
@@ -106,7 +107,7 @@ public class TrDFSearch extends DFSearch {
             // - (backtrack)* end -> after the end we should not share the cg
             trEventRegister.setChoiceGeneratorShared(false);
         }
-
+        notifyStateAdvanced();
         msgListener = database.getDatabaseBacktrackMode()+" mode ended.";
         notifyStateProcessed();
     }

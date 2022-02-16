@@ -30,6 +30,8 @@ public class Database {
 
     protected HashMap<EventData,TransactionalEvent> instructionsMapped;
 
+    protected HashMap<String, Integer> timesPathExecuted;
+
     protected boolean mockAccess;
 
     protected GuideInfo guideInfo;
@@ -51,6 +53,7 @@ public class Database {
         maximalWriteEventIndexes = new HashMap<>();
         mockAccess = true;
         programExtendedOrder = new HashMap<>();
+        timesPathExecuted = new HashMap<>();
     }
 
     public static Database getDatabase(Config config) {
@@ -75,9 +78,12 @@ public class Database {
 
     public void addEvent(TransactionalEvent t){
         if(isMockAccess()) return;
-        addEventToOracle(t.getEventData());
 
-        instructionsMapped.put(t.getEventData(), t);
+        EventData ed = t.getEventData();
+        addEventToOracle(ed);
+
+        instructionsMapped.put(ed, t);
+        timesPathExecuted.put(ed.getPath(), ed.getPos());
         events.add(t);
 
         switch (t.getType()) {
@@ -137,23 +143,26 @@ public class Database {
         ArrayList<String> lines = new ArrayList<>(Arrays.asList(s.split("\\n")));
         lines.remove(lines.size() - 1); //There is one level of extra nesting before the end of a transaction.
         s = String.join("\n", lines);
+
+        EventData ed = e.getEventData();
         switch (e.getType()){
             case READ:
                 if(t.getStepCount() < 5) return false;
-                else return e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 4).getInstruction()));
+                else return ed.equals(new EventData(s, ed.getPos(), t.getStep(t.getStepCount() - 4).getInstruction()));
             case WRITE:
                 if(t.getStepCount() < 5) return false;
-                else return e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 5).getInstruction()));
+                else return ed.equals(new EventData(s, ed.getPos(), t.getStep(t.getStepCount() - 5).getInstruction()));
             case BEGIN:
             case END:
                 if(t.getStepCount() < 3) return false;
-                else return e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 3).getInstruction()));
+                else return ed.equals(new EventData(s, ed.getPos(), t.getStep(t.getStepCount() - 3).getInstruction()));
             case UNKNOWN:
                 if (t.getStepCount() < 3) return false;
-                else if (t.getStepCount() < 5) return e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 3).getInstruction()));
-                else return e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 3).getInstruction())) ||
-                            e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 4).getInstruction())) ||
-                            e.getEventData().equals(new EventData(s, t.getStep(t.getStepCount() - 5).getInstruction()));
+                else if (t.getStepCount() < 5)
+                    return ed.equals(new EventData(s, ed.getPos(), t.getStep(t.getStepCount() - 3).getInstruction()));
+                else return ed.equals(new EventData(s, ed.getPos(), t.getStep(t.getStepCount() - 3).getInstruction())) ||
+                            ed.equals(new EventData(s, ed.getPos(),t.getStep(t.getStepCount() - 4).getInstruction())) ||
+                            ed.equals(new EventData(s, ed.getPos(), t.getStep(t.getStepCount() - 5).getInstruction()));
             default:
                 //There is no default
                 return false;
@@ -170,7 +179,7 @@ public class Database {
         boolean end = false;
 
         int pi_idx = e.getObservationSequenceIndex()+1;
-        EventData orac_idx = new EventData("", null);
+        EventData orac_idx = new EventData("", -1,null);
         orac_idx = oracle.getNextData(orac_idx);
         while(!end){
             if(!instructionsMapped.containsKey(orac_idx)){
@@ -286,8 +295,6 @@ public class Database {
             case BEGIN:
                 history.removeLastTransaction();
                 sessionOrder.get(e.getThreadId()).remove(sessionOrder.get(e.getThreadId()).size() - 1);
-                programExtendedOrder.put(e.getThreadId(), programExtendedOrder.get(e.getThreadId()) - 1);
-
                 break;
 
         }
@@ -295,9 +302,22 @@ public class Database {
         if(!isGuided()) {
             guideInfo.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.JPF);
         }
-        instructionsMapped.remove(e.getEventData());
+        programExtendedOrder.put(e.getThreadId(), programExtendedOrder.get(e.getThreadId()) - 1);
+
+
+        EventData ed = e.getEventData();
+        instructionsMapped.remove(ed);
+        int n = timesPathExecuted.get(ed.getPath());
+        if(n == -1) timesPathExecuted.remove(ed.getPath());
+        else timesPathExecuted.put(ed.getPath(), n-1);
         events.remove(events.size() - 1);
 
+    }
+
+    public int getTimesPathExecuted(String s){
+        Integer n = timesPathExecuted.get(s);
+        if(n == null) return -1;
+        else return n;
     }
 
     public int getNumberEvents() {

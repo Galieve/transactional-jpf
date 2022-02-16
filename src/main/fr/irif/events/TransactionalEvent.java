@@ -44,12 +44,6 @@ public abstract class TransactionalEvent{
         return trId;
     }
 
-    /*public Instruction getInstruction() {
-        return eventData.getInstruction();
-    }
-
-     */
-
     public ArrayList<String> getArgs() {
         return args;
     }
