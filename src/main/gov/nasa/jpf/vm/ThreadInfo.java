@@ -1861,15 +1861,10 @@ public class ThreadInfo extends InfoObject
       while (pc != null) {
         nextPc = executeInstruction();
 
-        //IRIF:
-        /*if(TrEventRegister.getEventRegister().isLastInstructionTransactional()){
-            //ChoiceGenerator cg = ss.getChoiceGenerator();
-            breakTransition("Database");
-            
-        }*/
           if(TrEventRegister.getEventRegister().isLastInstructionTransactional()){
               ss.setNextChoiceGenerator(ss.getChoiceGenerator());
               TrEventRegister.getEventRegister().setChoiceGeneratorShared(true);
+              //breakTransition("Transactional break");
           }
           if (ss.breakTransition() || TrEventRegister.getEventRegister().isLastInstructionTransactional()) {
               TrEventRegister.getEventRegister().setLastInstructionTransactional(false);

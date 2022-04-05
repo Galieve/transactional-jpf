@@ -77,6 +77,10 @@ public abstract class TransactionalEvent{
        return "Thread " + getThreadId() + " transaction " + relSOId+ " " + getType().toString()+ " event #"+poId;
     }
 
+    public int getPoId() {
+        return poId;
+    }
+
     public String toString(){
         String s = getComplementaryMessage();
         if(!s.equals("")){
@@ -85,11 +89,4 @@ public abstract class TransactionalEvent{
         return getBaseName() + s;
     }
 
-    /*
-    public String getCallPath() {
-        return callPath;
-    }
-    
-     */
-    
 }

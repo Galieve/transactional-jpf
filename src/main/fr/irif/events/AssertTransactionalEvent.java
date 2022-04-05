@@ -1,7 +1,6 @@
 package fr.irif.events;
 
 import fr.irif.database.Database;
-import gov.nasa.jpf.vm.Instruction;
 
 import java.util.ArrayList;
 
@@ -33,22 +32,22 @@ public class AssertTransactionalEvent extends TransactionalEvent{
     public boolean checkAssertion(){
         String a = args.get(0);
         String b = args.get(2);
-        Integer va = evaluate(a), vb = evaluate(b);
+        String va = evaluate(a), vb = evaluate(b);
         switch (args.get(1)){
             case "<=":
-                return va <= vb;
+                return Integer.parseInt(va) <= Integer.parseInt(vb);
             case "=":
-                return va == vb;
+                return va.equals(vb);
             default:
                 throw new IllegalCallerException("Operator not defined");
         }
     }
 
-    protected Integer evaluate(String s){
+    protected String evaluate(String s){
         TransactionalEvent t = database.getLastWriteEvent(s);
         if(t == null){
-            return Integer.valueOf(s);
+            return s;
         }
-        else return Integer.valueOf(t.getValue());
+        else return t.getValue();
     }
 }

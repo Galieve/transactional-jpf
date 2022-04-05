@@ -4,6 +4,7 @@ import fr.irif.database.Database;
 import fr.irif.database.GuideInfo;
 import fr.irif.events.TrEventRegister;
 import gov.nasa.jpf.Config;
+import gov.nasa.jpf.vm.ChoiceGenerator;
 import gov.nasa.jpf.vm.SystemState;
 import gov.nasa.jpf.vm.VM;
 
@@ -23,15 +24,10 @@ public class TrSystemState extends SystemState {
                 trEventRegister.isChoiceGeneratorShared()){
 
             trEventRegister.setChoiceGeneratorShared(false);
-            this.setForced(true);
             return true;
         }
         else{
-            /*for(int i = 0; i < database.getJumpsCG() - 1; ++i){
-                super.advanceCurCg(vm);
-            }
-            database.setJumpsCG(null);
-            */return super.advanceCurCg(vm);
+            return super.advanceCurCg(vm);
         }
     }
 
@@ -41,5 +37,21 @@ public class TrSystemState extends SystemState {
         super.executeNextTransition(vm);
     }
 
+    @Override
+    protected void notifyChoiceGeneratorSet(VM vm, ChoiceGenerator<?> cg) {
+        super.notifyChoiceGeneratorSet(vm,cg);
+        /*if(!TrEventRegister.getEventRegister().isChoiceGeneratorShared())
+            super.notifyChoiceGeneratorSet(vm, cg);
 
+         */
+    }
+
+    @Override
+    public void setId(int newId) {
+        super.setId(newId);
+        /*if(!TrEventRegister.getEventRegister().isChoiceGeneratorShared())
+            super.setId(newId);
+
+         */
+    }
 }

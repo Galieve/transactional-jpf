@@ -1,4 +1,4 @@
-/*
+package jpf;/*
  * Copyright (C) 2014, United States Government, as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All rights reserved.
@@ -16,28 +16,16 @@
  * limitations under the License.
  */
 
-public class Racer implements Runnable {
-
-     int d = 42;
-
-     @Override
-	public void run () {
-          doSomething(1001);                   // (1)
-          d = 0;                               // (2)
-     }
-
-     public static void main (String[] args){
-          Racer racer = new Racer();
-          Thread t = new Thread(racer);
-          t.start();
-
-          doSomething(1000);                   // (3)
-          int c = 420 / racer.d;               // (4)
-          System.out.println(c);
-     }
-     
-     static void doSomething (int n) {
-          // not very interesting..
-          try { Thread.sleep(n); } catch (InterruptedException ix) {}
-     }
+/**
+ * example to catch numeric value rnge violations with the NumericValueChecker listener
+ */
+public class NumericValueCheck {
+  
+  public static void main (String[] args){
+    double someVariable;
+    
+    someVariable = 42;  // what else
+    
+    someVariable = 12345; // ..That's the number only an idiot would have on his luggage
+  }
 }

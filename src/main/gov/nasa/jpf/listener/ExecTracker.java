@@ -74,7 +74,7 @@ public class ExecTracker extends ListenerAdapter {
     printMth = config.getBoolean("et.print_mth", false);
 
     /** @jpfoption et.skip_init : boolean - do not log execution before entering main() (default=true). */
-    skipInit = config.getBoolean("et.skip_init", true);
+    skipInit = config.getBoolean("et.skip_init", false);
     
     showShared = config.getBoolean("et.show_shared", true);
     

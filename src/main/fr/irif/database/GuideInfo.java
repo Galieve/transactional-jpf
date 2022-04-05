@@ -1,5 +1,6 @@
 package fr.irif.database;
 
+import fr.irif.events.Transaction;
 import fr.irif.events.TransactionalEvent;
 import fr.irif.events.WriteTransactionalEvent;
 
@@ -11,7 +12,7 @@ public class GuideInfo {
         JPF, READ, SWAP, RESTORE, NONE
     }
 
-    protected LinkedList<TransactionalEvent> guidedPath;
+    protected LinkedList<Transaction> guidedPath;
 
     protected TransactionalEvent endEvent;
 
@@ -33,7 +34,7 @@ public class GuideInfo {
         this.databaseBacktrackMode = databaseBacktrackMode;
     }
 
-    public void addGuide(LinkedList<TransactionalEvent> path, TransactionalEvent end, WriteTransactionalEvent swapEvent){
+    public void addGuide(LinkedList<Transaction> path, TransactionalEvent end, WriteTransactionalEvent swapEvent){
         guidedPath = path;
         endEvent = end;
         writeEventSwap = swapEvent;
@@ -48,7 +49,7 @@ public class GuideInfo {
         endEvent = null;
     }
 
-    public LinkedList<TransactionalEvent> getGuidedPath() {
+    public LinkedList<Transaction> getGuidedPath() {
         return guidedPath;
     }
 

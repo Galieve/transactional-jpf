@@ -12,6 +12,23 @@ public class TRINVOKEVIRTUAL extends INVOKEVIRTUAL {
         trEventRegister = TrEventRegister.getEventRegister();
     }
 
+    protected String translateVarInfo(StackFrame frame, LocalVarInfo lvi){
+        Object o = frame.getLocalValueObject(lvi);
+        switch(lvi.getSignature()){
+            case "Z":
+            case "B":
+            case "C":
+            case "S":
+            case "I":
+            case "J":
+            case "F":
+            case "D":
+                return String.valueOf(o);
+            default:
+                return new String(((DynamicElementInfo)o).getStringBytes());
+        }
+    }
+
     @Override
     public Instruction execute(ThreadInfo ti) {
         if(trEventRegister.isTransactionalStatement(this)){
@@ -20,8 +37,7 @@ public class TRINVOKEVIRTUAL extends INVOKEVIRTUAL {
             LocalVarInfo [] localVarInfos = frame.getLocalVars();
             //IRIF: the first is this, no a proper argument
             for(int i = 1; i < localVarInfos.length; ++i){
-                DynamicElementInfo dei = (DynamicElementInfo) frame.getLocalValueObject(localVarInfos[i]);
-                trEventRegister.addArgument(new String(dei.getStringBytes()));
+                trEventRegister.addArgument(translateVarInfo(frame, localVarInfos[i]));
             }
             trEventRegister.registerEvent(this, frame.getCallerFrame().getPC(), ti);
             trEventRegister.setLastInstructionTransactional(true);

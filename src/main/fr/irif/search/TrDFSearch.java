@@ -20,14 +20,40 @@ public class TrDFSearch extends DFSearch {
 
     protected String msgListener;
 
+    protected Integer currentAdvance;
+
     public TrDFSearch(Config config, VM vm) {
         super(config, vm);
         database = Database.getDatabase(config);
         trEventRegister = TrEventRegister.getEventRegister(config);
         msgListener = null;
+        currentAdvance = null;
     }
 
-    protected void backtrackWithPath(LinkedList<TransactionalEvent> guidePath, TransactionalEvent end, WriteTransactionalEvent wSwap) {
+    protected boolean guideForward(TransactionalEvent e){
+        if(e.getType() != TransactionalEvent.Type.UNKNOWN) {
+            //TODO: careful, check if this is correct.
+            forward();
+            return true;
+        }
+        else{
+            boolean ret = false;
+            while(true){
+                ret = forward();
+                if(!ret && database.isLastEventReadBacktrackable()){
+                    database.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.JPF);
+                    backtrack();
+                    database.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.RESTORE);
+
+                }
+                else{
+                    return ret;
+                }
+            }
+        }
+    }
+
+    protected void backtrackWithPath(LinkedList<Transaction> guidePath, TransactionalEvent end, WriteTransactionalEvent wSwap) {
 
         msgListener = "Starting "+database.getDatabaseBacktrackMode()+" mode.";
         notifyStateProcessed();
@@ -44,9 +70,11 @@ public class TrDFSearch extends DFSearch {
         //vm.getChoiceGenerator().reset();
 
         TransactionalEvent prev = end;
+        Transaction t = guidePath.getFirst();
+        currentAdvance = -1;
         while(!guidePath.isEmpty()){
-            TransactionalEvent e = guidePath.getFirst();
 
+            TransactionalEvent e = t.getNext();
 
             Pair<Boolean, Integer> p = computeStepsEvent(e);
             applyResetJumps(p);
@@ -55,21 +83,22 @@ public class TrDFSearch extends DFSearch {
                 if (e.getType() == TransactionalEvent.Type.READ) {
                     trEventRegister.setFakeRead(true);
                 }
-                forward();
+                guideForward(e);
                 trEventRegister.setFakeRead(false);
 
 
                 if(database.isExecutingTransactionalEvent(getTransition(), e)) {
+                    t.setExecuting(true);
                     if (e.getType() == TransactionalEvent.Type.READ) {
                         ReadTransactionalEvent rPast = (ReadTransactionalEvent) e;
                         ReadTransactionalEvent r = (ReadTransactionalEvent)
                                 database.getEventFromEventData(rPast.getEventData());
                         WriteTransactionalEvent w = (WriteTransactionalEvent)
                                 database.getEventFromEventData(rPast.getWriteEvent().getEventData());
-                        if (w != null && guidePath.size() != 1) {
+                        if (w != null && (guidePath.size() != 1 || t.size() != 1)) {
                             database.changeWriteRead(w, r);
                         }
-                        else if(guidePath.size() != 1){
+                        else if(guidePath.size() != 1 || t.size() != 1){
                             //r was the swapped event, r.getWriteEvent() is its IMA event.
                             //ONLY for notifying purposes
                             database.changeWriteRead(r.getWriteEvent(),r);
@@ -78,7 +107,15 @@ public class TrDFSearch extends DFSearch {
                         r.setBacktrackEvent(rPast.getBacktrackEvent());
 
                     }
-                    guidePath.removeFirst();
+                    t.removeFirst();
+                    currentAdvance = p._2;
+                    if(t.isEmpty()){
+                        currentAdvance = -1;
+                        guidePath.removeFirst();
+                        if(!guidePath.isEmpty())
+                            t = guidePath.getFirst();
+
+                    }
                     prev = e;
                 }
                 ++depth;
@@ -86,9 +123,10 @@ public class TrDFSearch extends DFSearch {
                     notifyStateAdvanced();
                 //if e.getType() != READ, fakeRead was false, so we don't have to care about this case
                 // If it is not an end state and we restoring some unknown event, this event maybe not available. In that case, we just ommit it.
-            } else if(p._1 && database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.RESTORE && e.getType() == TransactionalEvent.Type.UNKNOWN){
+            } /*else if(p._1 && database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.RESTORE && e.getType() == TransactionalEvent.Type.UNKNOWN){
                 guidePath.removeFirst();
             }
+            */
 
         }
         if(database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.SWAP) {
@@ -112,14 +150,20 @@ public class TrDFSearch extends DFSearch {
         notifyStateProcessed();
     }
 
+    protected Pair<Boolean, Integer> computeStepsEvent(){
+        return computeStepsEvent(null);
+    }
+
+
     protected Pair<Boolean, Integer> computeStepsEvent(TransactionalEvent e){
         if(isEndState()) return new Pair<>(false, null);;
+        //TODO: erase sharingCG; adding locks.
         if(trEventRegister.isChoiceGeneratorShared()) return new Pair<>(false, 0);
+        boolean reset = true;
         //if(vm.getChoiceGenerator() != null && vm.getChoiceGenerator().isDone()) return new Pair<>(false, null);
 
         //we need to substitute this value during our mock tests, we will restore it before leaving.
         Integer n = 0, m = null;
-        TrSingleProcessVM trvm = (TrSingleProcessVM) vm;
 
         database.setMockAccess(true);
         trEventRegister.setFakeRead(true);
@@ -150,10 +194,15 @@ public class TrDFSearch extends DFSearch {
             else if (m != null) n = m;
             //We are backtracking and there is no local instruction nor the event we are searching for.
             else{
-                n = null;
                 //This case should never appear, if it does, this program is wrong (non-if version)
                 if(database.getDatabaseBacktrackMode() != GuideInfo.BacktrackTypes.RESTORE)
                     System.out.println("DEBUG: error?");
+
+                n = currentAdvance;
+                /*else{
+                    reset = false;
+                    n = 0;
+                }*/
             }
         }
         trEventRegister.setFakeRead(false);
@@ -184,11 +233,16 @@ public class TrDFSearch extends DFSearch {
     }
 
 
+    protected boolean checkDatabaseConsistency(){
+        return database.isConsistent();
+    }
+
 
     @Override
     protected boolean forward() {
         //If it is guided, it has to follow every step, even if we can detect before reach the end that it is inconsistent
-        if(!database.isGuided() && !database.isConsistent()){
+
+        if(!checkDatabaseConsistency()){
             if(database.isAssertionViolated()) {
                 AssertTransactionalEvent a = (AssertTransactionalEvent) database.getLastEvent();
                 msgListener = "Invalid branch: assertion violated. " + a;
@@ -198,6 +252,9 @@ public class TrDFSearch extends DFSearch {
             }
             return false;
         }
+
+
+        database.confirmMaximumConsistency();
 
         //trEventRegister.addInvokeVirtual();
 
@@ -217,13 +274,16 @@ public class TrDFSearch extends DFSearch {
         return ret;
     }
 
+    protected void backtrackDatabase(){
+        database.backtrackDatabase();
+    }
+
     @Override
     protected boolean backtrack() {
         Transition lastTransition = vm.getLastTransition();
-        TrEventRegister trEventRegister = TrEventRegister.getEventRegister();
         if(lastTransition != null && trEventRegister.isTransactionalTransition(lastTransition)) {
 
-            database.backtrackDatabase();
+            backtrackDatabase();
             switch (database.getDatabaseBacktrackMode()){
                 case READ:
                     trEventRegister.setChoiceGeneratorShared(true);
@@ -233,13 +293,13 @@ public class TrDFSearch extends DFSearch {
                     msgListener = "Branch forked: change of write-read for event "+r +
                             "\n\t" + ow + " -> "+nw;
                     notifyStateProcessed();
-                    notifyStateAdvanced();
+                    //notifyStateAdvanced();
                     return true;
                 case SWAP:
                 case RESTORE:
                     GuideInfo guide = database.getGuideInfo();
                     if(guide.hasPath()){
-                        LinkedList<TransactionalEvent> path = guide.getGuidedPath();
+                        LinkedList<Transaction> path = guide.getGuidedPath();
                         TransactionalEvent endEvent = guide.getEndEvent();
                         WriteTransactionalEvent wSwap = guide.getWriteEventSwap();
                         database.resetGuidedInfo();
@@ -278,7 +338,9 @@ public class TrDFSearch extends DFSearch {
 
         while (!done) {
 
-            Pair<Boolean, Integer> p = computeStepsEvent(null);
+            //var state = this.state
+
+            Pair<Boolean, Integer> p = computeStepsEvent();
             applyResetJumps(p);
             if (forward()) {
                 depth++;

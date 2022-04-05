@@ -8,10 +8,7 @@ import fr.irif.events.WriteTransactionalEvent;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.listener.ExecTracker;
 import gov.nasa.jpf.search.Search;
-import gov.nasa.jpf.vm.ChoiceGenerator;
-import gov.nasa.jpf.vm.ElementInfo;
-import gov.nasa.jpf.vm.ThreadInfo;
-import gov.nasa.jpf.vm.VM;
+import gov.nasa.jpf.vm.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -154,5 +151,10 @@ public class TransactionalExecTracker extends ExecTracker {
         int id = search.getStateId();
         out.println("----------------------------------- [" +
                 search.getDepth() + "] backtrack: " + id);
+    }
+
+    @Override
+    public void instructionExecuted(VM vm, ThreadInfo ti, Instruction nextInsn, Instruction executedInsn) {
+        super.instructionExecuted(vm, ti, nextInsn, executedInsn);
     }
 }

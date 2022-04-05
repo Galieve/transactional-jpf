@@ -1,4 +1,5 @@
-import java.util.concurrent.locks.Lock;
+package database;
+
 import java.util.concurrent.locks.ReentrantLock;
 
 public class TRDatabase {
@@ -7,9 +8,12 @@ public class TRDatabase {
 
     protected int r;
 
+    protected ReentrantLock l;
+
 
     private TRDatabase(){
         r = 0;
+        l = new ReentrantLock();
     }
 
     public static TRDatabase getDatabase(){
@@ -29,14 +33,42 @@ public class TRDatabase {
 
 
     private String readInstruction(String variable){
+        //breakTransition();
         return "NON-VALID-VALUE";
     }
-    private void writeInstruction(String variable, String value){}
-    private void beginInstruction(){}
+    private void writeInstruction(String variable, String value){
+        //breakTransition();
+
+
+    }
+    private void beginInstruction(){
+        //breakTransition();
+
+        //l.lock();
+        //breakTransition();
+    }
+    private void endInstruction(){
+        //l.unlock();
+        breakTransition();
+    }
+    private void assertInstruction(String value1, String op, String value2){
+    }
+
+    /*
+
+     private String readInstruction(String variable){
+        breakTransition();
+        return "NON-VALID-VALUE";
+    }
+    private void writeInstruction(String variable, String value){ breakTransition();}
+    private void beginInstruction(){ breakTransition();}
     private void endInstruction(){
         breakTransition();
     }
-    private void assertInstruction(String value1, String op, String value2){}
+    private void assertInstruction(String value1, String op, String value2){
+        breakTransition();
+    }
+     */
 
     /*
 
@@ -70,6 +102,12 @@ public class TRDatabase {
 
     public void assertDB(String value1, String op, String value2){
         assertInstruction(value1,op,value2);
+    }
+
+    public void assertDB(boolean b){
+        String s2 = "=";
+        String s3 = "true";
+        assertInstruction(String.valueOf(b), s2, s3);
     }
 }
 

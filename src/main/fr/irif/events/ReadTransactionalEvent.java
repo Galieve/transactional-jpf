@@ -29,7 +29,7 @@ public class ReadTransactionalEvent extends TransactionalEvent{
         return writeEvent;
     }
 
-    public void changeWriteEvent(WriteTransactionalEvent writeEvent) {
+    public void setWriteEvent(WriteTransactionalEvent writeEvent) {
         this.writeEvent = writeEvent;
     }
 

@@ -90,12 +90,15 @@ public abstract class History {
         writesPerTransaction.get(id).putIfAbsent(var, 0);
         int n = writesPerTransaction.get(id).get(var);
         writesPerTransaction.get(id).put(var, n+1);
+        restoreSemanticFlags();
     }
 
     public void removeWrite(String var, int id){
         int n = writesPerTransaction.get(id).get(var);
         if(n == 1) writesPerTransaction.get(id).remove(var);
         else writesPerTransaction.get(id).put(var, n-1);
+        restoreSemanticFlags();
+
     }
 
     //TODO

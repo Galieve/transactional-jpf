@@ -30,12 +30,13 @@ public class TrEventRegister {
 
     protected boolean fakeRead;
 
-    protected static String databaseClassName = "TRDatabase";
+    protected String databaseClassName;
 
     private TrEventRegister(Config config){
         argsEvent = new ArrayList<>();
         recordArguments = false;
         database = Database.getDatabase();
+        databaseClassName = config.getString("db.database_api.class", "database.TRDatabase");
         choiceGeneratorShared = false;
         //databaseRelations = DatabaseRelations.getDatabaseRelations();
         fakeRead = false;
@@ -80,6 +81,7 @@ public class TrEventRegister {
 
     public boolean isTransactionalTransition(Transition t){
         return isTransactionalStatement(t.getLastStep().getInstruction());
+        //return t.getStepCount() >= 5 && isTransactionalStatement(t.getStep(t.getStepCount() - 5).getInstruction());
     }
 
     public boolean isTransactionalReturn(StackFrame frame){
@@ -125,8 +127,8 @@ public class TrEventRegister {
 
         int pos = database.getTimesPathExecuted(s) + 1;
 
-
-        EventData eventData = new EventData(s, pos, i);
+        EventData lastBeg = database.getLastBeginData();
+        EventData eventData = new EventData(s, pos, lastBeg);
         switch (statement){
             case "readInstruction":
                 t = new ReadTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberEvents(),
@@ -138,7 +140,7 @@ public class TrEventRegister {
                         database.getNumberEvents(), ti.getId(), trId, soId, poId);
                 break;
             case "beginInstruction":
-                eventData = new EventData(s, pos, i);
+                eventData = new EventData(s, pos);
                 t = new BeginTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberEvents(),
                         ti.getId(), trId+1, soId+1, poId);
                 break;

@@ -1,6 +1,6 @@
 import database.TRDatabase;
 
-public class Test {
+public class Test2 {
 
     public static String testString(int a, char b){
         return b + " "+ a;
@@ -119,53 +119,56 @@ public class Test {
         cas3.join();
         cas4.join();
 
+
          */
+
 
 
         Thread t1 = new Thread(() -> {
             TRDatabase db = TRDatabase.getDatabase();
             db.begin();
-            for(int i = 0; i < 1; ++i) {
-                db.write("x", "1.1:"+i);
-            }
-            /*for(int i = 0; i < 3; ++i) {
+            for(int i = 0; i < 3; ++i) {
                 db.write("x", "1.1:"+i);
             }
 
-             */
-            //db.write("y", "1");
-            //var a = db.read("x");
-            //db.read("y","b");
-            //System.out.println("a = "+a);
+            var a = db.read("x");
+            System.out.println("a = "+a);
             db.end();
 
 
 
-            /*db.begin();
+            db.begin();
             if(a.startsWith("4")) {
                 db.write("x", "1.2:0");
             }
-            //db.write("y", "10");
             db.end();
 
-             */
+
         });
+        Thread t2 = new Thread(() -> {
+            TRDatabase db = TRDatabase.getDatabase();
+            db.begin();
+            db.write("x","2.0.0");
+            db.write("y", "2.0.1");
+            var c = db.read("x");
+            var d = db.read("y");
+            System.out.println("c = "+c+", d ="+d);
 
 
-
-
+            db.end();
+        });
 
 
         Thread t3 = new Thread(() -> {
             TRDatabase db = TRDatabase.getDatabase();
-            /*db.begin();
-            //var e1 = db.read("z");
-            //db.write("x","3.0:0");
-            //db.write("y","3.0:1");
+            db.begin();
+            var e1 = db.read("z");
+            db.write("x","3.0:0");
+            db.write("y","3.0:1");
             db.end();
 
-             */
-            /*
+
+
             db.begin();
             var e2 = db.read("x");
             for(int i = 0; i < 3; ++i) {
@@ -180,66 +183,36 @@ public class Test {
 
             db.end();
 
-             */
-
             db.begin();
             var e3 = db.read("x");
             var e4 = db.read("z");
 
-            //db.write("x","3.1:0");
+            db.write("x","3.1:0");
             db.write("y","3.1:1");
-            //System.out.println("e3 = "+e3);
+            System.out.println("e3 = "+e3);
 
             db.end();
 
 
         });
-
-
-        Thread t2 = new Thread(() -> {
-            TRDatabase db = TRDatabase.getDatabase();
-            db.begin();
-            //db.write("x","2");
-            //db.write("y", "2");
-            var c = db.read("x");
-            var d = db.read("y");
-            //System.out.println("c = "+c+", d ="+d);
-
-
-            db.end();
-        });
-
-
-
 
 
         Thread t4 = new Thread(() -> {
             TRDatabase db = TRDatabase.getDatabase();
             db.begin();
-            //var f = db.read("z");
-            //db.write("x","4.0:0");
-            //db.write("y","4.0:1");
-            db.write("z","4.0:1");
-
-            //System.out.println("f = "+f);
+            var f = db.read("z");
+            db.write("x","4.0:0");
+            db.write("y","4.0:1");
+            System.out.println("f = "+f);
 
             db.end();
-            /*db.begin();
+            db.begin();
             db.write("x","4.1:0");
             db.write("y", "4.1:1");
             db.end();
 
-             */
-
 
         });
-
-
-
-
-
-
-
 
 
 

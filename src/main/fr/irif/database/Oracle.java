@@ -1,25 +1,25 @@
 package fr.irif.database;
 
 import fr.irif.events.EventData;
-import gov.nasa.jpf.vm.Instruction;
+import fr.irif.events.TransactionalEvent;
 
-import java.util.TreeMap;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Oracle {
 
-    /**
-     * Map for getting the begin of a transaction given a instruction I
-     */
+    protected ArrayList<EventData> oracleOrder;
 
-    protected TreeMap<String, Instruction> oracleOrder;
+    protected HashMap<EventData, Integer> instructionToOrder;
 
-    protected int size;
+    protected HashMap<EventData, EventData> beginToEnd;
 
     protected static Oracle oracleInstance;
 
     protected Oracle() {
-        oracleOrder = new TreeMap<>();
-        size = 0;
+        oracleOrder = new ArrayList<>();
+        instructionToOrder = new HashMap<>();
+        beginToEnd = new HashMap<>();
     }
 
     public static Oracle getOracle(){
@@ -31,28 +31,51 @@ public class Oracle {
 
 
     public EventData getNextData(EventData data){
-        int pos = 0;
-        String nextPath = oracleOrder.higherKey(data.getPath());
-        if(data.getPath().equals(nextPath)){ //For loop case
-            pos = data.getPos()+1;
-        }
-        if(nextPath != null){
-            return new EventData(nextPath, pos, oracleOrder.get(nextPath));
-        }
-        else return null;
+        int n = 0; //-1 + 1
+        if(instructionToOrder.containsKey(data)) n = instructionToOrder.get(data) + 1;
+
+        if(n == oracleOrder.size()) return null;
+        else return oracleOrder.get(n);
     }
 
 
-    public void addEventDataIfAbsent(EventData e){
+    public void addBegin(EventData e){
+        if(instructionToOrder.containsKey(e)) return;
+        int size = oracleOrder.size();
+        oracleOrder.add(e);
+        instructionToOrder.put(e, size);
+    }
 
-        if(oracleOrder.containsKey(e.getPath())) return;
+    public void addEnd(EventData end){
+        if(oracleOrder.isEmpty()) throw new IllegalCallerException();
+        EventData begin = oracleOrder.get(oracleOrder.size()-1);
 
-        oracleOrder.put(e.getPath(), e.getInstruction());
-        ++size;
+        //As every transaction is available, in every execution that is not the end, begin has no relation with end
+        //but there exists someone who links end and begin.
+        if(beginToEnd.containsKey(begin)) return;
+        beginToEnd.put(begin, end);
+    }
+
+    public EventData getEnd(EventData begin){
+        return beginToEnd.get(begin);
     }
 
     public int size(){
-        return size;
+        return oracleOrder.size();
+    }
+
+    private int compareEvents(EventData a, EventData b){
+        EventData aBeginEvent = a.getBeginEvent();
+        EventData bBeginEvent = b.getBeginEvent();
+        int aPos = instructionToOrder.get(aBeginEvent);
+        int bPos = instructionToOrder.get(bBeginEvent);
+        return aPos - bPos;
+    }
+
+    public int compareEvents(TransactionalEvent a, TransactionalEvent b){
+        int res = compareEvents(a.getEventData(), b.getEventData());
+        if(res != 0) return res;
+        else return a.getPoId() - b.getPoId();
     }
 
 }

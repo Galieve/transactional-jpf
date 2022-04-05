@@ -1,4 +1,4 @@
-/*
+package jpf;/*
  * Copyright (C) 2014, United States Government, as represented by the
  * Administrator of the National Aeronautics and Space Administration.
  * All rights reserved.
@@ -16,22 +16,20 @@
  * limitations under the License.
  */
 
-import java.util.Random;
-
-public class Rand {
-  public static void main (String[] args) {
-    System.out.println("computing c = a/(b+a - 2)..");
-    Random random = new Random(42);      // (1)
-
-    int a = random.nextInt(2);           // (2)
-    System.out.printf("a=%d\n", a);
-
-    //... lots of code here
-
-    int b = random.nextInt(3);           // (3)
-    System.out.printf("  b=%d       ,a=%d\n", b, a);
-
-    int c = a/(b+a -2);                  // (4)
-    System.out.printf("=>  c=%d     , b=%d, a=%d\n", c, b, a);         
+/**
+ * example to show how to explore off-nominal paths
+ */
+public class StopWatch {
+  
+  public static void main(String[] args){
+    long tStart = System.currentTimeMillis();
+    System.out.println("some lengthy computation..");
+    long tEnd = System.currentTimeMillis();
+    
+    if (tEnd - tStart > 1000){
+      throw new RuntimeException("it took too long..");
+    }
+    
+    System.out.println("all fine, finished in time");
   }
 }

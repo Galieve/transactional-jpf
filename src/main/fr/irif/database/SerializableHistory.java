@@ -1,6 +1,7 @@
 package fr.irif.database;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,7 +15,7 @@ public class SerializableHistory extends COInductiveHistory {
     //idxSet contains the indexes' complementary extended
     protected boolean extend(HashSet<Integer> idxSet, Integer i){
         for(Integer j: idxSet){
-            if(i == j) continue;
+            if(Objects.equals(i, j)) continue;
             if(areWR(j, i)){
                 return false;
             }
@@ -33,6 +34,7 @@ public class SerializableHistory extends COInductiveHistory {
         return true;
     }
 
+    //idxSet = T \setminus T' (checkSER algorithm)
     protected boolean checkSER(HashSet<Integer> idxSet){
         if(idxSet.isEmpty()) return true;
         for(Integer i:idxSet){
@@ -45,7 +47,7 @@ public class SerializableHistory extends COInductiveHistory {
             }
             if(admissible){
                 if(!extend(idxSet, i)) continue;
-                HashSet<Integer> cloneIdx = (HashSet<Integer>) idxSet.clone();
+                HashSet<Integer> cloneIdx = new HashSet<>(idxSet);
                 cloneIdx.remove(i);
                 if(checkSER(cloneIdx)){
                     return true;
