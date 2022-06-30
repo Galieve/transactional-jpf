@@ -1,2 +1,3 @@
-benchmarks.twitter.BigTestTwitter -u "benchmarks/twitter/mock/twitter-users.in"
-"benchmarks/twitter/mock/mock0.in" "benchmarks/twitter/mock/mock1.in" "benchmarks/twitter/mock/mock2.in"
+benchmarks.twitter.BigTestTwitter -u "bin/benchmarks/twitter/mock/twitter-users.in"
+"bin/benchmarks/twitter/mock/mock0.in" "bin/benchmarks/twitter/mock/mock1.in"
+ "bin/benchmarks/twitter/mock/mock2.in"

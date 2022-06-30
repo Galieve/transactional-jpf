@@ -1,24 +1,9 @@
 benchmarks.wikipedia.BigTestWikipedia
--p "benchmarks/wikipedia/mock/mock-database/page.in"
--r "benchmarks/wikipedia/mock/mock-database/revision.in"
--t "benchmarks/wikipedia/mock/mock-database/text.in"
--u "benchmarks/wikipedia/mock/mock-database/user.in"
+-p "bin/benchmarks/wikipedia/mock/mock-database/page.in"
+-r "bin/benchmarks/wikipedia/mock/mock-database/revision.in"
+-t "bin/benchmarks/wikipedia/mock/mock-database/text.in"
+-u "bin/benchmarks/wikipedia/mock/mock-database/user.in"
 
-"benchmarks/wikipedia/mock/mock0.in" "benchmarks/wikipedia/mock/mock1.in"
-"benchmarks/wikipedia/mock/mock2.in" "benchmarks/wikipedia/mock/mock3.in"
-"benchmarks/wikipedia/mock/mock4.in"
-
-benchmarks.wikipedia.BigTestWikipedia
--p "benchmarks/wikipedia/mock/mock-database/page.in"
--r "benchmarks/wikipedia/mock/mock-database/revision.in"
--u "benchmarks/wikipedia/mock/mock-database/user.in"
-
-"benchmarks/wikipedia/mock/mock0.in" "benchmarks/wikipedia/mock/mock1.in"
-"benchmarks/wikipedia/mock/mock2.in" "benchmarks/wikipedia/mock/mock3.in"
-"benchmarks/wikipedia/mock/mock4.in"
-
-benchmarks.wikipedia.BigTestWikipedia
--p "benchmarks/wikipedia/mock/mock-database/page.in"
--r "benchmarks/wikipedia/mock/mock-database/revision.in"
-"benchmarks/wikipedia/mock/mock0.in" "benchmarks/wikipedia/mock/mock1.in" "benchmarks/wikipedia/mock/mock2.in"
-
+"bin/benchmarks/wikipedia/mock/mock0.in" "bin/benchmarks/wikipedia/mock/mock1.in"
+"bin/benchmarks/wikipedia/mock/mock2.in" "bin/benchmarks/wikipedia/mock/mock3.in"
+"bin/benchmarks/wikipedia/mock/mock4.in"

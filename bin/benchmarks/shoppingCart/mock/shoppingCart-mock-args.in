@@ -1,2 +1,2 @@
 benchmarks.shoppingCart.BigTestShoppingCart
- "benchmarks/shoppingCart/mock/mock0.in" "benchmarks/shoppingCart/mock/mock1.in"
+ "bin/benchmarks/shoppingCart/mock/mock0.in" "bin/benchmarks/shoppingCart/mock/mock1.in"
