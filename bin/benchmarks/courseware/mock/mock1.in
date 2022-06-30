@@ -1,0 +1,4 @@
+enroll 2 1
+getEnrollments
+deleteCourse 2
+getEnrollments
