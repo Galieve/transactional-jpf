@@ -1,4 +1,4 @@
-package fr.irif.events;
+package fr.irif.bytecode;
 
 import gov.nasa.jpf.jvm.bytecode.JVMInstructionVisitor;
 

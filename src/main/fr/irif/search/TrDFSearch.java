@@ -158,7 +158,7 @@ public class TrDFSearch extends DFSearch {
     protected Pair<Boolean, Integer> computeStepsEvent(TransactionalEvent e){
         if(isEndState()) return new Pair<>(false, null);;
         //TODO: erase sharingCG; adding locks.
-        if(trEventRegister.isChoiceGeneratorShared()) return new Pair<>(false, 0);
+        //if(trEventRegister.isChoiceGeneratorShared()) return new Pair<>(true, 0);
         boolean reset = true;
         //if(vm.getChoiceGenerator() != null && vm.getChoiceGenerator().isDone()) return new Pair<>(false, null);
 
@@ -195,8 +195,11 @@ public class TrDFSearch extends DFSearch {
             //We are backtracking and there is no local instruction nor the event we are searching for.
             else{
                 //This case should never appear, if it does, this program is wrong (non-if version)
-                if(database.getDatabaseBacktrackMode() != GuideInfo.BacktrackTypes.RESTORE)
+                //Now it can happen as breakTransition always
+                /*if(database.getDatabaseBacktrackMode() != GuideInfo.BacktrackTypes.RESTORE)
                     System.out.println("DEBUG: error?");
+
+                 */
 
                 n = currentAdvance;
                 /*else{
@@ -325,6 +328,7 @@ public class TrDFSearch extends DFSearch {
         }
         if(n != null){
             vm.getChoiceGenerator().advance(n);
+
         }
     }
 
@@ -337,8 +341,6 @@ public class TrDFSearch extends DFSearch {
         notifySearchStarted();
 
         while (!done) {
-
-            //var state = this.state
 
             Pair<Boolean, Integer> p = computeStepsEvent();
             applyResetJumps(p);
@@ -371,6 +373,7 @@ public class TrDFSearch extends DFSearch {
             } else { // forward did not exbreakecute any instructions
                 notifyStateProcessed();
                 if (checkAndResetBacktrackRequest() || !isNewState() || isEndState() || isIgnoredState() || depthLimitReached || !database.isConsistent()) {
+
                     while(continueBacktracking()){
                         if(database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.JPF ||
                                 database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.NONE ) {
@@ -381,6 +384,11 @@ public class TrDFSearch extends DFSearch {
                         database.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.NONE);
 
                     }
+                    if(database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.READ){
+                        vm.getChoiceGenerator().reset();
+                    }
+
+
                     database.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.NONE);
 
                     //TODO: is this a hack?

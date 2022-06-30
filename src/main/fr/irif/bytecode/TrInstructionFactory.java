@@ -1,4 +1,4 @@
-package fr.irif.events;
+package fr.irif.bytecode;
 
 import gov.nasa.jpf.jvm.bytecode.InstructionFactory;
 import gov.nasa.jpf.vm.Instruction;
@@ -20,11 +20,13 @@ public class TrInstructionFactory extends InstructionFactory {
         return new TRARETURN();
     }
 
-    /*
     @Override
-    public Instruction invokestatic(String clsName, String methodName, String methodSignature) {
-        return new TRINVOKESTATIC(clsName, methodName, methodSignature);
+    public Instruction goto_(int targetPc) {
+        return new TRGOTO(targetPc);
     }
-     */
 
+    @Override
+    public Instruction goto_w(int targetPc) {
+        return new TRGOTO_W(targetPc);
+    }
 }

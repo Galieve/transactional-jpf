@@ -1,5 +1,6 @@
-package fr.irif.events;
+package fr.irif.bytecode;
 
+import fr.irif.events.TrEventRegister;
 import gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL;
 import gov.nasa.jpf.vm.*;
 

@@ -1861,12 +1861,7 @@ public class ThreadInfo extends InfoObject
       while (pc != null) {
         nextPc = executeInstruction();
 
-          if(TrEventRegister.getEventRegister().isLastInstructionTransactional()){
-              ss.setNextChoiceGenerator(ss.getChoiceGenerator());
-              TrEventRegister.getEventRegister().setChoiceGeneratorShared(true);
-              //breakTransition("Transactional break");
-          }
-          if (ss.breakTransition() || TrEventRegister.getEventRegister().isLastInstructionTransactional()) {
+          if (ss.breakTransition() ) {
               TrEventRegister.getEventRegister().setLastInstructionTransactional(false);
 
 
@@ -1913,16 +1908,6 @@ public class ThreadInfo extends InfoObject
     // this is the pre-execution notification, during which a listener can perform
     // on-the-fly instrumentation or even replace the instruction alltogether
     vm.notifyExecuteInstruction(this, pc);
-    //System.out.println(this.getCallerStackFrame() + "\n"+ pc.getInstructionIndex()+"\n"+pc.getFileLocation()+"\n---");
-    if(pc instanceof JVMInvokeInstruction && ((JVMInvokeInstruction) pc).getInvokedMethodName().equals("chocolate(Ljava/lang/String;Ljava/lang/String;)V")){
-        JVMInvokeInstruction call = (JVMInvokeInstruction) pc;
-        String s = call.getInvokedMethodName();
-        /*System.out.println(s.substring(0,s.length() - call.getInvokedMethodSignature().length()));
-        System.out.println(pc+"\n---");
-        System.out.println(VM.getVM().getClass());
-        System.out.println(pc.getClass());*/
-
-    }
 
     if ((pendingSUTExceptionRequest == null) && ((attributes & ATTR_SKIP_INSN_EXEC) == 0)){
         try {

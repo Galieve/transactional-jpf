@@ -1,5 +1,9 @@
 package fr.irif.database;
 
+import gov.nasa.jpf.Config;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -9,7 +13,15 @@ public class SerializableHistory extends COInductiveHistory {
 
     protected HashSet<HashSet<Integer>> prefixes;
 
-    public SerializableHistory() {
+    public SerializableHistory(Config config) {
+        super(config);
+    }
+
+    public SerializableHistory(ArrayList<ArrayList<Boolean>> splitSO,
+                               HashMap<String, ArrayList<ArrayList<Integer>>> wrMatrix,
+                               ArrayList<HashMap<String, Integer>> wrPerTransaction,
+                               String forbidden) {
+        super(splitSO, wrMatrix, wrPerTransaction, forbidden);
     }
 
     //idxSet contains the indexes' complementary extended
@@ -52,6 +64,7 @@ public class SerializableHistory extends COInductiveHistory {
                 if(checkSER(cloneIdx)){
                     return true;
                 }
+                //TODO: implement seen
             }
         }
         return false;

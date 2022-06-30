@@ -24,25 +24,27 @@ public class TRDatabase {
     }
 
     private void breakTransition(){
-        if(r < 0){
+        /*if(r < 0){
             System.out.println("false");
-        }
+        }*/
+        for(int  i = 0; i < 1; ++i){}
+
     }
 
     // private void readInstruction(String variable, String objective){}
 
 
     private String readInstruction(String variable){
-        //breakTransition();
+        breakTransition();
         return "NON-VALID-VALUE";
     }
     private void writeInstruction(String variable, String value){
-        //breakTransition();
+        breakTransition();
 
 
     }
     private void beginInstruction(){
-        //breakTransition();
+        breakTransition();
 
         //l.lock();
         //breakTransition();
@@ -52,6 +54,7 @@ public class TRDatabase {
         breakTransition();
     }
     private void assertInstruction(String value1, String op, String value2){
+        breakTransition();
     }
 
     /*

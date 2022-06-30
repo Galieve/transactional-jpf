@@ -1,11 +1,17 @@
 package fr.irif.database;
 
+import gov.nasa.jpf.Config;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
 public abstract class COPolynomialHistory extends History {
 
     protected ArrayList<ArrayList<Boolean>> commitOrderMatrix;
+
+    protected COPolynomialHistory(Config config){
+        super(config);
+    }
 
     protected boolean dfsCOAcyclic(ArrayList<Integer> color, Integer u){
         color.set(u,1);
@@ -41,9 +47,16 @@ public abstract class COPolynomialHistory extends History {
 
     protected abstract void computeInitializedCORelation();
 
+    protected abstract ArrayList<ArrayList<Boolean>> initializeCORelation();
+
     protected void generateCommitOrderMatrix(){
-        computeTransitiveClosure();
-        commitOrderMatrix = Utility.deepCopy(transitiveClosure);
+        var co = initializeCORelation();
+        /*Cloner cloner = new Cloner();
+        commitOrderMatrix = cloner.deepClone(co);
+
+         */
+        commitOrderMatrix = Utility.deepCopyMatrix(co);
+
         computeInitializedCORelation();
 
     }

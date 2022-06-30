@@ -6,13 +6,9 @@ import java.util.ArrayList;
 
 public class AssertTransactionalEvent extends TransactionalEvent{
 
-    protected Database database;
-
     protected AssertTransactionalEvent(EventData eventData, ArrayList<String> args,
                                        int obsSeqIdx, int threadId, int trId, int sesId, int poId) {
-        super(eventData, args, Type.ASSERT, obsSeqIdx, threadId, trId, sesId, poId);
-        database = Database.getDatabase();
-    }
+        super(eventData, args, Type.ASSERT, obsSeqIdx, threadId, trId, sesId, poId);}
 
     @Override
     public String getVariable() {
@@ -44,7 +40,7 @@ public class AssertTransactionalEvent extends TransactionalEvent{
     }
 
     protected String evaluate(String s){
-        TransactionalEvent t = database.getLastWriteEvent(s);
+        TransactionalEvent t = Database.getDatabase().getLastWriteEvent(s);
         if(t == null){
             return s;
         }

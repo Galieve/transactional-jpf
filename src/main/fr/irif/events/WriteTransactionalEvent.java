@@ -1,7 +1,5 @@
 package fr.irif.events;
 
-import gov.nasa.jpf.vm.Instruction;
-
 import java.util.ArrayList;
 
 public class WriteTransactionalEvent extends TransactionalEvent {
@@ -39,6 +37,11 @@ public class WriteTransactionalEvent extends TransactionalEvent {
         else
             return "("+getVariable()+" = "+getValue()+ " ("+args.get(1)+") "+")";
 
+    }
+
+    @Override
+    protected String getWRMessage() {
+        return getComplementaryMessage();
     }
 
     public void setValue(String value) {

@@ -1,5 +1,6 @@
 package fr.irif.events;
 
+import fr.irif.bytecode.TRINVOKEVIRTUAL;
 import fr.irif.database.Database;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.vm.Instruction;
@@ -22,7 +23,6 @@ public class TrEventRegister {
 
     protected boolean lastInstructionTransactional;
 
-    protected Database database;
 
     protected boolean choiceGeneratorShared;
 
@@ -35,7 +35,6 @@ public class TrEventRegister {
     private TrEventRegister(Config config){
         argsEvent = new ArrayList<>();
         recordArguments = false;
-        database = Database.getDatabase();
         databaseClassName = config.getString("db.database_api.class", "database.TRDatabase");
         choiceGeneratorShared = false;
         //databaseRelations = DatabaseRelations.getDatabaseRelations();
@@ -80,12 +79,22 @@ public class TrEventRegister {
     }
 
     public boolean isTransactionalTransition(Transition t){
-        return isTransactionalStatement(t.getLastStep().getInstruction());
+        return t.getThreadInfo().getTopFrame() != null && isTransactionalBreakTransition(t.getThreadInfo().getTopFrame());
+        //return isTransactionalStatement(t.getLastStep().getInstruction());
         //return t.getStepCount() >= 5 && isTransactionalStatement(t.getStep(t.getStepCount() - 5).getInstruction());
     }
 
     public boolean isTransactionalReturn(StackFrame frame){
         return frame.getClassName().equals(databaseClassName) && frame.getMethodName().equals("readInstruction");
+    }
+
+    public boolean isTransactionalBreakTransition(StackFrame frame){
+        try {
+            return frame.getClassName().equals(databaseClassName) && frame.getMethodName().equals("breakTransition");
+        }catch (NullPointerException e){
+            System.out.println("Info");
+            throw e;
+        }
     }
 
     public String getTransactionalStatement(Instruction i){
@@ -110,12 +119,14 @@ public class TrEventRegister {
             }
         }
         s = String.join("\n", lines);
-        return s;
+        return ti.getName()+ s;
     }
 
 
 
     public void registerEvent(Instruction parsedInstruction, Instruction i, ThreadInfo ti){
+
+        var database = Database.getDatabase();
         String statement = getTransactionalStatement(parsedInstruction);
 
         TransactionalEvent t;

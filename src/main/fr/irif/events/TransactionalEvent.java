@@ -56,6 +56,10 @@ public abstract class TransactionalEvent{
 
     public abstract String getValue();
 
+    protected String getWRMessage(){
+        return "";
+    }
+
     /*
     public int getTransactionId(){
         return transactionId;
@@ -71,7 +75,7 @@ public abstract class TransactionalEvent{
         return observationSequenceIndex;
     }
 
-    public abstract String getComplementaryMessage();
+    protected abstract String getComplementaryMessage();
 
     public String getBaseName(){
        return "Thread " + getThreadId() + " transaction " + relSOId+ " " + getType().toString()+ " event #"+poId;
@@ -83,6 +87,14 @@ public abstract class TransactionalEvent{
 
     public String toString(){
         String s = getComplementaryMessage();
+        if(!s.equals("")){
+            s = " "+ s;
+        }
+        return getBaseName() + s;
+    }
+
+    public String toWRString(){
+        String s = getWRMessage();
         if(!s.equals("")){
             s = " "+ s;
         }

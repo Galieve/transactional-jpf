@@ -1,6 +1,9 @@
-package fr.irif.events;
+package fr.irif.bytecode;
 
 import fr.irif.database.Database;
+import fr.irif.events.ReadTransactionalEvent;
+import fr.irif.events.TrEventRegister;
+import fr.irif.events.TransactionalEvent;
 import gov.nasa.jpf.jvm.bytecode.ARETURN;
 import gov.nasa.jpf.vm.ElementInfo;
 import gov.nasa.jpf.vm.Instruction;

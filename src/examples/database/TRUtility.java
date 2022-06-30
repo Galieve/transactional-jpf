@@ -8,13 +8,14 @@ import java.util.stream.Collectors;
 
 public class TRUtility {
 
+    //does not work for map of map!
     public static<T> HashMap<String, T> generateHashMap(String s, Function<String, T> build){
         HashMap<String, T> map = new HashMap<>();
 
         if(!s.equals("{}")){
-            var array = new ArrayList<>(Arrays.asList(s.replaceAll("[{}]","").split(",")));
+            var array = new ArrayList<>(Arrays.asList(s.substring(1, s.length()-1).split("(,)(?![^\\[]*\\])")));
             for(var e: array){
-                var el = e.split("=");
+                var el = e.split("(=)(?![^{]*[}])");
                 map.put(el[0].trim(), build.apply(el[1].trim()));
             }
         }
@@ -29,7 +30,7 @@ public class TRUtility {
         ArrayList<T> arrayList = new ArrayList<>();
 
         if(!s.equals("[]")){
-            var array = new ArrayList<>(Arrays.asList(s.replaceAll("[\\[\\]]","").split(",")));
+            var array = new ArrayList<>(Arrays.asList(s.substring(1, s.length()-1).split(",")));
             for(var e: array){
                 arrayList.add(build.apply(e.trim()));
             }
@@ -38,7 +39,12 @@ public class TRUtility {
     }
 
     public static String getValue(String s, int id){
-        return s.split(";")[id].trim();
+        return getValue((v)->v, s, id);
+    }
+
+    public static <T> T getValue(Function<String, T> build, String s, int id){
+        var ret = s.split(";")[id].trim();
+        return ret.equals("null") ? null : build.apply(ret);
     }
 
     public static ArrayList<String> getArrayValue(String s, int id){

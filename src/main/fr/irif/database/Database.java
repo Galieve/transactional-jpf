@@ -1,12 +1,16 @@
 package fr.irif.database;
 
+import com.rits.cloning.Cloner;
 import fr.irif.events.*;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.util.Pair;
 import gov.nasa.jpf.vm.Transition;
 
 import java.awt.geom.IllegalPathStateException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 public class Database {
 
@@ -42,12 +46,16 @@ public class Database {
 
     protected static Database databaseInstance;
 
+    protected String mockPath;
+
     private Database(Config config) {
         events = new ArrayList<>();
         backtrackPoints = new HashMap<>();
         writeEventsPerVariable = new HashMap<>();
         readEventsPerVariable = new HashMap<>();
-        history = config.getEssentialInstance("db.database_model.class", History.class);
+        history = config.getEssentialInstance("db.database_model.class", History.class,
+                new Class[]{Config.class},
+                new Object[]{config});
         guideInfo = new GuideInfo();
         sessionOrder = new HashMap<>();
         instructionsMapped = new HashMap<>();
@@ -66,11 +74,25 @@ public class Database {
         return databaseInstance;
     }
 
+
     public static Database getDatabase() {
         if (databaseInstance == null) {
             throw new IllegalPathStateException();
         }
         return databaseInstance;
+    }
+
+    //Use it carefully.
+    public Database cloneDatabase(){
+        Cloner cloner = new Cloner();
+        var clone = cloner.deepClone(this);
+        //This variable has to be shared.
+        clone.backtrackPoints = backtrackPoints;
+        return clone;
+    }
+
+    public void setDatabaseInstance(Database db){
+        databaseInstance = db;
     }
     
     public boolean isGuided(){
@@ -80,9 +102,14 @@ public class Database {
 
 
     public void addEvent(TransactionalEvent t){
-        if(isMockAccess()) return;
 
         EventData ed = t.getEventData();
+        timesPathExecuted.put(ed.getPath(), ed.getTime()); //before mockAccess, we need it to check path of alternatives
+
+        if(isMockAccess()){
+            mockPath = ed.getPath();
+            return;
+        }
 
         instructionsMapped.put(ed, t);
         timesPathExecuted.put(ed.getPath(), ed.getTime());
@@ -154,11 +181,14 @@ public class Database {
         if(events.isEmpty() || e == null) return false;
         String s = TrEventRegister.getEventRegister().getStackTrace(t.getThreadInfo());
         ArrayList<String> lines = new ArrayList<>(Arrays.asList(s.split("\\n")));
-        lines.remove(lines.size() - 1); //There is one level of extra nesting before the end of a transaction.
+        if(lines.size() >= 2) {
+            lines.remove(lines.size() - 1);
+            lines.remove(lines.size() - 1); //This is lines.size() - 2 in the original array.
+        }//There is one level of extra nesting before the end of a transaction.
         s = String.join("\n", lines);
 
         EventData ed = e.getEventData();
-        return ed.equals(new EventData(s, ed.getTime(), ed.getBeginEvent()));
+        return ed.equals(new EventData(s, timesPathExecuted.get(ed.getPath()), ed.getBeginEvent()));
        }
 
     protected void generateRestorePath(ReadTransactionalEvent r){
@@ -251,7 +281,16 @@ public class Database {
     }
 
     public void backtrackDatabase() {
-        if(isMockAccess()) return;
+
+        if(isMockAccess()){
+            if(mockPath != null) {
+                int n = timesPathExecuted.get(mockPath);
+                if (n == -1) timesPathExecuted.remove(mockPath);
+                else timesPathExecuted.put(mockPath, n - 1);
+                mockPath = null;
+            }
+            return;
+        }
         TransactionalEvent e = events.get(events.size() - 1);
         switch (e.getType()) {
             case READ:
@@ -328,6 +367,7 @@ public class Database {
 
 
         EventData ed = e.getEventData();
+
         instructionsMapped.remove(ed);
         int n = timesPathExecuted.get(ed.getPath());
         if(n == -1) timesPathExecuted.remove(ed.getPath());
@@ -536,6 +576,15 @@ public class Database {
     public EventData getLastBeginData(){
         if(beginEvents.isEmpty()) return null;
         else return beginEvents.get(beginEvents.size()-1).getEventData();
+    }
+
+    public String getDatabaseState(){
+        StringBuilder sb = new StringBuilder();
+        for(var e: events){
+            sb.append(e.toWRString()).append("\n");
+        }
+        sb.append("Completeness: ").append(!isAssertionViolated()).append("\n");
+        return sb.toString();
     }
 
 }

@@ -1,5 +1,8 @@
 package fr.irif.database;
 
+import com.rits.cloning.Cloner;
+import gov.nasa.jpf.Config;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,17 +20,21 @@ public abstract class History {
 
     protected Boolean consistent;
 
-    protected History(){
-        initFields();
+    protected String forbiddenVariable;
+
+    protected History(Config config){
+        this(new ArrayList<>(), new HashMap<>(), new ArrayList<>(), config.getString("db.database_model.forbidden_variable", "FORBIDDEN"));
     }
 
-    protected void initFields() {
-        sessionOrderMatrix = new ArrayList<>();
-        writeReadMatrix = new HashMap<>();
-        writesPerTransaction = new ArrayList<>();
-        transitiveClosure = null;
-        numberTransactions = 0;
+    protected History(ArrayList<ArrayList<Boolean>> soMatrix, HashMap<String,ArrayList<ArrayList<Integer>>> wrMatrix,
+                      ArrayList<HashMap<String, Integer>> wrPerTransaction, String forbidden){
+        sessionOrderMatrix = soMatrix;
+        writeReadMatrix = wrMatrix;
+        writesPerTransaction = wrPerTransaction;
+        numberTransactions = soMatrix.size();
         consistent = null;
+        transitiveClosure = null;
+        forbiddenVariable = forbidden;
     }
 
     public void addTransaction(int transId, int threadId, ArrayList<Integer> sessionOrder){
@@ -42,7 +49,6 @@ public abstract class History {
             wrx.add(new ArrayList<>(Collections.nCopies(numberTransactions - 1,0)));
             for (ArrayList<Integer> integers : wrx) {
                 integers.add(0);
-
             }
         }
 
@@ -67,6 +73,9 @@ public abstract class History {
     }
 
     public void setWR(String var,int write, int read){
+        if(var.startsWith(forbiddenVariable)){
+            throw new IllegalCallerException("variable "+ var + " forbidden: reserved prefix");
+        }
         if(!writeReadMatrix.containsKey(var)){
             writeReadMatrix.put(var, new ArrayList<>(Collections.nCopies(numberTransactions,new ArrayList<>(Collections.nCopies(numberTransactions,0)))));
         }
@@ -84,13 +93,16 @@ public abstract class History {
     }
 
     public void addWrite(String var, int id){
+        if(var.startsWith(forbiddenVariable)){
+            throw new IllegalCallerException("variable "+ var + " forbidden: reserved prefix");
+        }
         if(!writeReadMatrix.containsKey(var)){
             writeReadMatrix.put(var, new ArrayList<>(Collections.nCopies(numberTransactions,new ArrayList<>(Collections.nCopies(numberTransactions,0)))));
         }
         writesPerTransaction.get(id).putIfAbsent(var, 0);
         int n = writesPerTransaction.get(id).get(var);
         writesPerTransaction.get(id).put(var, n+1);
-        restoreSemanticFlags();
+        //restoreSemanticFlags();
     }
 
     public void removeWrite(String var, int id){
@@ -101,11 +113,12 @@ public abstract class History {
 
     }
 
-    //TODO
-    protected void computeTransitiveClosure(){
-        transitiveClosure = Utility.deepCopy(sessionOrderMatrix);
-
+    protected ArrayList<ArrayList<Boolean>> computeWRSORelation(){
         //SO u WR
+       Cloner cloner = new Cloner();
+        var sowr = cloner.deepClone(sessionOrderMatrix);
+
+        //var sowr = Utility.deepCopyMatrix(sessionOrderMatrix);
         for(int i = 0; i < numberTransactions; ++i){
             for(int j = 0; j < numberTransactions; ++j){
                 boolean reads = false;
@@ -113,10 +126,18 @@ public abstract class History {
                     reads = wrx.get(i).get(j) > 0;
                     if(reads) break;
                 }
-                transitiveClosure.get(i).set(j, sessionOrderMatrix.get(i).get(j) ||
+                sowr.get(i).set(j, sessionOrderMatrix.get(i).get(j) ||
                         reads || (j == i) );
             }
         }
+        return sowr;
+    }
+
+
+    //TODO
+    protected void computeTransitiveClosure(){
+
+        transitiveClosure = computeWRSORelation();
 
         //Warhsall-floyd
         for(int k = 0; k <numberTransactions; ++k) {
@@ -127,12 +148,6 @@ public abstract class History {
             }
         }
     }
-
-    /*
-    public int numberWR(int write, int read){
-        return writeReadMatrix.get(write).get(read);
-    }
-     */
 
     public boolean areWRSO_plusRelated(int a, int b){
 
@@ -160,9 +175,11 @@ public abstract class History {
     }
 
     public void removeLastTransaction(){
-        sessionOrderMatrix.remove(sessionOrderMatrix.size()-1);
-
         --numberTransactions;
+        sessionOrderMatrix.remove(numberTransactions);
+        writesPerTransaction.remove(numberTransactions);
+
+
         for(ArrayList<ArrayList<Integer>> wrx : writeReadMatrix.values()){
             wrx.remove(numberTransactions);
             for(ArrayList<Integer> wrxi : wrx){

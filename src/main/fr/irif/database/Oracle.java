@@ -8,6 +8,8 @@ import java.util.HashMap;
 
 public class Oracle {
 
+    //TODO: Oracle not robust! We have to control the model to accept transactions may miss!!!!
+
     protected ArrayList<EventData> oracleOrder;
 
     protected HashMap<EventData, Integer> instructionToOrder;
@@ -37,7 +39,6 @@ public class Oracle {
         if(n == oracleOrder.size()) return null;
         else return oracleOrder.get(n);
     }
-
 
     public void addBegin(EventData e){
         if(instructionToOrder.containsKey(e)) return;

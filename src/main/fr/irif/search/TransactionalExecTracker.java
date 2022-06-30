@@ -16,21 +16,20 @@ import java.io.PrintWriter;
 
 public class TransactionalExecTracker extends ExecTracker {
 
-    protected Database database;
-
     protected TrEventRegister trEventRegister;
 
     protected PrintWriter out;
 
+    protected boolean actualFile = true;
+
     public TransactionalExecTracker(Config config) {
         super(config);
-
-        database = Database.getDatabase(config);
         trEventRegister = TrEventRegister.getEventRegister();
         //config.getEssentialInstance("out.database_model.class", DatabaseRelations.class);
-        String path = config.getString("listener.out", null);
+        String path = config.getString("db.trTracker.out", null);
         if (path == null) {
             out = new PrintWriter(System.out, true);
+            actualFile = false;
         } else {
             File file = new File(path);
             //File file = config.getPath(path);
@@ -97,7 +96,10 @@ public class TransactionalExecTracker extends ExecTracker {
     @Override
     public void stateAdvanced(Search search) {
         VM vm = search.getVM();
-        if(trEventRegister.isTransactionalTransition(vm.getCurrentTransition()) && !database.isMockAccess()){
+        var frame = vm.getCurrentTransition().getThreadInfo().getTopFrame();
+        var database = Database.getDatabase();
+        if(frame != null && trEventRegister.isTransactionalBreakTransition(frame)
+                && !database.isMockAccess()){
             TransactionalEvent t = database.getLastEvent();
             out.println(t+ " executed.");
             if(t.getType() == TransactionalEvent.Type.READ){
@@ -129,6 +131,8 @@ public class TransactionalExecTracker extends ExecTracker {
     public void searchFinished(Search search) {
         //super.searchFinished(search);
         out.println("----------------------------------- search finished");
+        if(actualFile)
+            out.close();
     }
 
     @Override
@@ -151,10 +155,5 @@ public class TransactionalExecTracker extends ExecTracker {
         int id = search.getStateId();
         out.println("----------------------------------- [" +
                 search.getDepth() + "] backtrack: " + id);
-    }
-
-    @Override
-    public void instructionExecuted(VM vm, ThreadInfo ti, Instruction nextInsn, Instruction executedInsn) {
-        super.instructionExecuted(vm, ti, nextInsn, executedInsn);
     }
 }

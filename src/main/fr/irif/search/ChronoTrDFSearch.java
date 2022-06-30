@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.util.LinkedList;
 import java.util.TreeMap;
 
-public class ChronoTrDFSearch extends TrDFSearch{
+public class ChronoTrDFSearch extends TrDFSearch implements ChronoSearch{
 
     protected ChronoListener chronoListener;
 

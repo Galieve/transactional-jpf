@@ -1,9 +1,19 @@
 package fr.irif.database;
 
+import gov.nasa.jpf.Config;
+
+import java.util.ArrayList;
+
 public class CausalHistory extends COPolynomialHistory {
 
-    public CausalHistory() {
-        initFields();
+    public CausalHistory(Config config) {
+        super(config);
+    }
+
+    @Override
+    protected ArrayList<ArrayList<Boolean>> initializeCORelation() {
+        computeTransitiveClosure();
+        return transitiveClosure;
     }
 
     @Override
@@ -16,6 +26,8 @@ public class CausalHistory extends COPolynomialHistory {
 
                 //t2 writes var
                 for(String var : writesPerTransaction.get(j).keySet()){
+
+                    if(commitOrderMatrix.get(j).get(i)) break;
 
                     for(int k = 0; k < numberTransactions; ++k){
                         //If we have found some t3 (or it is [WR u SO]+ adj) that satisfies the formula,

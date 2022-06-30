@@ -22,7 +22,7 @@ public class ReadTransactionalEvent extends TransactionalEvent{
 
     @Override
     public String getValue() {
-        return args.get(1);
+        throw new IllegalCallerException(type.toString() + " instruction has no value");
     }
 
     public WriteTransactionalEvent getWriteEvent() {
@@ -44,5 +44,9 @@ public class ReadTransactionalEvent extends TransactionalEvent{
     @Override
     public String getComplementaryMessage() {
         return "(read <- " +getVariable()+")";
+    }
+
+    public String getWRMessage() {
+        return "("+ getVariable()+" <- " + getWriteEvent().getValue()+ ") ["+ getWriteEvent().getBaseName()+"]";
     }
 }

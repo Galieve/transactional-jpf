@@ -19,12 +19,10 @@ public class TrSystemState extends SystemState {
     @Override
     protected boolean advanceCurCg(VM vm) {
         TrEventRegister trEventRegister = TrEventRegister.getEventRegister();
-        Database database = Database.getDatabase();
-        if(database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.READ||
-                trEventRegister.isChoiceGeneratorShared()){
-
-            trEventRegister.setChoiceGeneratorShared(false);
-            return true;
+        var database = Database.getDatabase();
+        //|| trEventRegister.isChoiceGeneratorShared()
+        if(database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.READ){
+            return super.advanceCurCg(vm);
         }
         else{
             return super.advanceCurCg(vm);

@@ -122,10 +122,22 @@ public class Test {
          */
 
 
+        Thread t2 = new Thread(() -> {
+            TRDatabase db = TRDatabase.getDatabase();
+            db.begin();
+            //db.write("x","2");
+            //db.write("y", "2");
+            var c = db.read("x");
+            var d = db.read("y");
+            //System.out.println("c = "+c+", d ="+d);
+
+
+            db.end();
+        });
         Thread t1 = new Thread(() -> {
             TRDatabase db = TRDatabase.getDatabase();
             db.begin();
-            for(int i = 0; i < 1; ++i) {
+            for(int i = 0; i < 2; ++i) {
                 db.write("x", "1.1:"+i);
             }
             /*for(int i = 0; i < 3; ++i) {
@@ -138,9 +150,6 @@ public class Test {
             //db.read("y","b");
             //System.out.println("a = "+a);
             db.end();
-
-
-
             /*db.begin();
             if(a.startsWith("4")) {
                 db.write("x", "1.2:0");
@@ -195,24 +204,6 @@ public class Test {
 
         });
 
-
-        Thread t2 = new Thread(() -> {
-            TRDatabase db = TRDatabase.getDatabase();
-            db.begin();
-            //db.write("x","2");
-            //db.write("y", "2");
-            var c = db.read("x");
-            var d = db.read("y");
-            //System.out.println("c = "+c+", d ="+d);
-
-
-            db.end();
-        });
-
-
-
-
-
         Thread t4 = new Thread(() -> {
             TRDatabase db = TRDatabase.getDatabase();
             db.begin();
@@ -237,29 +228,15 @@ public class Test {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         t1.start();
         t2.start();
-        t3.start();
-        t4.start();
+        //t3.start();
+        //t4.start();
+        //t3.join();
+        //t4.join();
         t1.join();
         t2.join();
-        t3.join();
-        t4.join();
+
 
 
 

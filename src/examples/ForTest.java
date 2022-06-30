@@ -15,7 +15,7 @@ public class ForTest {
             TRDatabase db = TRDatabase.getDatabase();
             db.begin();
             var a = db.read("x");
-            /*var b = db.read("x");
+            var b = db.read("x");
             var c = db.read("x");
             var d = db.read("x");
             var e = db.read("x");
@@ -27,7 +27,7 @@ public class ForTest {
             System.out.println("a:"+a+ " b:"+ b+" c:"+c + "d :"+d);
             System.out.println("e:"+e+ " f:"+ f+" g:"+g + "h :"+h);
 
-             */
+
             db.end();
         });
 
@@ -48,10 +48,10 @@ public class ForTest {
 
         });
 
-
+/*
         Thread t3 = new Thread(() -> {
             TRDatabase db = TRDatabase.getDatabase();
-            /*db.begin();
+            db.begin();
             db.write("x", "3.1");
             db.end();
             db.begin();
@@ -61,13 +61,12 @@ public class ForTest {
             db.write("x", "3.3");
             db.end();
 
-             */
         });
 
 
         Thread t4 = new Thread(() -> {
             TRDatabase db = TRDatabase.getDatabase();
-            /*db.begin();
+            db.begin();
             db.write("x", "4.1");
             db.end();
             db.begin();
@@ -76,12 +75,12 @@ public class ForTest {
             db.begin();
             db.write("x", "4.3");
             db.end();
-
-             */
         });
 
 
 
+
+ */
 
 
         t1.start();
