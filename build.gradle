@@ -22,7 +22,20 @@ repositories {
 }
 
 dependencies {
-    testImplementation "junit:junit:4.12"
+
+    testImplementation 'junit:junit:4.13.2'
+    implementation files('lib/objenesis-3.0.1.jar')
+    implementation files('lib/cloning-1.10.3.jar')
+
+    implementation 'io.github.kostaskougios:cloning:1.10.3'
+    //runtimeClasspath 'io.github.kostaskougios:cloning:1.10.3'
+    //shadow 'junit:junit:4.13.2'
+
+
+    //implementation(files("lib/cloning-1.10.3.jar"))
+
+    implementation 'org.objenesis:objenesis:3.2'
+
 }
 
 ext.manifestCommonAttrbutes = manifest {
@@ -32,6 +45,11 @@ ext.manifestCommonAttrbutes = manifest {
         "Implementation-Version": version
     )
 }
+
+ext.dependencyJars = [
+        file("lib/cloning-1.10.3.jar"),
+        file("lib/objenesis-3.0.1.jar")
+]
 
 apply from: "gradle/ide-support.gradle"
 apply from: "gradle/distribution.gradle"
@@ -165,7 +183,9 @@ task createRunJpfJar(type: Jar) {
     manifest {
         attributes(
                 "Implementation-Title": "Java Pathfinder core launch system",
-                "Main-Class": "gov.nasa.jpf.tool.RunJPF"
+                "Main-Class": "gov.nasa.jpf.tool.RunJPF",
+                "Class-Path" : file("lib/cloning-1.10.3.jar").getAbsolutePath() + ' ' + file("lib/objenesis-3.0.1.jar").getAbsolutePath(),
+
         )
         from manifestCommonAttrbutes
     }
