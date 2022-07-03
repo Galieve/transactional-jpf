@@ -65,9 +65,10 @@ public class SerializableHistory extends COInductiveHistory {
                 if(!extend(idxSet, i)) continue;
                 HashSet<Integer> cloneIdx = new HashSet<>(idxSet);
                 cloneIdx.remove(i);
-                if(checkSER(cloneIdx)){
+                if(!prefixes.contains(cloneIdx) && checkSER(cloneIdx)){
                     return true;
                 }
+                //prefixes.add(cloneIdx);
                 //TODO: implement seen
             }
         }
@@ -78,6 +79,7 @@ public class SerializableHistory extends COInductiveHistory {
     protected boolean computeConsistency() {
         HashSet<Integer> idxSet = IntStream.range(0, numberTransactions).boxed()
                 .collect(Collectors.toCollection(HashSet::new));
+        prefixes = new HashSet<>();
         return checkSER(idxSet);
     }
 

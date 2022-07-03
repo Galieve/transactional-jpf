@@ -1,0 +1,8 @@
+benchmarks.tpcc.BigTestTPCC
+-d "src/benchmarks/tpcc/database/districts.in" -n "src/benchmarks/tpcc/database/neworder.in"
+-i "src/benchmarks/tpcc/database/item.in" -w "src/benchmarks/tpcc/database/warehouse.in"
+-s "src/benchmarks/tpcc/database/stock.in" -h "src/benchmarks/tpcc/database/history.in"
+-l "src/benchmarks/tpcc/database/orderline.in" -c "src/benchmarks/tpcc/database/customer.in"
+-o "src/benchmarks/tpcc/database/order.in"
+"src/benchmarks/tpcc/transaction-scalability/light/light0.in"
+"src/benchmarks/tpcc/transaction-scalability/light/light1.in"

@@ -1,0 +1,5 @@
+benchmarks.twitter.BigTestTwitter
+-u "src/benchmarks/twitter/database/users.in"
+"src/benchmarks/twitter/application-scalability/update-read-update/uru0.in"
+"src/benchmarks/twitter/application-scalability/update-read-update/uru1.in"
+"src/benchmarks/twitter/application-scalability/update-read-update/uru2.in"

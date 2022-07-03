@@ -1,0 +1,5 @@
+benchmarks.shoppingCart.BigTestShoppingCart
+-s "src/benchmarks/shoppingCart/database/store.in"
+ "src/benchmarks/shoppingCart/application-scalability/update-read-read/urr0.in"
+ "src/benchmarks/shoppingCart/application-scalability/update-read-read/urr1.in"
+ "src/benchmarks/shoppingCart/application-scalability/update-read-read/urr2.in"

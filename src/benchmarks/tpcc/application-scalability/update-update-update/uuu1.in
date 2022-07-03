@@ -1,0 +1,3 @@
+delivery 2 0 27
+payment 0 0 33496 "Victoria Federica" true 6.19
+createNewOrder 0 1 100007 2 0 [27, 42] [2, 0] [7, 10]

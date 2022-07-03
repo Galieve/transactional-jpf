@@ -1,0 +1,8 @@
+benchmarks.wikipedia.BigTestWikipedia
+-p "src/benchmarks/wikipedia/database/page.in"
+-r "src/benchmarks/wikipedia/database/revision.in"
+-t "src/benchmarks/wikipedia/database/text.in"
+-u "src/benchmarks/wikipedia/database/user.in"
+"src/benchmarks/wikipedia/application-scalability/update-read-update/urr0.in"
+ "src/benchmarks/wikipedia/application-scalability/update-read-update/urr1.in"
+ "src/benchmarks/wikipedia/application-scalability/update-read-update/urr2.in"

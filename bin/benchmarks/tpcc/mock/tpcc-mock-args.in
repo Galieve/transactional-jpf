@@ -1,8 +1,0 @@
-benchmarks.tpcc.BigTestTPCC
--d "bin/benchmarks/tpcc/database/districts.in" -n "bin/benchmarks/tpcc/database/neworder.in"
--i "bin/benchmarks/tpcc/database/item.in" -w "bin/benchmarks/tpcc/database/warehouse.in"
--s "bin/benchmarks/tpcc/database/stock.in" -h "bin/benchmarks/tpcc/database/history.in"
--l "bin/benchmarks/tpcc/database/orderline.in" -c "bin/benchmarks/tpcc/database/customer.in"
--o "bin/benchmarks/tpcc/database/order.in"
-"bin/benchmarks/tpcc/mock/mock0.in" "bin/benchmarks/tpcc/mock/mock1.in" "bin/benchmarks/tpcc/mock/mock2.in"
-"bin/benchmarks/tpcc/mock/mock3.in" "bin/benchmarks/tpcc/mock/mock4.in"
