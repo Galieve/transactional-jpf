@@ -1,10 +1,6 @@
-getTimeline 0;42306731
-getTimeline 0;20850125
 getTimeline 0;45096855
 getFollowers 0;48954574
-getTimeline 0;48280880
-getTimeline 0;7179295
+follow 0;7179295 0;48280880
 getTimeline 0;3110559
-getTimeline 0;47327392
-getFollowers 0;50910006
-getTimeline 0;26427248
+publishTweet 666;47327392;Empty-tweet;0
+

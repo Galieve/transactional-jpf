@@ -10,6 +10,10 @@ public class ReadAtomicHistory extends COPolynomialHistory{
         super(config);
     }
 
+    public ReadAtomicHistory(History h){
+        super(h);
+    }
+
     @Override
     protected ArrayList<ArrayList<Boolean>> initializeCORelation() {
         computeTransitiveClosure();

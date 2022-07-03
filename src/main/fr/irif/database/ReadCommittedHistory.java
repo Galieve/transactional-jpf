@@ -47,5 +47,4 @@ public class ReadCommittedHistory extends COPolynomialHistory{
         return transitiveClosure;
     }
 
-
 }

@@ -1,0 +1,5 @@
+addWatchList 1 0 Paris
+getPageAuthenticated false 192.168.1.254 667 0 Paris
+getPageAuthenticated false 192.168.1.254 2324 1 Paris
+getPageAuthenticated true 192.168.1.254 667 0 Paris
+addWatchList 1 1 Rome

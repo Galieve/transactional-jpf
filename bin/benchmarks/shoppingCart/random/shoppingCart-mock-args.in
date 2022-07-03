@@ -1,0 +1,5 @@
+benchmarks.shoppingCart.BigTestShoppingCart
+-s "bin/benchmarks/shoppingCart/database/store.in"
+ "bin/benchmarks/shoppingCart/random/random0.in"
+ "bin/benchmarks/shoppingCart/random/random1.in"
+ "bin/benchmarks/shoppingCart/random/random2.in"

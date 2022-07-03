@@ -28,7 +28,7 @@ public class BigTestTwitter {
 
     }
 
-    private static void populateDB(String ... args){
+    private static int populateDB(String ... args){
 
         HashMap<String, String> tableInfo = new HashMap<>();
         HashSet<String> arraySet = new HashSet<>();
@@ -67,19 +67,20 @@ public class BigTestTwitter {
 
 
         new MainUtility(dbMain).initTransaction(tableInfo, arraySet, (s)->(idGenerator(s)));
+        return ret;
     }
 
     public static void main(String [] args) {
 
 
-        populateDB(args);
+        var iStart = populateDB(args);
 
 
         var ses = Twitter.getTwitterSession();
 
         try {
             var threads = new ArrayList<Thread>();
-            for(int i = 1; i < args.length; ++i){
+            for(int i = iStart; i < args.length; ++i){
                 threads.add(new Thread(new Worker<>(ses, args[i])));
             }
             for(var t : threads){

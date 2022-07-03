@@ -13,6 +13,10 @@ public class PrefixHistory extends SerializableHistory {
         super(config);
     }
 
+    public PrefixHistory(History h) {
+        super(h);
+    }
+
     protected ArrayList<ArrayList<Boolean>> computeSO_SER(){
         ArrayList<ArrayList<Boolean>> splitSO = new ArrayList<>();
         for(int i = 0; i < sessionOrderMatrix.size(); ++i){

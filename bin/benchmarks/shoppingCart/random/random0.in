@@ -1,0 +1,5 @@
+removeItem 0
+getList
+getList
+getQuantity 2
+changeQuantity 1 18

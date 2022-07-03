@@ -16,13 +16,13 @@ public class ShoppingCart extends BenchmarkModule {
     @Override
     public HashMap<String, Class<?>[]> getAllMethods() {
         var map = new HashMap<String, Class<?>[]>();
-        map.put("addItem", new Class<?>[]{Item.class});
-        map.put("addItemQuantity", new Class<?>[]{Item.class, int.class});
+        map.put("addItem", new Class<?>[]{String.class});
+        map.put("addItemQuantity", new Class<?>[]{String.class, int.class});
         map.put("removeItem", new Class<?>[]{int.class});
         map.put("getItem",new Class<?>[]{String.class});
-        map.put("getQuantity", new Class<?>[]{Item.class});
+        map.put("getQuantity", new Class<?>[]{String.class});
         map.put("getList",new Class<?>[]{});
-        map.put("changeQuantity", new Class<?>[]{Item.class, int.class});
+        map.put("changeQuantity", new Class<?>[]{String.class, int.class});
         return map;
     }
 
@@ -42,17 +42,18 @@ public class ShoppingCart extends BenchmarkModule {
         );
     }
 
-    public void addItem(Item product){
+    public void addItem(String product){
         addItemQuantity(product, 1);
     }
 
-    public void addItemQuantity(Item product, int q){
+    public void addItemQuantity(String productStr, int q){
 
-        if(product == null) return;
+        if(productStr == null) return;
+        var product = new ShoppingItem(productStr+";"+q);
 
         db.begin();
         var map = generateHashMap(db.read(STORE));
-        map.put(product.getId(), new ShoppingItem(product.toString()+";"+q));
+        map.put(product.getId(), product);
         db.write(STORE, map.toString());
         db.end();
     }
@@ -60,8 +61,10 @@ public class ShoppingCart extends BenchmarkModule {
     public void removeItem(int productID){
         db.begin();
         var map = generateHashMap(db.read(STORE));
-        map.remove(productID+"");
-        db.write(STORE, map.toString());
+        if(map.containsKey(productID+"")) {
+            map.remove(productID + "");
+            db.write(STORE, map.toString());
+        }
         db.end();
 
     }
@@ -78,9 +81,9 @@ public class ShoppingCart extends BenchmarkModule {
         return si;
     }
 
-    public Integer getQuantity(Item item){
+    public Integer getQuantity(String itemID){
         db.begin();
-        var si = getShoppingItem(item.getId());
+        var si = getShoppingItem(itemID);
         db.end();
         return si == null? null : si.getQuantity();
     }
@@ -92,10 +95,10 @@ public class ShoppingCart extends BenchmarkModule {
         return new ArrayList<>(map.values());
     }
 
-    public void changeQuantity(Item i, int q){
+    public void changeQuantity(String itemID, int q){
         db.begin();
         var map = generateHashMap(db.read(STORE));
-        var si = map.get(i.getId());
+        var si = map.get(itemID);
         if(si != null) {
             si.setQuantity(q);
             db.write(STORE, map.toString());

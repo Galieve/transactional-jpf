@@ -1,0 +1,28 @@
+/usr/lib/jvm/java-1.11.0-openjdk-amd64/bin/java -Dfile.encoding=UTF-8 -jar /home/enrique/datos/Linux-files/Universidad/Doctorat/Software/JPF/transactional-jpf/build/RunJPF.jar benchmarks.twitter.BigTestTwitter -u bin/benchmarks/twitter/randomGenerated/twitter-users.in bin/benchmarks/twitter/randomGenerated/twitter-0.in bin/benchmarks/twitter/randomGenerated/twitter-1.in bin/benchmarks/twitter/randomGenerated/twitter-2.in
+[WARNING] unknown classpath element: /home/enrique/datos/Linux-files/Universidad/Doctorat/Software/JPF/transactional-jpf/build/cloning-1.10.3.jar
+JavaPathfinder core system v8.0 (rev 1a69dbea713487849c71063fa53f59404f75f3e8) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+benchmarks.twitter.BigTestTwitter.main("-u","bin/benchmarks/twitter/randomGenerated/twitter-users.in","bin/benchmarks/twitter/randomGenerated/twitter-0.in","bin/benchmarks/twitter/randomGenerated/twitter-1.in","bin/benchmarks/twitter/randomGenerated/twitter-2.in")
+
+====================================================== search started: 3/7/22 12:13
+[WARNING] orphan NativePeer method: jdk.internal.misc.Unsafe.getUnsafe()Lsun/misc/Unsafe;
+[WARNING] orphan NativePeer method: jdk.internal.reflect.Reflection.getCallerClass(I)Ljava/lang/Class;
+
+====================================================== results
+no errors detected
+
+====================================================== statistics
+elapsed time:       00:10:54
+states:             new=0,visited=943779,backtracked=943779,end=5619
+search:             maxDepth=0,constraints=0
+choice generators:  thread=935319 (signal=0,lock=1,sharedRef=654026,threadApi=3877,reschedule=277415), data=0
+heap:               new=11305998,released=13452512,maxLive=1095,gcCycles=2408803
+instructions:       387036899
+max memory:         360MB
+loaded code:        classes=150,methods=3602
+
+====================================================== search finished: 3/7/22 12:24
+
+Process finished with exit code 0

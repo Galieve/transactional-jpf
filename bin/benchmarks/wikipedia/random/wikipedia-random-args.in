@@ -1,0 +1,8 @@
+benchmarks.wikipedia.BigTestWikipedia
+-p "bin/benchmarks/wikipedia/database/page.in"
+-r "bin/benchmarks/wikipedia/database/revision.in"
+-t "bin/benchmarks/wikipedia/database/text.in"
+-u "bin/benchmarks/wikipedia/database/user.in"
+
+"bin/benchmarks/wikipedia/random/random0.in" "bin/benchmarks/wikipedia/random/random1.in"
+"bin/benchmarks/wikipedia/random/random2.in"

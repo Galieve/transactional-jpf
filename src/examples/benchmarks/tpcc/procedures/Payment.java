@@ -173,7 +173,6 @@ public class Payment extends BasicTPCCProcedure{
         if(d != null) {
             d.setYtd(paymentAmount);
             districtTable.put(warehouseID + ":" + districtID, d);
-            System.out.println("sos "+districtTable.toString());
             db.write(TPCC.DISTRICT, districtTable.toString());
         }
 

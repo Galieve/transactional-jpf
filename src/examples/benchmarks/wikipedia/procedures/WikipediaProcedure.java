@@ -17,7 +17,7 @@ public abstract class WikipediaProcedure extends Procedure {
         var userTable = WikipediaUtility.readUser(db.read(Wikipedia.USER));
         var u = userTable.get(userID+"");
         if(u != null){
-            u.setUserTouched(timestamp+" ");
+            u.setUserTouched(timestamp+"");
             db.write(Wikipedia.USER, userTable.toString());
         }
     }

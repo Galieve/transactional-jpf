@@ -8,6 +8,10 @@ public class TrivialHistory extends COInductiveHistory {
         super(config);
     }
 
+    public TrivialHistory(History h){
+        super(h);
+    }
+
     @Override
     protected boolean computeConsistency() {
         return true;

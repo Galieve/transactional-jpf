@@ -4,6 +4,7 @@ import fr.irif.events.Transaction;
 import fr.irif.events.TransactionalEvent;
 import fr.irif.events.WriteTransactionalEvent;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 
 public class GuideInfo {
@@ -39,6 +40,7 @@ public class GuideInfo {
         endEvent = end;
         writeEventSwap = swapEvent;
     }
+
 
     public boolean hasPath(){
         return guidedPath != null;

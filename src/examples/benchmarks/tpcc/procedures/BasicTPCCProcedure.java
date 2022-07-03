@@ -84,7 +84,6 @@ public abstract class BasicTPCCProcedure extends Procedure {
         if(d != null) {
             d = f.apply(d);
             districtTable.put(warehouseID + ":" + districtID, d);
-            System.out.println("sos "+districtTable.toString());
             //db.write(TPCC.DISTRICT, districtTable.toString());
         }
 
@@ -92,7 +91,6 @@ public abstract class BasicTPCCProcedure extends Procedure {
 
     protected Warehouse getWarehouse(int warehouseID) {
         var s =db.read(TPCC.WAREHOUSE);
-        System.out.println(s);
         var warehouseTable = TPCCUtility.readWarehouse(s);
 
         return warehouseTable.get(warehouseID+"");

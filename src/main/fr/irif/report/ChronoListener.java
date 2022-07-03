@@ -1,5 +1,6 @@
-package fr.irif.search;
+package fr.irif.report;
 
+import fr.irif.search.ChronoSearch;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.ListenerAdapter;
 import gov.nasa.jpf.search.Search;

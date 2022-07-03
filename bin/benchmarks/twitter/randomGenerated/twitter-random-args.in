@@ -1,3 +1,5 @@
-benchmarks.twitter.BigTestTwitter -u "bin/benchmarks/twitter/randomGenerated/twitter-users.in"
-"bin/benchmarks/twitter/randomGenerated/twitter-0.in" "bin/benchmarks/twitter/randomGenerated/twitter-1.in"
+benchmarks.twitter.BigTestTwitter -u
+"bin/benchmarks/twitter/randomGenerated/twitter-users.in"
+"bin/benchmarks/twitter/randomGenerated/twitter-0.in"
+"bin/benchmarks/twitter/randomGenerated/twitter-1.in"
 "bin/benchmarks/twitter/randomGenerated/twitter-2.in"

@@ -1,4 +1,4 @@
-package fr.irif.search;
+package fr.irif.report;
 
 import fr.irif.database.Database;
 import fr.irif.events.TrEventRegister;
@@ -9,6 +9,7 @@ import gov.nasa.jpf.search.Search;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.HashSet;
 
 public class HistoryListener extends ListenerAdapter {
 
@@ -20,10 +21,12 @@ public class HistoryListener extends ListenerAdapter {
 
     protected boolean actualFile = false;
 
+    protected HashSet<String> checkDuplicates = new HashSet<>();
+
     public HistoryListener(Config config) {
         trEventRegister = TrEventRegister.getEventRegister();
         //config.getEssentialInstance("out.database_model.class", DatabaseRelations.class);
-        String path = config.getString("db.history.out", "histories/histories."+getDefaultFileName(config)+".out");
+        String path = config.getString("db.history.out", "bin/histories/histories."+getDefaultFileName(config)+".out");
         counter = 0;
         if (path == null) {
             out = new PrintWriter(System.out, true);
@@ -52,10 +55,21 @@ public class HistoryListener extends ListenerAdapter {
     @Override
     public void stateProcessed(Search search) {
         var database = Database.getDatabase();
-        if(search.isEndState() || database.isAssertionViolated()){
+        if((search.isEndState() && Database.getDatabase().isTrulyConsistent()) || database.isAssertionViolated()){
             out.println("----------------------------------- history #" +
                   counter + ": ");
             out.println(database.getDatabaseState());
+
+            /*if(checkDuplicates.contains(database.getDatabaseState())){
+                out.close();
+                System.err.println("Duplicate history #"+counter+"\n"+database.getDatabaseState());
+                System.exit(1);
+            }
+            checkDuplicates.add(database.getDatabaseState());
+
+             */
+
+
             ++counter;
         }
     }

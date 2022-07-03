@@ -38,10 +38,6 @@ public class BigTestShoppingCart {
 
         tableInfo.put(ShoppingCart.STORE, "{}");
 
-
-        //warehouse, district, history, item, stock are not array
-        arraySet.add(ShoppingCart.STORE);
-
         int ret = args.length - 1;
 
 

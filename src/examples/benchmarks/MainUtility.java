@@ -43,7 +43,6 @@ public class MainUtility {
                 ByteBuffer buf_read = ByteBuffer.allocate((int) totalBytes);
                 fis_fc.read(buf_read);
                 var s = new String(buf_read.array());
-                System.out.println(fileName+" "+s);
                 sb.append(s);
                 fis.close();
 

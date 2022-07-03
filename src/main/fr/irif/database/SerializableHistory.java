@@ -17,6 +17,10 @@ public class SerializableHistory extends COInductiveHistory {
         super(config);
     }
 
+    public SerializableHistory(History h){
+        super(h);
+    }
+
     public SerializableHistory(ArrayList<ArrayList<Boolean>> splitSO,
                                HashMap<String, ArrayList<ArrayList<Integer>>> wrMatrix,
                                ArrayList<HashMap<String, Integer>> wrPerTransaction,

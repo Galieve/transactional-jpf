@@ -18,9 +18,6 @@ public class Twitter extends BenchmarkModule {
 
     protected static final String FOLLOWERS = "FOLLOWERS";
 
-
-
-
     private Twitter() {
 
     }

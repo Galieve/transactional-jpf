@@ -1,8 +1,8 @@
 benchmarks.wikipedia.BigTestWikipedia
--p "bin/benchmarks/wikipedia/mock/mock-database/page.in"
--r "bin/benchmarks/wikipedia/mock/mock-database/revision.in"
--t "bin/benchmarks/wikipedia/mock/mock-database/text.in"
--u "bin/benchmarks/wikipedia/mock/mock-database/user.in"
+-p "bin/benchmarks/wikipedia/database/page.in"
+-r "bin/benchmarks/wikipedia/database/revision.in"
+-t "bin/benchmarks/wikipedia/database/text.in"
+-u "bin/benchmarks/wikipedia/database/user.in"
 
 "bin/benchmarks/wikipedia/mock/mock0.in" "bin/benchmarks/wikipedia/mock/mock1.in"
 "bin/benchmarks/wikipedia/mock/mock2.in" "bin/benchmarks/wikipedia/mock/mock3.in"

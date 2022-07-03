@@ -1,0 +1,28 @@
+/usr/lib/jvm/java-1.11.0-openjdk-amd64/bin/java -Dfile.encoding=UTF-8 -jar /home/enrique/datos/Linux-files/Universidad/Doctorat/Software/JPF/transactional-jpf/build/RunJPF.jar benchmarks.wikipedia.BigTestWikipedia -p bin/benchmarks/wikipedia/database/page.in -r bin/benchmarks/wikipedia/database/revision.in -t bin/benchmarks/wikipedia/database/text.in -u bin/benchmarks/wikipedia/database/user.in bin/benchmarks/wikipedia/random/random0.in bin/benchmarks/wikipedia/random/random1.in bin/benchmarks/wikipedia/random/random2.in
+[WARNING] unknown classpath element: /home/enrique/datos/Linux-files/Universidad/Doctorat/Software/JPF/transactional-jpf/build/cloning-1.10.3.jar
+JavaPathfinder core system v8.0 (rev 1a69dbea713487849c71063fa53f59404f75f3e8) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+benchmarks.wikipedia.BigTestWikipedia.main("-p","bin/benchmarks/wikipedia/database/page.in","-r","bin/benchmarks/wikipedia/database/revision.in","-t","bin/benchmarks/wikipedia/database/text.in","-u","bin/benchmarks/wikipedia/database/user.in","bin/benchmarks/wikipedia/random/random0.in","bin/benchmarks/wikipedia/random/random1.in","bin/benchmarks/wikipedia/random/random2.in")
+
+====================================================== search started: 3/7/22 12:04
+[WARNING] orphan NativePeer method: jdk.internal.misc.Unsafe.getUnsafe()Lsun/misc/Unsafe;
+[WARNING] orphan NativePeer method: jdk.internal.reflect.Reflection.getCallerClass(I)Ljava/lang/Class;
+
+====================================================== results
+no errors detected
+
+====================================================== statistics
+elapsed time:       00:05:28
+states:             new=1487,visited=278542,backtracked=280029,end=1056
+search:             maxDepth=785,constraints=0
+choice generators:  thread=278302 (signal=0,lock=1,sharedRef=181007,threadApi=1723,reschedule=95571), data=0
+heap:               new=9360852,released=9532160,maxLive=1877,gcCycles=694495
+instructions:       119708628
+max memory:         432MB
+loaded code:        classes=168,methods=3742
+
+====================================================== search finished: 3/7/22 12:09
+
+Process finished with exit code 0

@@ -1,0 +1,6 @@
+benchmarks.courseware.BigTestCourseWare
+-s "bin/benchmarks/courseware/database/students.in"
+-c "bin/benchmarks/courseware/database/courses.in"
+ "bin/benchmarks/courseware/random/random0.in"
+ "bin/benchmarks/courseware/random/random1.in"
+ "bin/benchmarks/courseware/random/random2.in"

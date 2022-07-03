@@ -13,6 +13,10 @@ public class SnapshotIsolationHistory extends PrefixHistory{
         super(config);
     }
 
+    public SnapshotIsolationHistory(History h){
+        super(h);
+    }
+
     protected void addSIConflicts(HashMap<String, ArrayList<ArrayList<Integer>>> wr, ArrayList<HashMap<String, Integer>> wpt){
         for(int i = 0; i < writesPerTransaction.size(); ++i){
             for(int j = i+1; j < writesPerTransaction.size(); ++j){

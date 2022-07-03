@@ -64,7 +64,6 @@ public class Wikipedia extends BenchmarkModule {
                            int pageNamespace, int userID, String userIP, String revComment, int revMinorEdit){
         db.begin();
         var a = new GetPageAnonymous(db).getPageAnonymousBody(false, userIP, pageNamespace, pageTitle);
-
         if(a != null) {
             new UpdatePage(db).updatePageBody(a.getTextID(), a.getPageID(), pageTitle, pageText, pageNamespace,
                     userID, userIP, a.getText(), a.getRevisionID(), revComment, revMinorEdit);

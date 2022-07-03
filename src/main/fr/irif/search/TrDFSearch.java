@@ -243,17 +243,23 @@ public class TrDFSearch extends DFSearch {
 
     @Override
     protected boolean forward() {
+
         //If it is guided, it has to follow every step, even if we can detect before reach the end that it is inconsistent
 
-        if(!checkDatabaseConsistency()){
+        if(!checkDatabaseConsistency() || (isEndState() && !database.isTrulyConsistent())){
             if(database.isAssertionViolated()) {
                 AssertTransactionalEvent a = (AssertTransactionalEvent) database.getLastEvent();
                 msgListener = "Invalid branch: assertion violated. " + a;
             }
-            else {
+            else if (isEndState()){
+                msgListener = "Invalid branch: no truly consistent database.";
+            }
+            else{
                 msgListener = "Invalid branch: inconsistent database.";
+
             }
             return false;
+
         }
 
 
@@ -370,7 +376,7 @@ public class TrDFSearch extends DFSearch {
                     break;
                 }
 
-            } else { // forward did not exbreakecute any instructions
+            } else { // forward did not execute any instructions
                 notifyStateProcessed();
                 if (checkAndResetBacktrackRequest() || !isNewState() || isEndState() || isIgnoredState() || depthLimitReached || !database.isConsistent()) {
 
@@ -404,9 +410,38 @@ public class TrDFSearch extends DFSearch {
         notifySearchFinished();
     }
 
-    public String getAndClearMessage() {
-        String msg = msgListener;
+    @Override
+    protected void notifyStateAdvanced() {
+        super.notifyStateAdvanced();
         msgListener = null;
-        return msg;
     }
+
+    @Override
+    protected void notifyStateProcessed() {
+        super.notifyStateProcessed();
+        msgListener = null;
+    }
+
+    @Override
+    protected void notifyStateBacktracked() {
+        super.notifyStateBacktracked();
+        msgListener = null;
+    }
+
+    @Override
+    protected void notifySearchStarted() {
+        super.notifySearchStarted();
+        msgListener = null;
+    }
+
+    @Override
+    protected void notifySearchFinished() {
+        super.notifySearchFinished();
+        msgListener = null;
+    }
+
+    public String getMessage() {
+        return msgListener;
+    }
+
 }

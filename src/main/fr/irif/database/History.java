@@ -37,6 +37,10 @@ public abstract class History {
         forbiddenVariable = forbidden;
     }
 
+    protected History(History h){
+        this(h.sessionOrderMatrix, h.writeReadMatrix, h.writesPerTransaction, h.forbiddenVariable);
+    }
+
     public void addTransaction(int transId, int threadId, ArrayList<Integer> sessionOrder){
 
         sessionOrderMatrix.add(new ArrayList<>(Collections.nCopies(numberTransactions,false)));
@@ -99,6 +103,8 @@ public abstract class History {
         if(!writeReadMatrix.containsKey(var)){
             writeReadMatrix.put(var, new ArrayList<>(Collections.nCopies(numberTransactions,new ArrayList<>(Collections.nCopies(numberTransactions,0)))));
         }
+
+        //For consistency checks we have to know the number of writes; for reading it, we only care about the last one.
         writesPerTransaction.get(id).putIfAbsent(var, 0);
         int n = writesPerTransaction.get(id).get(var);
         writesPerTransaction.get(id).put(var, n+1);

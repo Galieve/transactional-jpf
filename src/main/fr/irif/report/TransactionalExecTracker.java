@@ -1,10 +1,11 @@
-package fr.irif.search;
+package fr.irif.report;
 
 import fr.irif.database.Database;
 import fr.irif.events.ReadTransactionalEvent;
 import fr.irif.events.TrEventRegister;
 import fr.irif.events.TransactionalEvent;
 import fr.irif.events.WriteTransactionalEvent;
+import fr.irif.search.TrDFSearch;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.listener.ExecTracker;
 import gov.nasa.jpf.search.Search;
@@ -20,19 +21,20 @@ public class TransactionalExecTracker extends ExecTracker {
 
     protected PrintWriter out;
 
-    protected boolean actualFile = true;
+    protected boolean actualFile;
+
+    protected int numTotalBranches;
 
     public TransactionalExecTracker(Config config) {
         super(config);
         trEventRegister = TrEventRegister.getEventRegister();
-        //config.getEssentialInstance("out.database_model.class", DatabaseRelations.class);
         String path = config.getString("db.trTracker.out", null);
         if (path == null) {
             out = new PrintWriter(System.out, true);
             actualFile = false;
         } else {
+            actualFile = true;
             File file = new File(path);
-            //File file = config.getPath(path);
             try {
                 out = new PrintWriter(file);
             } catch (FileNotFoundException e) {
@@ -41,6 +43,7 @@ public class TransactionalExecTracker extends ExecTracker {
         }
 
 
+        numTotalBranches = 0;
         //out = new PrintWriter(System.out, true);
 
 
@@ -80,7 +83,7 @@ public class TransactionalExecTracker extends ExecTracker {
     public void stateProcessed(Search search) {
         if(search instanceof TrDFSearch){
             TrDFSearch trDFSearch = (TrDFSearch) search;
-            String msg = trDFSearch.getAndClearMessage();
+            String msg = trDFSearch.getMessage();
             if(msg != null)
                 out.println(msg);
         }
@@ -88,8 +91,9 @@ public class TransactionalExecTracker extends ExecTracker {
         int id = search.getStateId();
         out.println("----------------------------------- [" +
                 search.getDepth() + "] done: " + id);
-        if(search.isEndState()){
-            out.println("Branch ended.");
+        if(search.isEndState() && Database.getDatabase().isTrulyConsistent()){
+            out.println("Branch #"+numTotalBranches+" ended.");
+            ++numTotalBranches;
         }
     }
 

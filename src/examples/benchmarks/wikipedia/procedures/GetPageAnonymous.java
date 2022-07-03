@@ -48,7 +48,6 @@ public class GetPageAnonymous extends WikipediaProcedure{
                 }
             }
         }
-        db.end();
 
         return a;
     }

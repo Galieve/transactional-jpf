@@ -10,6 +10,10 @@ public class CausalHistory extends COPolynomialHistory {
         super(config);
     }
 
+    public CausalHistory(History h){
+        super(h);
+    }
+
     @Override
     protected ArrayList<ArrayList<Boolean>> initializeCORelation() {
         computeTransitiveClosure();

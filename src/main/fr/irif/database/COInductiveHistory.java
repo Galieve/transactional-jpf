@@ -16,4 +16,8 @@ public abstract class COInductiveHistory extends History {
     public COInductiveHistory(Config config) {
         super(config);
     }
+
+    public COInductiveHistory(History h) {
+        super(h);
+    }
 }

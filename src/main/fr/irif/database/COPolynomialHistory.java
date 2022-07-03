@@ -13,6 +13,10 @@ public abstract class COPolynomialHistory extends History {
         super(config);
     }
 
+    public COPolynomialHistory(History h) {
+        super(h);
+    }
+
     protected boolean dfsCOAcyclic(ArrayList<Integer> color, Integer u){
         color.set(u,1);
         for(int v = 0; v < commitOrderMatrix.get(u).size(); ++v){
