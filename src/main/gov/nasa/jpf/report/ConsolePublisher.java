@@ -40,7 +40,7 @@ import java.util.TreeMap;
 public class ConsolePublisher extends Publisher {
 
   // output destinations
-  String fileName;
+  protected String fileName;
   FileOutputStream fos;
 
   String port;

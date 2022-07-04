@@ -246,17 +246,26 @@ public class TrDFSearch extends DFSearch {
 
         //If it is guided, it has to follow every step, even if we can detect before reach the end that it is inconsistent
 
-        if(!checkDatabaseConsistency() || (isEndState() && !database.isTrulyConsistent())){
+        if(!checkDatabaseConsistency()){
             if(database.isAssertionViolated()) {
                 AssertTransactionalEvent a = (AssertTransactionalEvent) database.getLastEvent();
                 msgListener = "Invalid branch: assertion violated. " + a;
             }
-            else if (isEndState()){
-                msgListener = "Invalid branch: no truly consistent database.";
-            }
             else{
                 msgListener = "Invalid branch: inconsistent database.";
 
+            }
+            return false;
+
+        }
+
+        if((isEndState() && !database.isTrulyConsistent())){
+            if(database.isAssertionViolated()) {
+                AssertTransactionalEvent a = (AssertTransactionalEvent) database.getLastEvent();
+                msgListener = "Invalid branch: assertion violated. " + a;
+            }
+            else{
+                msgListener = "Invalid branch: no truly consistent database.";
             }
             return false;
 

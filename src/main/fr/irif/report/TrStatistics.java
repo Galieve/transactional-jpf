@@ -12,6 +12,7 @@ public class TrStatistics extends Statistics {
 
     public int swaps = 0;
     public int usefulSwaps = 0;
+    public int histories = 0;
 
     @Override
     public TrStatistics clone() {
@@ -20,22 +21,9 @@ public class TrStatistics extends Statistics {
 
     @Override
     public void stateAdvanced (Search search) {
-        long m = Runtime.getRuntime().totalMemory();
-        if (m > maxUsed) {
-            maxUsed = m;
-        }
-
-        if (search.isNewState()) {
-            newStates++;
-            int depth = search.getDepth();
-            if (depth > maxDepth) {
-                maxDepth = depth;
-            }
-        } else {
-            visitedStates++;
-        }
+        super.stateAdvanced(search);
         if (search.isEndState() && Database.getDatabase().isTrulyConsistent()) {
-            endStates++;
+            histories++;
         }
     }
 
@@ -47,14 +35,11 @@ public class TrStatistics extends Statistics {
         //var msg = trSearch.getAndClearMessage(); //The reporter is the last listener that will use this message.
         if(msg != null && msg.equals(GuideInfo.BacktrackTypes.SWAP+" mode ended.")){
             ++swaps;
-            if(Database.getDatabase().isConsistent()){
+            if(Database.getDatabase().isTrulyConsistent()){
                 ++usefulSwaps;
             }
         }
-        if(msg != null && msg.equals("Invalid branch: no truly consistent database.")){
-            --usefulSwaps;
-            //If it was inconsistent before, we won't check if it is truly consistent (the branch will be cut before).
-        }
+
     }
 
 
