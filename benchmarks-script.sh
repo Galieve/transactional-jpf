@@ -20,8 +20,8 @@ commands=(
 )
 
 for command in "${commands[@]}"; do
-  java -jar build/RunJPF.jar +db.database_true_model.class="$trueModel" +db.database_model.class=RA $command
+  java -jar build/RunJPF.jar +db.database_true_model.class="$trueModel" +db.database_model.class=$RA $command
   for trueModel in "${trueModels[@]}"; do
-    java -jar build/RunJPF.jar +db.database_true_model.class="$trueModel" +db.database_model.class=CC $command
+    java -jar build/RunJPF.jar +db.database_true_model.class="$trueModel" +db.database_model.class=$CC $command
   done
 done
