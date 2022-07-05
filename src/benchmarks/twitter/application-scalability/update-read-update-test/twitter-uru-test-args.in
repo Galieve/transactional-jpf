@@ -1,0 +1,1 @@
+java -jar build/RunJPF.jar +report.console.file-prefix=bin/benchmarks/application-scalability/test/test benchmarks.twitter.BigTestTwitter -u "src/benchmarks/twitter/database/users.in" "src/benchmarks/twitter/application-scalability/update-read-update-test/uru1.in" "src/benchmarks/twitter/application-scalability/update-read-update-test/uru2.in"

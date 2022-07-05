@@ -139,20 +139,26 @@ public abstract class History {
         return sowr;
     }
 
+    protected static void computeTransitiveClosure(ArrayList<ArrayList<Boolean>> matAdj){
+
+        int numberTransactions = matAdj.size();
+        //Warhsall-floyd
+        for(int k = 0; k <numberTransactions; ++k) {
+            for (int i = 0; i < numberTransactions; ++i) {
+                for (int j = 0; j < numberTransactions; ++j) {
+                    matAdj.get(i).set(j, matAdj.get(i).get(j) || (matAdj.get(i).get(k) && matAdj.get(k).get(j)));
+                }
+            }
+        }
+    }
+
 
     //TODO
     protected void computeTransitiveClosure(){
 
         transitiveClosure = computeWRSORelation();
 
-        //Warhsall-floyd
-        for(int k = 0; k <numberTransactions; ++k) {
-            for (int i = 0; i < numberTransactions; ++i) {
-                for (int j = 0; j < numberTransactions; ++j) {
-                    transitiveClosure.get(i).set(j, transitiveClosure.get(i).get(j) || (transitiveClosure.get(i).get(k) && transitiveClosure.get(k).get(j)));
-                }
-            }
-        }
+        computeTransitiveClosure(transitiveClosure);
     }
 
     public boolean areWRSO_plusRelated(int a, int b){

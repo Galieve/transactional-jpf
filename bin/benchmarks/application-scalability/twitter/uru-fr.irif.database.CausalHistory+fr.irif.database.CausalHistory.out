@@ -1,0 +1,23 @@
+JavaPathfinder core system v8.0 (rev 12623c4d85da326c1399675f108caa61c18dec9e) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+benchmarks.twitter.BigTestTwitter.main("-u","src/benchmarks/twitter/database/users.in","src/benchmarks/twitter/application-scalability/update-read-update/uru0.in","src/benchmarks/twitter/application-scalability/update-read-update/uru1.in","src/benchmarks/twitter/application-scalability/update-read-update/uru2.in")
+
+====================================================== search started: 4/7/22 11:35
+
+====================================================== results
+no errors detected
+
+====================================================== statistics
+elapsed time:       00:00:39
+states:             new=0,visited=63758,backtracked=63758,end=876
+transactional:      histories=876,swaps=221,usefulSwaps=195
+search:             maxDepth=0,constraints=0
+choice generators:  thread=62636 (signal=0,lock=1,sharedRef=41749,threadApi=566,reschedule=20320), data=0
+heap:               new=771150,released=1012894,maxLive=1066,gcCycles=157563
+instructions:       32663921
+max memory:         300MB
+loaded code:        classes=150,methods=3602
+
+====================================================== search finished: 4/7/22 11:36

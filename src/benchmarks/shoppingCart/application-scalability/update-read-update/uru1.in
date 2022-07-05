@@ -1,3 +1,3 @@
-enroll 2 1
-getEnrollments
-deleteCourse 2
+changeQuantity 1 10
+getItem 1
+addItem 6;bee;2.5

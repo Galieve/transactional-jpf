@@ -20,27 +20,35 @@ public class PrefixHistory extends SerializableHistory {
     protected ArrayList<ArrayList<Boolean>> computeSO_SER(){
         ArrayList<ArrayList<Boolean>> splitSO = new ArrayList<>();
         for(int i = 0; i < sessionOrderMatrix.size(); ++i){
-            splitSO.add( new ArrayList<>(Collections.nCopies(2*numberTransactions,false)));
-            splitSO.add( new ArrayList<>(Collections.nCopies(2*numberTransactions,false)));
+            splitSO.add( new ArrayList<>(Collections.nCopies(2*numberTransactions,false))); //reads
+            splitSO.add( new ArrayList<>(Collections.nCopies(2*numberTransactions,false))); //writes
             splitSO.get(2*i).set(2*i+1, true);
+            splitSO.get(2*i+1).set(2*i+1, true);
+            splitSO.get(2*i).set(2*i, true);
+
             for(int j = 0; j < sessionOrderMatrix.get(i).size(); ++j){
                 if(sessionOrderMatrix.get(i).get(j)){
                     splitSO.get(2*i).set(2*j, true);
-                    splitSO.get(2*i+1).set(2*j, true);
                     splitSO.get(2*i).set(2*j+1, true);
+                    splitSO.get(2*i+1).set(2*j, true);
                     splitSO.get(2*i+1).set(2*j+1, true);
                 }
             }
         }
+
+        computeTransitiveClosure(splitSO);
+
         return splitSO;
     }
 
     protected ArrayList<HashMap<String, Integer>> computeWritesPerTransaction_SER(){
         ArrayList<HashMap<String, Integer>> wrPerTransaction = new ArrayList<>();
-        Cloner c = new Cloner();
         for(int i = 0; i < writesPerTransaction.size(); ++i){
-            wrPerTransaction.add(new HashMap<>());
-            wrPerTransaction.add(c.deepClone( writesPerTransaction.get(i)));
+            wrPerTransaction.add(new HashMap<>()); //reads (empty)
+            wrPerTransaction.add(new HashMap<>()); //writes
+            for(var p : writesPerTransaction.get(i).entrySet()){
+                wrPerTransaction.get(wrPerTransaction.size()-1).put(p.getKey(), p.getValue());
+            }
             //wrPerTransaction.set(2*i+1, writesPerTransaction.get(i));
         }
         return wrPerTransaction;

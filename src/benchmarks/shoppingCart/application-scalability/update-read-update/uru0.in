@@ -1,3 +1,3 @@
-enroll 1 1
-getEnrollments
-enroll 1 2
+removeItem 0
+getQuantity 2
+changeQuantity 1 18

@@ -1,6 +1,1 @@
-benchmarks.courseware.BigTestCourseWare
--s "src/benchmarks/courseware/database/students.in"
--c "src/benchmarks/courseware/database/courses.in"
- "src/benchmarks/courseware/application-scalability/update-read-read/urr0.in"
- "src/benchmarks/courseware/application-scalability/update-read-read/urr1.in"
- "src/benchmarks/courseware/application-scalability/update-read-read/urr2.in"
+java -jar build/RunJPF.jar +report.console.file-prefix=bin/benchmarks/application-scalability/courseware/urr benchmarks.courseware.BigTestCourseWare -s "src/benchmarks/courseware/database/students.in" -c "src/benchmarks/courseware/database/courses.in" "src/benchmarks/courseware/application-scalability/update-read-read/urr0.in" "src/benchmarks/courseware/application-scalability/update-read-read/urr1.in" "src/benchmarks/courseware/application-scalability/update-read-read/urr2.in"

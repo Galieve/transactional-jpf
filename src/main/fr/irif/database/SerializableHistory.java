@@ -37,6 +37,7 @@ public class SerializableHistory extends COInductiveHistory {
             }
         }
         for(String var: writesPerTransaction.get(i).keySet()){
+            //j == t1
             for(int j = 0; j < numberTransactions; ++j){
                 if(idxSet.contains(j)) continue;
                 for(int k : idxSet){
@@ -68,7 +69,7 @@ public class SerializableHistory extends COInductiveHistory {
                 if(!prefixes.contains(cloneIdx) && checkSER(cloneIdx)){
                     return true;
                 }
-                //prefixes.add(cloneIdx);
+                prefixes.add(cloneIdx);
                 //TODO: implement seen
             }
         }
