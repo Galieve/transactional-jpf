@@ -1,2 +1,1 @@
-stockLevel 0 0 100
-stockLevel 1 1 7
+createNewOrder 0 0 20027 2 0 [27, 42] [2, 0] [7, 10]

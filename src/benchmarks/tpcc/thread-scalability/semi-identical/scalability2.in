@@ -1,2 +1,1 @@
-payment 1 1 20027 Rodolfo false 7.34
-payment 0 0 33496 "Victoria Federica" true 6.19
+createNewOrder 1 0 100007 2 0 [27, 42] [2, 0] [7, 10]
