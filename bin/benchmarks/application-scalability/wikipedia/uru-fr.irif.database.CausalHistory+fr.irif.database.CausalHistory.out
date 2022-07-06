@@ -1,23 +1,23 @@
-JavaPathfinder core system v8.0 (rev 12623c4d85da326c1399675f108caa61c18dec9e) - (C) 2005-2014 United States Government. All rights reserved.
+JavaPathfinder core system v8.0 (rev 63995ec112418caad56ff3756349cbc5195d604f) - (C) 2005-2014 United States Government. All rights reserved.
 
 
 ====================================================== system under test
 benchmarks.wikipedia.BigTestWikipedia.main("-p","src/benchmarks/wikipedia/database/page.in","-r","src/benchmarks/wikipedia/database/revision.in","-t","src/benchmarks/wikipedia/database/text.in","-u","src/benchmarks/wikipedia/database/user.in","src/benchmarks/wikipedia/application-scalability/update-read-update/uru0.in","src/benchmarks/wikipedia/application-scalability/update-read-update/uru1.in","src/benchmarks/wikipedia/application-scalability/update-read-update/uru2.in")
 
-====================================================== search started: 5/7/22 2:48
+====================================================== search started: 6/7/22 0:23
 
 ====================================================== results
 no errors detected
 
 ====================================================== statistics
-elapsed time:       00:04:53
-states:             new=1449,visited=100192,backtracked=101641,end=460
+elapsed time:       00:01:36
+states:             new=597,visited=101044,backtracked=101641,end=460
 transactional:      histories=460,swaps=248,usefulSwaps=156
 search:             maxDepth=492,constraints=0
 choice generators:  thread=100842 (signal=0,lock=1,sharedRef=63285,threadApi=1018,reschedule=36538), data=0
 heap:               new=3885028,released=3746756,maxLive=1797,gcCycles=253112
 instructions:       50687302
-max memory:         550MB
-loaded code:        classes=168,methods=3742
+max memory:         458MB
+loaded code:        classes=168,methods=3741
 
-====================================================== search finished: 5/7/22 2:53
+====================================================== search finished: 6/7/22 0:24
