@@ -1,23 +1,23 @@
-JavaPathfinder core system v8.0 (rev 12623c4d85da326c1399675f108caa61c18dec9e) - (C) 2005-2014 United States Government. All rights reserved.
+JavaPathfinder core system v8.0 (rev edacdeb72f04dcf0db0e752cab5ba7200c7d843b) - (C) 2005-2014 United States Government. All rights reserved.
 
 
 ====================================================== system under test
 benchmarks.shoppingCart.BigTestShoppingCart.main("-s","src/benchmarks/shoppingCart/database/store.in","src/benchmarks/shoppingCart/application-scalability/update-read-update/uru0.in","src/benchmarks/shoppingCart/application-scalability/update-read-update/uru1.in","src/benchmarks/shoppingCart/application-scalability/update-read-update/uru2.in")
 
-====================================================== search started: 4/7/22 16:43
+====================================================== search started: 6/7/22 2:37
 
 ====================================================== results
 no errors detected
 
 ====================================================== statistics
-elapsed time:       00:06:30
+elapsed time:       00:04:03
 states:             new=0,visited=271262,backtracked=271262,end=12433
 transactional:      histories=12433,swaps=684,usefulSwaps=684
 search:             maxDepth=0,constraints=0
 choice generators:  thread=258146 (signal=0,lock=277,sharedRef=146741,threadApi=2330,reschedule=108798), data=0
 heap:               new=15785294,released=18911314,maxLive=1363,gcCycles=597100
 instructions:       271428966
-max memory:         360MB
-loaded code:        classes=161,methods=3673
+max memory:         370MB
+loaded code:        classes=161,methods=3672
 
-====================================================== search finished: 4/7/22 16:50
+====================================================== search finished: 6/7/22 2:41

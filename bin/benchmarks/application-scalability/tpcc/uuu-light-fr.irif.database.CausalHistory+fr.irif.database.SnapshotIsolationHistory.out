@@ -1,17 +1,17 @@
-JavaPathfinder core system v8.0 (rev 63995ec112418caad56ff3756349cbc5195d604f) - (C) 2005-2014 United States Government. All rights reserved.
+JavaPathfinder core system v8.0 (rev edacdeb72f04dcf0db0e752cab5ba7200c7d843b) - (C) 2005-2014 United States Government. All rights reserved.
 
 
 ====================================================== system under test
 benchmarks.tpcc.BigTestTPCC.main("-d","src/benchmarks/tpcc/database/districts.in","-n","src/benchmarks/tpcc/database/neworder.in","-i","src/benchmarks/tpcc/database/item.in","-w","src/benchmarks/tpcc/database/warehouse.in","-s","src/benchmarks/tpcc/database/stock.in","-h","src/benchmarks/tpcc/database/history.in","-l","src/benchmarks/tpcc/database/orderline.in","-c","src/benchmarks/tpcc/database/customer.in","-o","src/benchmarks/tpcc/database/order.in","src/benchmarks/tpcc/application-scalability/update-update-update-light/uuu0.in","src/benchmarks/tpcc/application-scalability/update-update-update-light/uuu1.in","src/benchmarks/tpcc/application-scalability/update-update-update-light/uuu2.in")
 
-====================================================== search started: 6/7/22 1:01
+====================================================== search started: 6/7/22 2:58
 
 ====================================================== results
 no errors detected
 
 ====================================================== statistics
-elapsed time:       00:01:58
-states:             new=552,visited=88112,backtracked=88664,end=175
+elapsed time:       00:01:59
+states:             new=516,visited=88148,backtracked=88664,end=175
 transactional:      histories=153,swaps=196,usefulSwaps=51
 search:             maxDepth=569,constraints=0
 choice generators:  thread=88149 (signal=0,lock=247,sharedRef=63870,threadApi=427,reschedule=23605), data=0
@@ -20,4 +20,4 @@ instructions:       63284519
 max memory:         533MB
 loaded code:        classes=174,methods=3819
 
-====================================================== search finished: 6/7/22 1:03
+====================================================== search finished: 6/7/22 3:00
