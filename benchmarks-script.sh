@@ -2,7 +2,7 @@
 
 RA="fr.irif.database.ReadAtomicHistory"
 CC="fr.irif.database.CausalHistory"
-trueModels=("fr.irif.database.ReadAtomicHistory" "fr.irif.database.CausalHistory"
+trueModels=("fr.irif.database.CausalHistory"
           "fr.irif.database.PrefixHistory" "fr.irif.database.SnapshotIsolationHistory"
           "fr.irif.database.SerializableHistory")
 
@@ -20,8 +20,10 @@ commands=(
 )
 
 for command in "${commands[@]}"; do
-  java -jar build/RunJPF.jar +db.database_true_model.class="$trueModel" +db.database_model.class=$RA $command
+  echo java -jar build/RunJPF.jar +db.database_model.class=$RA $command
+  java -jar build/RunJPF.jar +db.database_model.class=$RA $command
   for trueModel in "${trueModels[@]}"; do
+    echo java -jar build/RunJPF.jar +db.database_true_model.class="$trueModel" +db.database_model.class=$CC $command
     java -jar build/RunJPF.jar +db.database_true_model.class="$trueModel" +db.database_model.class=$CC $command
   done
 done
