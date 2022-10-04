@@ -1,4 +1,4 @@
-package fr.irif.database;
+package fr.irif.histories;
 
 import com.rits.cloning.Cloner;
 import gov.nasa.jpf.Config;
@@ -23,7 +23,8 @@ public abstract class History {
     protected String forbiddenVariable;
 
     protected History(Config config){
-        this(new ArrayList<>(), new HashMap<>(), new ArrayList<>(), config.getString("db.database_model.forbidden_variable", "FORBIDDEN"));
+        this(new ArrayList<>(), new HashMap<>(), new ArrayList<>(),
+                config.getString("db.database_isolation_level.forbidden_variable", "FORBIDDEN"));
     }
 
     protected History(ArrayList<ArrayList<Boolean>> soMatrix, HashMap<String,ArrayList<ArrayList<Integer>>> wrMatrix,
@@ -38,7 +39,10 @@ public abstract class History {
     }
 
     protected History(History h){
-        this(h.sessionOrderMatrix, h.writeReadMatrix, h.writesPerTransaction, h.forbiddenVariable);
+        this(new Cloner().deepClone(h.sessionOrderMatrix),
+                new Cloner().deepClone(h.writeReadMatrix),
+                new Cloner().deepClone(h.writesPerTransaction),
+                h.forbiddenVariable);
     }
 
     public void addTransaction(int transId, int threadId, ArrayList<Integer> sessionOrder){
@@ -221,5 +225,7 @@ public abstract class History {
         consistent = null;
     }
 
-
+    public int getNumberTransactions() {
+        return numberTransactions;
+    }
 }

@@ -8,12 +8,10 @@ import java.util.HashMap;
 public class TPCC extends BenchmarkModule {
 
     private static TPCC TPCCInstance;
-
     public static final String DISTRICT = "DISTRICT";
     public static final String ORDERLINE = "ORDERLINE";
     public static final String STOCK = "STOCK";
     public static final String CUSTOMER = "CUSTOMER";
-
     public static final String OPENORDER = "OPENORDER";
     public static final String HISTORY = "HISTORY";
     public static final String WAREHOUSE = "WAREHOUSE";

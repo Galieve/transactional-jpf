@@ -4,20 +4,20 @@ JavaPathfinder core system v8.0 (rev 1900633c9ad830d831f53bb2a78ca6c89ea7acee) -
 ====================================================== system under test
 benchmarks.tpcc.BigTestTPCC.main("-d","src/benchmarks/tpcc/database/districts.in","-n","src/benchmarks/tpcc/database/neworder.in","-i","src/benchmarks/tpcc/database/item.in","-w","src/benchmarks/tpcc/database/warehouse.in","-s","src/benchmarks/tpcc/database/stock.in","-h","src/benchmarks/tpcc/database/history.in","-l","src/benchmarks/tpcc/database/orderline.in","-c","src/benchmarks/tpcc/database/customer.in","-o","src/benchmarks/tpcc/database/order.in","src/benchmarks/tpcc/transaction-scalability/heavy/heavy1-5.in","src/benchmarks/tpcc/transaction-scalability/heavy/heavy2-5.in")
 
-====================================================== search started: 19/9/22 20:22
+====================================================== search started: 20/9/22 11:25
 
 ====================================================== results
 no errors detected
 
 ====================================================== statistics
-elapsed time:       00:05:17
-states:             new=1572,visited=192460,backtracked=194032,end=633
-transactional:      histories=633,swaps=290,usefulSwaps=290
-search:             maxDepth=1083,constraints=0
-choice generators:  thread=193110 (signal=0,lock=47,sharedRef=130519,threadApi=384,reschedule=62160), data=0
-heap:               new=18724862,released=19041838,maxLive=1670,gcCycles=447060
-instructions:       213399723
-max memory:         1428MB
+elapsed time:       00:29:16
+states:             new=8753,visited=914294,backtracked=923047,end=5312
+transactional:      histories=5312,swaps=1378,usefulSwaps=1378
+search:             maxDepth=1084,constraints=0
+choice generators:  thread=916358 (signal=0,lock=79,sharedRef=598904,threadApi=1911,reschedule=315464), data=0
+heap:               new=99553878,released=102276150,maxLive=1670,gcCycles=2147330
+instructions:       1180521291
+max memory:         1694MB
 loaded code:        classes=178,methods=3859
 
-====================================================== search finished: 19/9/22 20:28
+====================================================== search finished: 20/9/22 11:54

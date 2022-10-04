@@ -12,23 +12,6 @@ public class TrSingleProcessVM extends SingleProcessVM {
         super(jpf, conf);
     }
 
-    @Override
-    public void initFields(Config config) {
-        path = new Path("fix-this!");
-        out = null;
-
-        ss = new TrSystemState(config, this);
-
-        stateSet = config.getInstance("vm.storage.class", StateSet.class);
-        if (stateSet != null) stateSet.attach(this);
-        backtracker = config.getEssentialInstance("vm.backtracker.class", Backtracker.class);
-        backtracker.attach(this);
-
-        scheduler = config.getEssentialInstance("vm.scheduler.class", Scheduler.class);
-
-        newStateId = -1;
-    }
-
 
     @Override
     protected void notifyInstructionExecuted(ThreadInfo ti, Instruction insn, Instruction nextInsn) {
@@ -45,13 +28,6 @@ public class TrSingleProcessVM extends SingleProcessVM {
             throw new JPFListenerException("exception during instructionExecuted() notification", t);
         }
     }
-
-    /*
-    public void setDisableNotification(boolean disableNotification) {
-        this.disableNotification = disableNotification;
-    }
-
-     */
 
     @Override
     public void print(String s) {

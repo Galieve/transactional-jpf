@@ -1,8 +1,6 @@
-package fr.irif.database;
+package fr.irif.histories;
 
 import gov.nasa.jpf.Config;
-
-import java.util.ArrayList;
 
 public class CausalHistory extends COPolynomialHistory {
 
@@ -12,12 +10,6 @@ public class CausalHistory extends COPolynomialHistory {
 
     public CausalHistory(History h){
         super(h);
-    }
-
-    @Override
-    protected ArrayList<ArrayList<Boolean>> initializeCORelation() {
-        computeTransitiveClosure();
-        return transitiveClosure;
     }
 
     @Override

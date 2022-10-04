@@ -53,16 +53,6 @@ public class MainUtility {
                     table.get(idGenerator.apply(row)).add(row);
                 }
 
-                /*File uidFile = new File(fileName);
-                BufferedReader brTable = new BufferedReader(new FileReader(uidFile));
-                var row = "";
-                while ((row = brTable.readLine()) != null) {
-                    table.putIfAbsent(idGenerator.apply(row), new ArrayList<>());
-                    table.get(idGenerator.apply(row)).add(row);
-                }
-                brTable.close();
-
-                 */
             } catch (IOException e) {
                 e.printStackTrace();
 

@@ -30,13 +30,15 @@ public class TrStatistics extends Statistics {
     @Override
     public void stateProcessed(Search search) {
         super.stateProcessed(search);
-        var trSearch = (TrDFSearch) search;
-        var msg = trSearch.getMessage();
-        //var msg = trSearch.getAndClearMessage(); //The reporter is the last listener that will use this message.
-        if(msg != null && msg.equals(GuideInfo.BacktrackTypes.SWAP+" mode ended.")){
-            ++swaps;
-            if(Database.getDatabase().isTrulyConsistent()){
-                ++usefulSwaps;
+        if(search instanceof TrDFSearch) {
+            var trSearch = (TrDFSearch) search;
+            var msg = trSearch.getMessage();
+            //var msg = trSearch.getAndClearMessage(); //The reporter is the last listener that will use this message.
+            if (msg != null && msg.equals(GuideInfo.BacktrackTypes.SWAP + " mode ended.")) {
+                ++swaps;
+                if (Database.getDatabase().isTrulyConsistent()) {
+                    ++usefulSwaps;
+                }
             }
         }
 

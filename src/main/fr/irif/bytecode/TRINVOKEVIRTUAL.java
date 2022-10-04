@@ -42,8 +42,6 @@ public class TRINVOKEVIRTUAL extends INVOKEVIRTUAL {
             }
             trEventRegister.registerEvent(this, frame.getCallerFrame().getPC(), ti);
             trEventRegister.setLastInstructionTransactional(true);
-            //System.out.println("GTS:"+database.getTransactionalStatement(this));
-
 
 
         }

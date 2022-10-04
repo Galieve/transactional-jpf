@@ -11,6 +11,8 @@ import gov.nasa.jpf.vm.VM;
 
 import java.util.LinkedList;
 
+import static fr.irif.database.GuideInfo.BacktrackTypes.NONE;
+
 
 public class TrDFSearch extends DFSearch {
 
@@ -158,10 +160,7 @@ public class TrDFSearch extends DFSearch {
     protected Pair<Boolean, Integer> computeStepsEvent(TransactionalEvent e){
         if(isEndState()) return new Pair<>(false, null);;
         //TODO: erase sharingCG; adding locks.
-        //if(trEventRegister.isChoiceGeneratorShared()) return new Pair<>(true, 0);
         boolean reset = true;
-        //if(vm.getChoiceGenerator() != null && vm.getChoiceGenerator().isDone()) return new Pair<>(false, null);
-
         //we need to substitute this value during our mock tests, we will restore it before leaving.
         Integer n = 0, m = null;
 
@@ -194,22 +193,17 @@ public class TrDFSearch extends DFSearch {
             else if (m != null) n = m;
             //We are backtracking and there is no local instruction nor the event we are searching for.
             else{
-                //This case should never appear, if it does, this program is wrong (non-if version)
-                //Now it can happen as breakTransition always
-                /*if(database.getDatabaseBacktrackMode() != GuideInfo.BacktrackTypes.RESTORE)
-                    System.out.println("DEBUG: error?");
+                //Restore case, when executing a transaction partially unknown.
+                //
 
-                 */
 
                 n = currentAdvance;
-                /*else{
-                    reset = false;
-                    n = 0;
-                }*/
+
             }
         }
         trEventRegister.setFakeRead(false);
         database.setMockAccess(false);
+        database.setDatabaseBacktrackMode(NONE);
         return new Pair<>(true, n);
 
     }
@@ -259,7 +253,7 @@ public class TrDFSearch extends DFSearch {
 
         }
 
-        if((isEndState() && !database.isTrulyConsistent())){
+        if(isEndState() && !database.isTrulyConsistent()){
             if(database.isAssertionViolated()) {
                 AssertTransactionalEvent a = (AssertTransactionalEvent) database.getLastEvent();
                 msgListener = "Invalid branch: assertion violated. " + a;
@@ -327,6 +321,7 @@ public class TrDFSearch extends DFSearch {
                     else break;
                 case JPF:
                 case NONE:
+                default:
                     break;
             }
         }
@@ -335,7 +330,7 @@ public class TrDFSearch extends DFSearch {
         return vm.backtrack();
     }
 
-    public void applyResetJumps(Pair<Boolean, Integer> p){
+    protected void applyResetJumps(Pair<Boolean, Integer> p){
         Boolean reset = p._1;
         Integer n = p._2;
         if(reset){

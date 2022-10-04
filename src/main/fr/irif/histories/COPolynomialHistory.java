@@ -1,7 +1,7 @@
-package fr.irif.database;
+package fr.irif.histories;
 
+import com.rits.cloning.Cloner;
 import gov.nasa.jpf.Config;
-
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -51,16 +51,9 @@ public abstract class COPolynomialHistory extends History {
 
     protected abstract void computeInitializedCORelation();
 
-    protected abstract ArrayList<ArrayList<Boolean>> initializeCORelation();
-
     protected void generateCommitOrderMatrix(){
-        var co = initializeCORelation();
-        /*Cloner cloner = new Cloner();
-        commitOrderMatrix = cloner.deepClone(co);
-
-         */
-        commitOrderMatrix = Utility.deepCopyMatrix(co);
-
+        computeTransitiveClosure();
+        commitOrderMatrix = new Cloner().deepClone(transitiveClosure);
         computeInitializedCORelation();
 
     }
@@ -78,13 +71,5 @@ public abstract class COPolynomialHistory extends History {
         super.restoreSemanticFlags();
         commitOrderMatrix = null;
     }
-
-    /*
-    if (commitOrderMatrix == null) {
-        generateCommitOrderMatrix();
-    }
-    consistent = isCommitOrderAcyclic();
-
-     */
 
 }

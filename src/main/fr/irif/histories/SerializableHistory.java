@@ -1,4 +1,4 @@
-package fr.irif.database;
+package fr.irif.histories;
 
 import gov.nasa.jpf.Config;
 

@@ -1,6 +1,5 @@
-package fr.irif.database;
+package fr.irif.histories;
 
-import com.rits.cloning.Cloner;
 import gov.nasa.jpf.Config;
 
 import java.util.ArrayList;

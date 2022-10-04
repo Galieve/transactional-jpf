@@ -99,8 +99,8 @@ public class TransactionalExecTracker extends ExecTracker {
 
     @Override
     public void stateAdvanced(Search search) {
-        VM vm = search.getVM();
-        var frame = vm.getCurrentTransition().getThreadInfo().getTopFrame();
+        var frame = search.getTransition().getThreadInfo().getTopFrame();
+        //t.getThreadInfo().getTopFrame()
         var database = Database.getDatabase();
         if(frame != null && trEventRegister.isTransactionalBreakTransition(frame)
                 && !database.isMockAccess()){

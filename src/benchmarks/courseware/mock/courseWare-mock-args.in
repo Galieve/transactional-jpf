@@ -1,4 +1,4 @@
 benchmarks.courseware.BigTestCourseWare
--s "bin/benchmarks/courseware/database/students.in"
--c "bin/benchmarks/courseware/database/courses.in"
- "bin/benchmarks/courseware/mock/mock0.in" "bin/benchmarks/courseware/mock/mock1.in"
+-s "src/benchmarks/courseware/database/students.in"
+-c "src/benchmarks/courseware/database/courses.in"
+ "src/benchmarks/courseware/mock/mock0.in" "src/benchmarks/courseware/mock/mock1.in"

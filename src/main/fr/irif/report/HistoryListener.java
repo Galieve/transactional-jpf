@@ -25,7 +25,6 @@ public class HistoryListener extends ListenerAdapter {
 
     public HistoryListener(Config config) {
         trEventRegister = TrEventRegister.getEventRegister();
-        //config.getEssentialInstance("out.database_model.class", DatabaseRelations.class);
         String path = config.getString("db.history.out", "bin/histories/histories."+getDefaultFileName(config)+".out");
         counter = 0;
         if (path == null) {
@@ -59,16 +58,6 @@ public class HistoryListener extends ListenerAdapter {
             out.println("----------------------------------- history #" +
                   counter + ": ");
             out.println(database.getDatabaseState());
-
-            /*if(checkDuplicates.contains(database.getDatabaseState())){
-                out.close();
-                System.err.println("Duplicate history #"+counter+"\n"+database.getDatabaseState());
-                System.exit(1);
-            }
-            checkDuplicates.add(database.getDatabaseState());
-
-             */
-
 
             ++counter;
         }

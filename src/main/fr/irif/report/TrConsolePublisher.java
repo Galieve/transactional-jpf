@@ -13,8 +13,9 @@ public class TrConsolePublisher extends ConsolePublisher {
     public TrConsolePublisher(Config conf, Reporter reporter) {
         super(conf, reporter);
         var pref = conf.getString("report.console.file-prefix");
-        var model = conf.getString("db.database_model.class");
-        var trueModel = conf.getOrDefault("db.database_true_model.class", conf.getString("db.database_model.class"));
+        var model = conf.getString("db.database_isolation_level.class");
+        var trueModel = conf.getOrDefault("db.database_isolation_level.class",
+                conf.getString("db.database_isolation_level.class"));
         if(pref != null && model != null && trueModel != null) {
             fileName = pref + "-" + model + "+" + trueModel + ".out";
         }

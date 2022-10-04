@@ -45,8 +45,8 @@ public class TrPolyDFSearch extends TrDFSearch {
 
                     GuideInfo guide = database.getGuideInfo();
                     if (guide.hasPath()) {
-
-                        previousStates.push(new Pair<>(new Pair<>(vm.getRestorableState(), depth),database.cloneDatabase()));
+                        previousStates.push(new Pair<>(new Pair<>(vm.getRestorableState(), depth),
+                                database.cloneDatabase()));
                         LinkedList<Transaction> path = guide.getGuidedPath();
                         TransactionalEvent endEvent = guide.getEndEvent();
                         WriteTransactionalEvent wSwap = guide.getWriteEventSwap();
