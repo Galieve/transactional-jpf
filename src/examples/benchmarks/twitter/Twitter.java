@@ -51,7 +51,7 @@ public class Twitter extends BenchmarkModule {
         var users = TRUtility.generateHashMap(db.read(USERS), (s)->(new User(s)));
 
 
-        db.end();
+        db.commit();
 
         followersIds.putIfAbsent(u.getUserId(), new ArrayList<>());
 
@@ -88,7 +88,7 @@ public class Twitter extends BenchmarkModule {
 
         db.write(FOLLOWERS, followersIds.toString());
 
-        db.end();
+        db.commit();
 
 
     }
@@ -102,7 +102,7 @@ public class Twitter extends BenchmarkModule {
 
         db.write(TWEETS, map.toString());
 
-        db.end();
+        db.commit();
     }
 
     public Tweet getTweet(String tweetId){
@@ -112,7 +112,7 @@ public class Twitter extends BenchmarkModule {
                         (lt) -> (TRUtility.generateArrayList(lt)));
 
 
-        db.end();
+        db.commit();
         for(var list: map.values()){
             for(var t : list){
                 var tw = new Tweet(t);
@@ -138,7 +138,7 @@ public class Twitter extends BenchmarkModule {
             var folTL = getTimeline(folId);
             allTweets.addAll(folTL);
         }
-        db.end();
+        db.commit();
         //allTweets.sort((a, b)-> (int) (a.getTimestamp() - b.getTimestamp()));
 
 
@@ -151,7 +151,7 @@ public class Twitter extends BenchmarkModule {
         var map = TRUtility.generateHashMap(db.read(TWEETS),
                 (t) -> (TRUtility.generateArrayList(t,(s) -> (new Tweet(s)))));
 
-        db.end();
+        db.commit();
 
         map.putIfAbsent(userId, new ArrayList<>());
         return map.get(userId);
@@ -165,7 +165,7 @@ public class Twitter extends BenchmarkModule {
     public void assertTransaction(boolean b){
         db.begin();
         db.assertDB(b);
-        db.end();
+        db.commit();
     }
 
 

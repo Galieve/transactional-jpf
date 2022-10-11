@@ -92,7 +92,7 @@ public class MainUtility {
                 populateArrayDatabase(t.getKey(), t.getValue(), idGenerator.apply(t.getKey()));
         }
 
-        db.end();
+        db.commit();
     }
 
 }

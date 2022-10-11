@@ -22,7 +22,7 @@ public class RemoveWatchList extends WikipediaProcedure {
             updateUserTouched(userID);
         }
 
-        db.end();
+        db.commit();
     }
 
     private void deleteWatchList(int userID, int nameSpace, String pageTitle){

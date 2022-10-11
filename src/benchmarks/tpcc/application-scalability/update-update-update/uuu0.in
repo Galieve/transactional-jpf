@@ -1,3 +1,3 @@
-stockLevel 0 0 100
+stockLevel 0 1 100
 orderStatus 0 1 33496 "Victoria Federica" false
-createNewOrder 0 1 100007 2 0 [123, 66] [0, 1] [1, 1]
+createNewOrder 0 1 2743 2 0 [123, 666] [0, 1] [1, 1]

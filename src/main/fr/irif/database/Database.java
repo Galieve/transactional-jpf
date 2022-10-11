@@ -35,15 +35,11 @@ public abstract class Database {
     protected HashMap<String, Integer> timesPathExecuted;
 
     protected LinkedList<TransactionalEvent> deletedOnSwap;
-
     protected boolean mockAccess;
-
     protected GuideInfo guideInfo;
 
     protected History history;
-
     protected static Database databaseInstance;
-
     protected String mockPath;
 
     protected Config config;
@@ -86,7 +82,10 @@ public abstract class Database {
 
     //Use it carefully.
     public Database cloneDatabase(){
+
+        //TODO: it does not work!
         Cloner cloner = new Cloner();
+
         var clone = cloner.deepClone(this);
         //This variable has to be shared.
         clone.backtrackPoints = backtrackPoints;
@@ -120,7 +119,6 @@ public abstract class Database {
 
         switch (t.getType()) {
             case WRITE:
-                //TODO: check constraint size
                 if(t.getTransactionId() != 0 && writeEventsPerVariable.get(t.getVariable()) == null){
                     throw new IllegalStateException("Initial transaction does not contain variable " + t.getVariable());
                 }
@@ -132,15 +130,11 @@ public abstract class Database {
 
 
                 var writesOfX = writeEventsPerVariable.get(t.getVariable());
-
                 if(!writesOfX.isEmpty() && writesOfX.get(writesOfX.size()-1).getTransactionId() == t.getTransactionId()){
                     writesOfX.remove(writesOfX.size() -1);
 
                 }
-
-
                 writesOfX.add((WriteTransactionalEvent) t);
-
 
                 history.addWrite(t.getVariable(),t.getTransactionId());
 
@@ -159,7 +153,6 @@ public abstract class Database {
                 readEventsPerVariable.get(t.getVariable()).add((ReadTransactionalEvent) t);
                 break;
             case BEGIN:
-                //TODO
                 sessionOrder.putIfAbsent(t.getThreadId(), new ArrayList<>());
                 history.addTransaction(t.getTransactionId(), t.getThreadId(), sessionOrder.get(t.getThreadId()));
                 sessionOrder.get(t.getThreadId()).add(t.getTransactionId());
@@ -167,10 +160,10 @@ public abstract class Database {
                 oracle.addBegin(ed);
                 events.add(new Transaction(new LinkedList<>()));
                 break;
-            case END:
+            case COMMIT:
                 if(getDatabaseBacktrackMode() != GuideInfo.BacktrackTypes.SWAP) {
-
-                    oracle.addEnd(ed);
+                    var begin = events.get(events.size() -1).getFirst();
+                    oracle.addCommit(begin.getEventData(), ed);
                     for(var e: events.get(events.size()-1)){
                         if (e.getType() == TransactionalEvent.Type.WRITE) {
                             var writes = writeEventsPerVariable.get(e.getVariable());
@@ -178,9 +171,21 @@ public abstract class Database {
                                 backtrackPoints.putIfAbsent(e.getEventData(), readEventsPerVariable.get(e.getVariable()).size() - 1);
                             }
                             else{
+                                //TODO: remove this
                                 backtrackPoints.putIfAbsent(e.getEventData(), -1);
                             }
                         }
+                    }
+                }
+                break;
+            case ABORT:
+                for(var e: events.get(events.size() - 1)){
+                    if(e.getType() == TransactionalEvent.Type.WRITE) {
+                        var writes = writeEventsPerVariable.get(e.getVariable());
+                        if (!writes.isEmpty() && writes.get(writes.size() - 1).getTransactionId() == e.getTransactionId()) {
+                            writes.remove(writes.size() - 1);
+                        }
+                        history.removeWrite(e.getVariable(), e.getTransactionId());
                     }
                 }
                 break;
@@ -210,7 +215,7 @@ public abstract class Database {
         s = String.join("\n", lines);
 
         EventData ed = e.getEventData();
-        return ed.equals(new EventData(s, timesPathExecuted.get(ed.getPath()), ed.getBeginEvent()));
+        return ed!=null && ed.equals(new EventData(s, timesPathExecuted.get(ed.getPath()), ed.getBeginEvent()));
     }
 
     //TODO
@@ -225,12 +230,12 @@ public abstract class Database {
         orac_idx = oracle.getNextData(orac_idx);
         while(true){
             if(!instructionsMapped.containsKey(orac_idx)){
-                EventData endData = oracle.getEnd(orac_idx);
+                EventData endData = oracle.getCommit(orac_idx);
+                //TODO: remove the unknown end (it may be commit or abort)
                 restorePath.add(new Transaction(new UnknownEvent(orac_idx), new UnknownEvent(endData)));
             }
             else{
                 TransactionalEvent begin = instructionsMapped.get(orac_idx);
-                TransactionalEvent end = instructionsMapped.get(oracle.getEnd(orac_idx));
                 LinkedList<TransactionalEvent> trans = new LinkedList<>();
 
                 if(begin.getTransactionId() == r.getTransactionId()) {
@@ -242,16 +247,16 @@ public abstract class Database {
                     var wMCW = instructionsMapped.get(maximalWriteEventIndexes.get(r.getEventData()));
                     r.setWriteEvent((WriteTransactionalEvent) wMCW);
                     trans.add(r);
-                    var endData = oracle.getEnd(begin.getEventData());
+                    var endData = oracle.getCommit(begin.getEventData());
                     trans.add(new UnknownEvent(endData));
-                    //trans.add(end); r is swapped, so end is null.
                     restorePath.add(new Transaction(trans));
                 }
                 else {
-                    while (pi_idx <= end.getTransactionId()) {
+                    while (pi_idx <= begin.getTransactionId()) {
                         for(var t : events.get(pi_idx)){
                             trans.add(t);
-                            if(t.getType() == TransactionalEvent.Type.END) {
+                            if(t.getType() == TransactionalEvent.Type.COMMIT ||
+                                    t.getType() == TransactionalEvent.Type.ABORT) {
                                 restorePath.add(new Transaction(trans));
                                 trans = new LinkedList<>();
                             }
@@ -366,15 +371,6 @@ public abstract class Database {
 
     }
 
-
-
-    /*//TODO: check if this is true for all our models.
-    public boolean maximumConsistentWrite(TransactionalEvent w, int n) {
-        ArrayList<WriteTransactionalEvent> writeEvents = writeEventsPerVariable.get(w.getVariable());
-        return writeEvents.get(n) == w;
-    }
-
-     */
 
     public boolean isMaximallyAdded(TransactionalEvent t) {
         if (t.getType() == TransactionalEvent.Type.READ) {

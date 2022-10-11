@@ -19,9 +19,7 @@ public class TrDFSearch extends DFSearch {
     protected TrEventRegister trEventRegister;
 
     protected Database database;
-
     protected String msgListener;
-
     protected Integer currentAdvance;
 
     public TrDFSearch(Config config, VM vm) {
@@ -55,23 +53,22 @@ public class TrDFSearch extends DFSearch {
         }
     }
 
-    protected void backtrackWithPath(LinkedList<Transaction> guidePath, TransactionalEvent end, WriteTransactionalEvent wSwap) {
+    protected void backtrackWithPath(LinkedList<Transaction> guidePath, TransactionalEvent branchingPoint, WriteTransactionalEvent wSwap) {
 
         msgListener = "Starting "+database.getDatabaseBacktrackMode()+" mode.";
         notifyStateProcessed();
 
         Transition lastTransition = vm.getLastTransition();
-        while(lastTransition != null && !database.isExecutingTransactionalEvent(lastTransition, end)){
+        while(lastTransition != null && !database.isExecutingTransactionalEvent(lastTransition, branchingPoint)){
             backtrack();
 
             depth--;
             notifyStateBacktracked();
             lastTransition = vm.getLastTransition();
         }
-        trEventRegister.setChoiceGeneratorShared(true);
-        //vm.getChoiceGenerator().reset();
 
-        TransactionalEvent prev = end;
+
+        TransactionalEvent prev = branchingPoint;
         Transaction t = guidePath.getFirst();
         currentAdvance = -1;
         while(!guidePath.isEmpty()){
@@ -89,46 +86,50 @@ public class TrDFSearch extends DFSearch {
                 trEventRegister.setFakeRead(false);
 
 
-                if(database.isExecutingTransactionalEvent(getTransition(), e)) {
-                    t.setExecuting(true);
-                    if (e.getType() == TransactionalEvent.Type.READ) {
-                        ReadTransactionalEvent rPast = (ReadTransactionalEvent) e;
-                        ReadTransactionalEvent r = (ReadTransactionalEvent)
-                                database.getEventFromEventData(rPast.getEventData());
-                        WriteTransactionalEvent w = (WriteTransactionalEvent)
-                                database.getEventFromEventData(rPast.getWriteEvent().getEventData());
-                        if (w != null && (guidePath.size() != 1 || t.size() != 1)) {
-                            database.changeWriteRead(w, r);
-                        }
-                        else if(guidePath.size() != 1 || t.size() != 1){
-                            //r was the swapped event, r.getWriteEvent() is its IMA event.
-                            //ONLY for notifying purposes
-                            database.changeWriteRead(r.getWriteEvent(),r);
-                        }
-                        //If rPast.getBacktrackInstruction() == null, it is ok
-                        r.setBacktrackEvent(rPast.getBacktrackEvent());
 
+                if(trEventRegister.isTransactionalTransition(getTransition())) {
+                    t.setExecuting(true);
+                    if(database.isExecutingTransactionalEvent(getTransition(), e)) {
+
+                        if (e.getType() == TransactionalEvent.Type.READ) {
+                            ReadTransactionalEvent rPast = (ReadTransactionalEvent) e;
+                            ReadTransactionalEvent r = (ReadTransactionalEvent)
+                                    database.getEventFromEventData(rPast.getEventData());
+                            WriteTransactionalEvent w = (WriteTransactionalEvent)
+                                    database.getEventFromEventData(rPast.getWriteEvent().getEventData());
+                            if (w != null && (guidePath.size() != 1 || t.size() != 1)) {
+                                database.changeWriteRead(w, r);
+                            } else if (guidePath.size() != 1 || t.size() != 1) {
+                                //r was the swapped event, r.getWriteEvent() is its IMA event.
+                                //ONLY for notifying purposes
+                                database.changeWriteRead(r.getWriteEvent(), r);
+                            }
+                            //If rPast.getBacktrackInstruction() == null, it is ok
+                            r.setBacktrackEvent(rPast.getBacktrackEvent());
+
+                        }
+                        t.removeFirst();
+                        currentAdvance = p._2;
+                        prev = e;
                     }
-                    t.removeFirst();
-                    currentAdvance = p._2;
-                    if(t.isEmpty()){
+
+
+                    var end = database.getLastEvent();
+                    if(t.isEmpty() || end.getType() == TransactionalEvent.Type.COMMIT ||
+                            end.getType() == TransactionalEvent.Type.ABORT ){
                         currentAdvance = -1;
                         guidePath.removeFirst();
                         if(!guidePath.isEmpty())
                             t = guidePath.getFirst();
 
                     }
-                    prev = e;
                 }
                 ++depth;
                 if(!guidePath.isEmpty())
                     notifyStateAdvanced();
                 //if e.getType() != READ, fakeRead was false, so we don't have to care about this case
                 // If it is not an end state and we restoring some unknown event, this event maybe not available. In that case, we just ommit it.
-            } /*else if(p._1 && database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.RESTORE && e.getType() == TransactionalEvent.Type.UNKNOWN){
-                guidePath.removeFirst();
             }
-            */
 
         }
         if(database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.SWAP) {
@@ -145,7 +146,7 @@ public class TrDFSearch extends DFSearch {
             // - (backtrack)* swap -> after the swap the cgshared is correct
             // - (backtrack)* restore -> by induction, when it finish restoring, the cg would be correct
             // - (backtrack)* end -> after the end we should not share the cg
-            trEventRegister.setChoiceGeneratorShared(false);
+            //TODO: this else was simply placebo, the variable was never used.
         }
         notifyStateAdvanced();
         msgListener = database.getDatabaseBacktrackMode()+" mode ended.";
@@ -159,8 +160,6 @@ public class TrDFSearch extends DFSearch {
 
     protected Pair<Boolean, Integer> computeStepsEvent(TransactionalEvent e){
         if(isEndState()) return new Pair<>(false, null);;
-        //TODO: erase sharingCG; adding locks.
-        boolean reset = true;
         //we need to substitute this value during our mock tests, we will restore it before leaving.
         Integer n = 0, m = null;
 
@@ -176,8 +175,6 @@ public class TrDFSearch extends DFSearch {
             if(e!= null && database.isExecutingTransactionalEvent(getTransition(), e)){
                 m = n;
             }
-            trEventRegister.setChoiceGeneratorShared(false);
-
             backtrack();
             ++n;
         }
@@ -203,7 +200,6 @@ public class TrDFSearch extends DFSearch {
         }
         trEventRegister.setFakeRead(false);
         database.setMockAccess(false);
-        database.setDatabaseBacktrackMode(NONE);
         return new Pair<>(true, n);
 
     }
@@ -298,14 +294,12 @@ public class TrDFSearch extends DFSearch {
             backtrackDatabase();
             switch (database.getDatabaseBacktrackMode()){
                 case READ:
-                    trEventRegister.setChoiceGeneratorShared(true);
                     ReadTransactionalEvent r = (ReadTransactionalEvent) database.getLastEvent();
                     WriteTransactionalEvent nw = r.getWriteEvent();
                     WriteTransactionalEvent ow = database.getWriteEvent(nw.getVariable(), nw.getWriteIndex()+1);
                     msgListener = "Branch forked: change of write-read for event "+r +
                             "\n\t" + ow + " -> "+nw;
                     notifyStateProcessed();
-                    //notifyStateAdvanced();
                     return true;
                 case SWAP:
                 case RESTORE:
@@ -325,8 +319,6 @@ public class TrDFSearch extends DFSearch {
                     break;
             }
         }
-        //trEventRegister.addReturn();
-
         return vm.backtrack();
     }
 

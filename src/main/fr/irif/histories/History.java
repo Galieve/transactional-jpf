@@ -18,6 +18,7 @@ public abstract class History {
 
     protected int numberTransactions;
 
+
     protected Boolean consistent;
 
     protected String forbiddenVariable;
@@ -116,10 +117,11 @@ public abstract class History {
     }
 
     public void removeWrite(String var, int id){
+
         int n = writesPerTransaction.get(id).get(var);
         if(n == 1) writesPerTransaction.get(id).remove(var);
         else writesPerTransaction.get(id).put(var, n-1);
-        restoreSemanticFlags();
+        //restoreSemanticFlags();
 
     }
 

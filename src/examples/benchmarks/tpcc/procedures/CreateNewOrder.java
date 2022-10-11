@@ -3,6 +3,7 @@ package benchmarks.tpcc.procedures;
 import benchmarks.tpcc.TPCC;
 import benchmarks.tpcc.TPCCUtility;
 import benchmarks.tpcc.objects.*;
+import database.AbortDatabaseException;
 import database.TRDatabase;
 
 import java.util.ArrayList;
@@ -19,32 +20,35 @@ public class CreateNewOrder extends BasicTPCCProcedure{
                                      int orderLineCnt, int allLocal, int[] itemIDs,
                                      int[] supplierWarehouseIDs, int[] orderQuantities){
 
-        db.begin();
+        try {
+            db.begin();
 
-        var c = getCustomerById(warehouseID, districtID, customerID);
-        var w = getWarehouse(warehouseID);
 
-        var d = getDistrict(warehouseID, districtID);
+            var c = getCustomerById(warehouseID, districtID, customerID);
 
-        if(d != null) {
+            var w = getWarehouse(warehouseID);
 
-            var orderID = d.getNextOrderID();
-            updateDistrict(warehouseID, districtID);
+            var d = getDistrict(warehouseID, districtID);
 
-            insertOpenOrder(warehouseID, districtID, customerID,
-                    orderLineCnt, allLocal, orderID);
+            if(d != null) {
 
-            insertNewOrder(warehouseID, districtID, d.getNextOrderID());
+                var orderID = d.getNextOrderID();
+                updateDistrict(warehouseID, districtID);
 
-            for (int i = 0; i < orderLineCnt; ++i) {
-                int supplyWarehouseID = supplierWarehouseIDs[i];
-                int itemID = itemIDs[i];
-                int quantity = orderQuantities[i];
-                var price = getItemPrice(itemID);
-                var amount = price == null ? null : quantity * price;
-                var s = getStock(supplyWarehouseID, itemID, quantity);
+                insertOpenOrder(warehouseID, districtID, customerID,
+                        orderLineCnt, allLocal, orderID);
 
-                if (amount != null && s != null) {
+                insertNewOrder(warehouseID, districtID, d.getNextOrderID());
+
+                for (int i = 0; i < orderLineCnt; ++i) {
+                    int supplyWarehouseID = supplierWarehouseIDs[i];
+                    int itemID = itemIDs[i];
+                    int quantity = orderQuantities[i];
+                    var price = getItemPrice(itemID);
+                    var amount = quantity * price;
+                    var s = getStock(supplyWarehouseID, itemID, quantity);
+
+
                     var ol = new OrderLine(warehouseID, districtID, orderID, i, itemID,
                             supplyWarehouseID, quantity, amount, s.getDistrict(districtID));
 
@@ -52,12 +56,12 @@ public class CreateNewOrder extends BasicTPCCProcedure{
                     updateStock(s, ol);
 
                 }
-
-
             }
-        }
 
-        db.end();
+            db.commit();
+        } catch (AbortDatabaseException ignored) {
+
+        }
 
 
 
@@ -73,7 +77,7 @@ public class CreateNewOrder extends BasicTPCCProcedure{
         db.write(TPCC.NEWORDER, orderTable.toString());
     }
 
-    private void updateDistrict(int warehouseID, int districtID){
+    private void updateDistrict(int warehouseID, int districtID) throws AbortDatabaseException {
         Function<District, District> f = (District d)->{
             d.setNextOrderID(d.getNextOrderID()+1);
             return d;
@@ -94,11 +98,13 @@ public class CreateNewOrder extends BasicTPCCProcedure{
     }
 
 
-    private Float getItemPrice(int itemID){
+    private Float getItemPrice(int itemID) throws AbortDatabaseException {
 
         var itemTable = TPCCUtility.readItem(db.read(TPCC.ITEM));
         var i = itemTable.get(itemID+"");
-        return i == null ? null : i.getPrice();
+
+        if(i == null) db.abort();
+        return i.getPrice();
     }
 
     private void insertOrderLine(int warehouseID, int districtID, OrderLine orderLine){
@@ -109,13 +115,14 @@ public class CreateNewOrder extends BasicTPCCProcedure{
 
     }
 
-    private Stock getStock(int warehouseID, int itemID, int quantity){
+    private Stock getStock(int warehouseID, int itemID, int quantity) throws AbortDatabaseException {
         Stock s = null;
 
         var stockTable = TPCCUtility.readStock(db.read(TPCC.STOCK));
         s = stockTable.get(warehouseID + ":" + itemID);
 
-        if(s == null) return null;
+
+        if(s == null) db.abort();
 
         var sq = s.getQuantity();
         if (sq - quantity >= 10) {

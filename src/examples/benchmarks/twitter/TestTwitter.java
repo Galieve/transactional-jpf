@@ -101,7 +101,7 @@ public class TestTwitter {
             dbMain.write(t.getTweetId(), "");
         }
 
-        dbMain.end();
+        dbMain.commit();
 
 
         Thread t2 = new Thread(() -> doOperations2());

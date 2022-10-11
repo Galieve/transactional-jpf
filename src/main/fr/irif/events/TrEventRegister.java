@@ -23,9 +23,6 @@ public class TrEventRegister {
 
     protected boolean lastInstructionTransactional;
 
-
-    protected boolean choiceGeneratorShared;
-
     protected int leadingZerosTrace;
 
     protected boolean fakeRead;
@@ -36,8 +33,6 @@ public class TrEventRegister {
         argsEvent = new ArrayList<>();
         recordArguments = false;
         databaseClassName = config.getString("db.database_api.class", "database.TRDatabase");
-        choiceGeneratorShared = false;
-        //databaseRelations = DatabaseRelations.getDatabaseRelations();
         fakeRead = false;
         leadingZerosTrace = config.getInt("event_path.leading_zeros",6);
     }
@@ -74,7 +69,9 @@ public class TrEventRegister {
     public boolean isTransactionalStatement(Instruction inst){
         String i = getTransactionalStatement(inst);
         return i.equals("readInstruction") || i.equals("writeInstruction")
-                || i.equals("beginInstruction") || i.equals("endInstruction") ||
+                || i.equals("beginInstruction") || i.equals("commitInstruction")
+                || i.equals("abortInstruction") ||
+
                 i.equals("assertInstruction");
     }
 
@@ -89,12 +86,9 @@ public class TrEventRegister {
     }
 
     public boolean isTransactionalBreakTransition(StackFrame frame){
-        try {
-            return frame.getClassName().equals(databaseClassName) && frame.getMethodName().equals("breakTransition");
-        }catch (NullPointerException e){
-            System.out.println("Info");
-            throw e;
-        }
+
+        return frame.getClassName().equals(databaseClassName) && frame.getMethodName().equals("breakTransition");
+
     }
 
     public String getTransactionalStatement(Instruction i){
@@ -130,7 +124,6 @@ public class TrEventRegister {
         String statement = getTransactionalStatement(parsedInstruction);
 
         TransactionalEvent t;
-        //EventData oraclePosition = database.getOrAddOraclePosition(i);
         int trId = database.getTransactionalId();
         int soId = database.getTransactionalS0Id(ti.getId());
         int poId = database.getPOId(ti.getId());
@@ -155,14 +148,18 @@ public class TrEventRegister {
                 t = new BeginTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberEvents(),
                         ti.getId(), trId+1, soId+1, poId);
                 break;
-            case "endInstruction":
+            case "commitInstruction":
 
-                t = new EndTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberEvents(),
+                t = new CommitTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberEvents(),
                         ti.getId(), trId, soId, poId);
                 break;
 
             case "assertInstruction":
                 t = new AssertTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberEvents(),
+                        ti.getId(), trId, soId, poId);
+                break;
+            case "abortInstruction":
+                t = new AbortTransactionalEvent(eventData, new ArrayList<>(argsEvent), database.getNumberEvents(),
                         ti.getId(), trId, soId, poId);
                 break;
             default:
@@ -173,14 +170,6 @@ public class TrEventRegister {
         argsEvent.clear();
         recordArguments = false;
 
-    }
-
-    public boolean isChoiceGeneratorShared() {
-        return choiceGeneratorShared;
-    }
-
-    public void setChoiceGeneratorShared(boolean choiceGeneratorShared) {
-        this.choiceGeneratorShared = choiceGeneratorShared;
     }
 
     public boolean isFakeRead() {

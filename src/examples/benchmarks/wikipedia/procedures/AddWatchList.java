@@ -24,7 +24,7 @@ public class AddWatchList extends WikipediaProcedure {
             updateUserTouched(userID);
         }
 
-        db.end();
+        db.commit();
     }
 
     private void insertWatchList(int userID, int nameSpace, String pageTitle){

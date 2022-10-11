@@ -3,6 +3,7 @@ package benchmarks.wikipedia;
 import benchmarks.BenchmarkModule;
 import benchmarks.wikipedia.objects.Article;
 import benchmarks.wikipedia.procedures.*;
+import database.AbortDatabaseException;
 
 import java.util.HashMap;
 
@@ -62,14 +63,18 @@ public class Wikipedia extends BenchmarkModule {
 
     public void updatePage(String pageTitle, String pageText,
                            int pageNamespace, int userID, String userIP, String revComment, int revMinorEdit){
-        db.begin();
-        var a = new GetPageAnonymous(db).getPageAnonymousBody(false, userIP, pageNamespace, pageTitle);
-        if(a != null) {
+
+        try {
+            db.begin();
+            Article a = new GetPageAnonymous(db).getPageAnonymousBody(false, userIP, pageNamespace, pageTitle);
             new UpdatePage(db).updatePageBody(a.getTextID(), a.getPageID(), pageTitle, pageText, pageNamespace,
                     userID, userIP, a.getText(), a.getRevisionID(), revComment, revMinorEdit);
+            db.commit();
+
+        } catch (AbortDatabaseException ignored) {
+
         }
 
-        db.end();
     }
 
 

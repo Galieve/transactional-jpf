@@ -6,6 +6,7 @@ import benchmarks.tpcc.TPCCUtility;
 import benchmarks.tpcc.objects.Customer;
 import benchmarks.tpcc.objects.District;
 import benchmarks.tpcc.objects.Warehouse;
+import database.AbortDatabaseException;
 import database.TRDatabase;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public abstract class BasicTPCCProcedure extends Procedure {
     }
 
     protected Customer getCustomer(int warehouseID, int districtID,
-                                          int customerID, String customerName, boolean customerIDSearch){
+                                          int customerID, String customerName, boolean customerIDSearch) throws AbortDatabaseException {
         if(customerIDSearch){
             return getCustomerById(warehouseID, districtID, customerID);
         }
@@ -28,13 +29,12 @@ public abstract class BasicTPCCProcedure extends Procedure {
         }
     }
 
-    protected Customer getCustomerByName(int warehouseID, int districtID, String customerLast){
+    protected Customer getCustomerByName(int warehouseID, int districtID, String customerLast) throws AbortDatabaseException {
 
         var customerTable = TPCCUtility.readCustomer(db.read(TPCC.CUSTOMER));
 
         var cList = customerTable.get(warehouseID+":"+districtID);
-
-        if(cList == null) return null;
+        if(cList == null) db.abort();
 
         cList.sort((a, b)-> (int) (a.getFirst().compareTo(b.getFirst())));
 
@@ -45,7 +45,7 @@ public abstract class BasicTPCCProcedure extends Procedure {
             }
         }
 
-        if(customers.isEmpty()) return null;
+        if(customers.isEmpty()) db.abort();
 
         int index = customers.size() / 2;
         if (customers.size() % 2 == 0) {
@@ -55,44 +55,49 @@ public abstract class BasicTPCCProcedure extends Procedure {
     }
 
     // prepared statements
-    protected Customer getCustomerById(int warehouseID, int districtID, int customerID)  {
+    protected Customer getCustomerById(int warehouseID, int districtID, int customerID) throws AbortDatabaseException {
+
 
         var customerTable = TPCCUtility.readCustomer(db.read(TPCC.CUSTOMER));
 
         var cList = customerTable.get(warehouseID+":"+districtID);
 
-        if(cList == null) return null;
+        if(cList == null) db.abort();
 
         for(var c: cList){
             if(c.getID() == customerID){
                 return c;
             }
         }
+        db.abort();
         return null;
     }
 
 
-    protected District getDistrict(int warehouseID, int districtID) {
+    protected District getDistrict(int warehouseID, int districtID) throws AbortDatabaseException {
         var districtTable = TPCCUtility.readDistrict(db.read(TPCC.DISTRICT));
-        return districtTable.get(warehouseID +":"+ districtID);
+        var d = districtTable.get(warehouseID +":"+ districtID);
+        if(d == null) db.abort();
+        return d;
     }
 
-    protected void updateDistrict(int warehouseID, int districtID, Function<District, District> f){
-        //var s = db.read(TPCC.DISTRICT);
+    protected void updateDistrict(int warehouseID, int districtID, Function<District, District> f) throws AbortDatabaseException {
         var districtTable = TPCCUtility.readDistrict(db.read(TPCC.DISTRICT));
         var d = districtTable.get(warehouseID+":"+districtID);
-        if(d != null) {
-            d = f.apply(d);
-            districtTable.put(warehouseID + ":" + districtID, d);
-            //db.write(TPCC.DISTRICT, districtTable.toString());
-        }
+
+        if(d == null) db.abort();
+        d = f.apply(d);
+        districtTable.put(warehouseID + ":" + districtID, d);
+        db.write(TPCC.DISTRICT, districtTable.toString());
+
 
     }
 
-    protected Warehouse getWarehouse(int warehouseID) {
+    protected Warehouse getWarehouse(int warehouseID) throws AbortDatabaseException {
         var s =db.read(TPCC.WAREHOUSE);
         var warehouseTable = TPCCUtility.readWarehouse(s);
-
-        return warehouseTable.get(warehouseID+"");
+        var w = warehouseTable.get(warehouseID+"");
+        if(w == null) db.abort();
+        return w;
     }
 }

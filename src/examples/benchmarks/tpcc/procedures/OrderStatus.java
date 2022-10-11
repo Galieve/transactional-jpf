@@ -4,6 +4,7 @@ import benchmarks.tpcc.TPCC;
 import benchmarks.tpcc.TPCCUtility;
 import benchmarks.tpcc.objects.Customer;
 import benchmarks.tpcc.objects.Order;
+import database.AbortDatabaseException;
 import database.TRDatabase;
 
 import java.util.ArrayList;
@@ -18,26 +19,26 @@ public class OrderStatus  extends BasicTPCCProcedure{
     //all but warehouseID are random!!!
     public String orderStatus(int warehouseID, int districtID, int customerID,
                                      String customerName, boolean customerIDSearch){
-
-        db.begin();
-
-
-        var c = getCustomer
-                (warehouseID, districtID, customerID, customerName, customerIDSearch);
+        try {
+            db.begin();
 
 
-        var o = getOrderDetails(warehouseID, districtID, c);
-        var oll = getOrderLines(warehouseID, districtID, o);
-
-        db.end();
+            var c = getCustomer
+                    (warehouseID, districtID, customerID, customerName, customerIDSearch);
 
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("ORDER STATUS:");
-        sb.append("Warehouse: ").append(warehouseID);
-        sb.append("District: ").append(districtID);
+            Order o = getOrderDetails(warehouseID, districtID, c);
 
-        if(c != null) {
+            var oll = getOrderLines(warehouseID, districtID, o);
+
+            db.commit();
+
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("ORDER STATUS:");
+            sb.append("Warehouse: ").append(warehouseID);
+            sb.append("District: ").append(districtID);
+
 
             sb.append("Client: ").append(c);
 
@@ -53,16 +54,16 @@ public class OrderStatus  extends BasicTPCCProcedure{
             else{
                 sb.append("No open orders available");
             }
-        }
-        else{
-            var clInfo = customerIDSearch ? customerID + " ID" : customerName + " name";
-            sb.append("No clients with ").append(clInfo);
-        }
 
-        return sb.toString();
+
+            return sb.toString();
+        } catch (AbortDatabaseException ignored) {
+
+        }
+        return null;
     }
 
-    private Order getOrderDetails(int warehouseID, int districtID, Customer c){
+    private Order getOrderDetails(int warehouseID, int districtID, Customer c) throws AbortDatabaseException {
         var orderTable = TPCCUtility.readOpenOrder(db.read(TPCC.OPENORDER));
 
         if(c == null) return null; //The transaction must always be executed.
@@ -72,6 +73,7 @@ public class OrderStatus  extends BasicTPCCProcedure{
         for(var o: orders){
             if(o.getCustomerID() == c.getID()) return o;
         }
+        db.abort();
         return null;
 
     }

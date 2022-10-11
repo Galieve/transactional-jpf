@@ -14,7 +14,7 @@ public class Order {
     private int allLocal;
     private long entryDistrict;
 
-    public Order(int ID, int warehouseID, int districtID, int customerID,
+    public Order(int warehouseID, int districtID,int ID,  int customerID,
                  Integer carrierID, int orderLineCnt, int allLocal, long entryDistrict) {
         this.ID = ID;
         this.warehouseID = warehouseID;

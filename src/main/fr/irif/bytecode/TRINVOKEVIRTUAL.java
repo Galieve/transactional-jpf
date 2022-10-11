@@ -36,7 +36,7 @@ public class TRINVOKEVIRTUAL extends INVOKEVIRTUAL {
 
             StackFrame frame = ti.getTopFrame();
             LocalVarInfo [] localVarInfos = frame.getLocalVars();
-            //IRIF: the first is this, no a proper argument
+            //The first is this, no a proper argument
             for(int i = 1; i < localVarInfos.length; ++i){
                 trEventRegister.addArgument(translateVarInfo(frame, localVarInfos[i]));
             }

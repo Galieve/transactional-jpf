@@ -6,6 +6,7 @@ import benchmarks.tpcc.objects.Customer;
 import benchmarks.tpcc.objects.District;
 import benchmarks.tpcc.objects.History;
 import benchmarks.tpcc.objects.Warehouse;
+import database.AbortDatabaseException;
 import database.TRDatabase;
 
 import java.util.ArrayList;
@@ -20,50 +21,47 @@ public class Payment extends BasicTPCCProcedure{
     public void payment(int warehouseID, int districtID, int customerID,
                                String customerName, boolean customerIDSearch, float paymentAmount){
 
-        db.begin();
+        try {
+            db.begin();
 
-        updateWarehouse(warehouseID, paymentAmount);
+            updateWarehouse(warehouseID, paymentAmount);
 
 
-        var w = getWarehouse(warehouseID);
-        updateDistrictPayment(warehouseID, districtID, paymentAmount);
+            var w = getWarehouse(warehouseID);
+            updateDistrictPayment(warehouseID, districtID, paymentAmount);
 
-        var d = getDistrict(warehouseID, districtID);
+            var d = getDistrict(warehouseID, districtID);
 
-        var c = getCustomerAndPay(
-                warehouseID, districtID, customerID, customerName, customerIDSearch, paymentAmount);
+            var c = getCustomerAndPay(
+                    warehouseID, districtID, customerID, customerName, customerIDSearch, paymentAmount);
 
-        if(c != null &&  c.getCredit().equals("BC")) {
+            if(c.getCredit().equals("BC")) {
 
-            var cData = getData(warehouseID, districtID, c, paymentAmount);
-            if (cData != null) {
-                c.setData(cData);
+                var cData = getData(warehouseID, districtID, c, paymentAmount);
+                if (cData != null) {
+                    c.setData(cData);
+                }
+
+                //BC
+                updateBalanceData(c);
             }
-
-            //BC
-            updateBalanceData(c);
+            else {
+                //not BC (that is not equal to !bc)
+                updateBalanceData(c);
+            }
+            insertHistory(w, d, c, paymentAmount);
+            db.commit();
+        } catch (AbortDatabaseException ignored) {
         }
-        else if(c!= null) {
-            //not BC (that is not equal to !bc)
-            updateBalanceData(c);
-        }
-        if(c != null && w != null && d != null){
-            insertHistory(w,d, c,paymentAmount);
-
-        }
-
-
-
-        db.end();
 
     }
 
     private Customer getCustomerAndPay(int warehouseID, int districtID,
                                               int customerID, String customerName,
-                                              boolean customerIDSearch, float payment){
+                                              boolean customerIDSearch, float payment) throws AbortDatabaseException {
         var c = getCustomer(warehouseID, districtID, customerID, customerName, customerIDSearch);
 
-        if(c == null) return null;
+        if(c == null) db.abort();
         c.setBalance(c.getBalance() - payment);
         c.setYtdPayment(c.getYtdPayment() + payment);
         c.setPaymentCnt(c.getPaymentCnt()+1);

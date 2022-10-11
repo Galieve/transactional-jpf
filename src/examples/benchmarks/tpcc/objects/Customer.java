@@ -16,7 +16,7 @@ public class Customer {
     private String first;
     private String data;
 
-    public Customer(int ID, int districtID, int warehouseId, int paymentCnt,
+    public Customer( int warehouseId, int districtID, int ID,  int paymentCnt,
                     int deliveryCnt, float balance, float ytdPayment,
                     String credit, String last, String first, String data) {
         this.ID = ID;

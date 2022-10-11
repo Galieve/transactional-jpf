@@ -55,7 +55,7 @@ public class ShoppingCart extends BenchmarkModule {
         var map = generateHashMap(db.read(STORE));
         map.put(product.getId(), product);
         db.write(STORE, map.toString());
-        db.end();
+        db.commit();
     }
 
     public void removeItem(int productID){
@@ -65,7 +65,7 @@ public class ShoppingCart extends BenchmarkModule {
             map.remove(productID + "");
             db.write(STORE, map.toString());
         }
-        db.end();
+        db.commit();
 
     }
 
@@ -77,21 +77,21 @@ public class ShoppingCart extends BenchmarkModule {
     public Item getItem(String id){
         db.begin();
         var si = getShoppingItem(id);
-        db.end();
+        db.commit();
         return si;
     }
 
     public Integer getQuantity(String itemID){
         db.begin();
         var si = getShoppingItem(itemID);
-        db.end();
+        db.commit();
         return si == null? null : si.getQuantity();
     }
 
     public ArrayList<ShoppingItem> getList(){
         db.begin();
         var map = generateHashMap(db.read(STORE));
-        db.end();
+        db.commit();
         return new ArrayList<>(map.values());
     }
 
@@ -103,7 +103,7 @@ public class ShoppingCart extends BenchmarkModule {
             si.setQuantity(q);
             db.write(STORE, map.toString());
         }
-        db.end();
+        db.commit();
 
 
 

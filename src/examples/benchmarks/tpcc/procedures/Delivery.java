@@ -2,6 +2,7 @@ package benchmarks.tpcc.procedures;
 
 import benchmarks.tpcc.TPCC;
 import benchmarks.tpcc.TPCCUtility;
+import database.AbortDatabaseException;
 import database.TRDatabase;
 
 public class Delivery extends BasicTPCCProcedure{
@@ -12,25 +13,31 @@ public class Delivery extends BasicTPCCProcedure{
 
     public void delivery(int numDistricts, int warehouseID, int carrierID){
 
-        db.begin();
+        try {
+            db.begin();
 
-        for(int districtID = 0; districtID < numDistricts; ++districtID){
+            for(int districtID = 0; districtID < numDistricts; ++districtID){
 
-            var orderID = getOrderID(warehouseID, districtID);
-            if(orderID != null) {
-                deleteOrder(warehouseID, districtID, orderID);
-                var customerID = getCustomerID(warehouseID, districtID, orderID);
-                updateCarrierID(warehouseID, carrierID, districtID, orderID);
-                updateDeliveryDate(warehouseID, districtID, orderID);
-                var orderLineTotal = getOrderLineTotal(warehouseID, districtID, orderID);
+                var orderID = getOrderID(warehouseID, districtID);
+                System.out.println("IRIF: "+ orderID);
+                if(orderID != null) {
+                    deleteOrder(warehouseID, districtID, orderID);
+                    var customerID = getCustomerID(warehouseID, districtID, orderID);
 
-                if(customerID != null)
-                    updateBalanceAndDelivery(warehouseID, districtID, customerID, orderLineTotal);
+                    updateCarrierID(warehouseID, carrierID, districtID, orderID);
+
+                    updateDeliveryDate(warehouseID, districtID, orderID);
+                    var orderLineTotal = getOrderLineTotal(warehouseID, districtID, orderID);
+
+                    if(customerID != null)
+                        updateBalanceAndDelivery(warehouseID, districtID, customerID, orderLineTotal);
+                }
             }
+
+
+            db.commit();
+        } catch (AbortDatabaseException ignored) {
         }
-
-
-        db.end();
 
 
     }
@@ -44,10 +51,10 @@ public class Delivery extends BasicTPCCProcedure{
         return nol.isEmpty() ? null : nol.get(0).getOrderID();
     }
 
-    private void deleteOrder(int warehouseID, int districtID, int orderID){
+    private void deleteOrder(int warehouseID, int districtID, int orderID) throws AbortDatabaseException {
         var newOrderTable = TPCCUtility.readNewOrder(db.read(TPCC.NEWORDER));
         var nol = newOrderTable.get(warehouseID + ":" + districtID);
-        if(nol == null) return;
+        if(nol == null) db.abort();
 
         nol.removeIf((no) -> (no.getOrderID() == orderID));
         if(nol.isEmpty()) newOrderTable.remove(warehouseID + ":" + districtID);
@@ -55,55 +62,60 @@ public class Delivery extends BasicTPCCProcedure{
         db.write(TPCC.NEWORDER, newOrderTable.toString());
     }
 
-    private Integer getCustomerID(int warehouseID, int districtID, int orderID){
-        Integer ret = null;
+    private Integer getCustomerID(int warehouseID, int districtID, int orderID) throws AbortDatabaseException {
         var orderTable = TPCCUtility.readOpenOrder(db.read(TPCC.OPENORDER));
         var ol = orderTable.get(warehouseID+":"+districtID);
-
-        if(ol == null) return null;
+        System.out.println("IRIF");
+        System.out.println(warehouseID+":"+districtID);
+        System.out.println(orderID);
+        System.out.println(orderTable);
+        System.out.println(ol);
+        if(ol == null) db.abort(); //TODO: To be fixed when mutex per row.
         for(var o: ol){
             if(o.getID() == orderID) {
-                ret = o.getCustomerID();
-                break;
+                return o.getCustomerID();
             }
         }
-        return ret;
+        db.abort();
+        return null;
     }
 
-    private void updateCarrierID(int warehouseID, int carrierID, int districtID, int orderID){
+    private void updateCarrierID(int warehouseID, int carrierID, int districtID, int orderID) throws AbortDatabaseException {
         var orderTable = TPCCUtility.readOpenOrder(db.read(TPCC.OPENORDER));
         var ol = orderTable.get(warehouseID + ":" + districtID);
 
-        if(ol != null) {
-            for (var o : ol) {
-                if (o.getID() == orderID) {
-                    o.setCarrierID(carrierID);
-                }
-            }
+        if(ol == null) db.abort();
 
-            db.write(TPCC.OPENORDER, orderTable.toString());
+        for (var o : ol) {
+            if (o.getID() == orderID) {
+                o.setCarrierID(carrierID);
+            }
         }
+
+        db.write(TPCC.OPENORDER, orderTable.toString());
+
 
     }
 
-    private void updateDeliveryDate(int warehouseID, int districtID, int orderID){
+    private void updateDeliveryDate(int warehouseID, int districtID, int orderID) throws AbortDatabaseException {
 
         var time = System.currentTimeMillis();
 
         var orderLineTable = TPCCUtility.readOrderLine(db.read(TPCC.ORDERLINE));
 
         var oll = orderLineTable.get(warehouseID + ":" + districtID);
-        if(oll != null) {
-            for (var o : oll) {
-                if (o.getOrderID() == orderID) {
-                    o.setDeliveryDate(time);
-                }
+
+        if(oll == null) db.abort();
+
+        for (var o : oll) {
+            if (o.getOrderID() == orderID) {
+                o.setDeliveryDate(time); //TODO: fix when mutex per row.
             }
-            db.write(TPCC.ORDERLINE, orderLineTable.toString());
         }
+        db.write(TPCC.ORDERLINE, orderLineTable.toString());
     }
 
-    private float getOrderLineTotal(int warehouseID, int districtID, int orderID){
+    private float getOrderLineTotal(int warehouseID, int districtID, int orderID) throws AbortDatabaseException {
 
         var amount = 0;
 
@@ -111,29 +123,32 @@ public class Delivery extends BasicTPCCProcedure{
 
         var oll = orderLineTable.get(warehouseID + ":" + districtID);
 
-        if(oll != null) {
-            for (var o : oll) {
-                if (o.getOrderID() == orderID) {
-                    amount += o.getAmount();
-                }
+        if(oll == null) db.abort();
+
+        for (var o : oll) {
+            if (o.getOrderID() == orderID) {
+                amount += o.getAmount();
             }
         }
+
         return amount;
     }
 
-    private void updateBalanceAndDelivery(int warehouseID, int districtID, int customerID, float orderLineTotal){
+    private void updateBalanceAndDelivery(int warehouseID, int districtID, int customerID, float orderLineTotal)
+            throws AbortDatabaseException {
         var customerTable = TPCCUtility.readCustomer(db.read(TPCC.CUSTOMER));
 
         var listCustomer = customerTable.get(warehouseID + ":" + districtID);
-        if(listCustomer != null) {
-            for (var cu : listCustomer) {
-                if (cu.getID() == customerID) {
-                    cu.setBalance(cu.getBalance() + orderLineTotal);
-                    cu.setDeliveryCnt(cu.getDeliveryCnt() + 1);
-                }
+
+        if(listCustomer == null) db.abort();
+        for (var cu : listCustomer) {
+            if (cu.getID() == customerID) {
+                cu.setBalance(cu.getBalance() + orderLineTotal);
+                cu.setDeliveryCnt(cu.getDeliveryCnt() + 1);
             }
-            db.write(TPCC.CUSTOMER, customerTable.toString());
         }
+        db.write(TPCC.CUSTOMER, customerTable.toString());
+
     }
 
 }

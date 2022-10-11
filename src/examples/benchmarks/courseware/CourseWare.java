@@ -57,21 +57,21 @@ public class CourseWare extends BenchmarkModule {
 
         }
 
-        db.end();
+        db.commit();
     }
 
     public Map<String, ArrayList<String>> getEnrollments(){
         db.begin();
         var enrollmentsTable =
                 CourseWareUtility.readEnrollements(db.read(ENROLLMENTS));
-        db.end();
+        db.commit();
         return enrollmentsTable;
     }
 
     public void closeCourse(int courseID){
         db.begin();
         modifyCourseStatusBody(courseID, "close");
-        db.end();
+        db.commit();
     }
 
     protected void modifyCourseStatusBody(int courseID, String label){
@@ -87,7 +87,7 @@ public class CourseWare extends BenchmarkModule {
     public void openCourse(int courseID){
         db.begin();
         modifyCourseStatusBody(courseID, "open");
-        db.end();
+        db.commit();
     }
 
 
@@ -103,6 +103,6 @@ public class CourseWare extends BenchmarkModule {
         enrollmentsTable.remove(courseID+"");
         db.write(ENROLLMENTS, enrollmentsTable.toString());
 
-        db.end();
+        db.commit();
     }
 }

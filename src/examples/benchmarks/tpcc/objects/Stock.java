@@ -47,8 +47,8 @@ public class Stock {
 
     @Override
     public String toString() {
-        return itemID+ ";" +warehouseID+ ";" +orderCnt+ ";"
-                +remoteCnt+ ";" +quantity+ ";" +ytd+ ";" +dist;
+        return warehouseID+ ";"+itemID+ ";" + +orderCnt+ ";"
+                +remoteCnt+ ";" +quantity+ ";" +ytd+ ";" +dist.toString();
     }
 
     public int getWarehouseID() {

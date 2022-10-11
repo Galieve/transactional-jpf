@@ -27,6 +27,7 @@ public class OrderLine {
         this.supplyWarehouseID = supplyWarehouseID;
         this.quantity = quantity;
         this.amount = amount;
+        this.deliveryDate = deliveryDate;
         this.districtInfo = districtInfo;
     }
 

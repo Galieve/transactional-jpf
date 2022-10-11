@@ -1,4 +1,4 @@
-package benchmarks.studentware;
+package benchmarks.courseware;
 
 import database.TRUtility;
 

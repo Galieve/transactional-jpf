@@ -11,11 +11,14 @@ public class TRUtility {
     //does not work for map of map!
     public static<T> HashMap<String, T> generateHashMap(String s, Function<String, T> build){
         HashMap<String, T> map = new HashMap<>();
-
         if(!s.equals("{}")){
-            var array = new ArrayList<>(Arrays.asList(s.substring(1, s.length()-1).split("(,)(?![^\\[]*\\])")));
+            //(,)(?![^\[]*\])(?![^\{]*\})
+            var array = new ArrayList<>(Arrays.asList(s.substring(1, s.length()-1)
+                    .split("(,)(?![^\\[]*\\])(?![^\\{]*\\})")));
             for(var e: array){
                 var el = e.split("(=)(?![^{]*[}])");
+
+
                 map.put(el[0].trim(), build.apply(el[1].trim()));
             }
         }

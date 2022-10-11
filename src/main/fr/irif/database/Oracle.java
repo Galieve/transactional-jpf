@@ -14,14 +14,14 @@ public class Oracle {
 
     protected HashMap<EventData, Integer> instructionToOrder;
 
-    protected HashMap<EventData, EventData> beginToEnd;
+    protected HashMap<EventData, EventData> beginToCommit;
 
     protected static Oracle oracleInstance;
 
     protected Oracle() {
         oracleOrder = new ArrayList<>();
         instructionToOrder = new HashMap<>();
-        beginToEnd = new HashMap<>();
+        beginToCommit = new HashMap<>();
     }
 
     public static Oracle getOracle(){
@@ -47,18 +47,15 @@ public class Oracle {
         instructionToOrder.put(e, size);
     }
 
-    public void addEnd(EventData end){
-        if(oracleOrder.isEmpty()) throw new IllegalCallerException();
-        EventData begin = oracleOrder.get(oracleOrder.size()-1);
+    public void addCommit(EventData begin, EventData commit){
 
-        //As every transaction is available, in every execution that is not the end, begin has no relation with end
-        //but there exists someone who links end and begin.
-        if(beginToEnd.containsKey(begin)) return;
-        beginToEnd.put(begin, end);
+        //Either the commit was already added in some other execution (where it committed), or it did not
+        // (first execution or aborted).
+        beginToCommit.putIfAbsent(begin, commit);
     }
 
-    public EventData getEnd(EventData begin){
-        return beginToEnd.get(begin);
+    public EventData getCommit(EventData begin){
+        return beginToCommit.get(begin);
     }
 
     public int size(){

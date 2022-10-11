@@ -32,14 +32,12 @@ public class TrPolyDFSearch extends TrDFSearch {
             backtrackDatabase();
             switch (database.getDatabaseBacktrackMode()) {
                 case READ:
-                    trEventRegister.setChoiceGeneratorShared(true);
                     ReadTransactionalEvent r = (ReadTransactionalEvent) database.getLastEvent();
                     WriteTransactionalEvent nw = r.getWriteEvent();
                     WriteTransactionalEvent ow = database.getWriteEvent(nw.getVariable(), nw.getWriteIndex() + 1);
                     msgListener = "Branch forked: change of write-read for event " + r +
                             "\n\t" + ow + " -> " + nw;
                     notifyStateProcessed();
-                    //notifyStateAdvanced();
                     return true;
                 case SWAP:
 
@@ -67,7 +65,6 @@ public class TrPolyDFSearch extends TrDFSearch {
                     "----------------------------------- ["+   depth + "] restore: " + getStateId();
 
                     notifyStateProcessed();
-                    //add notify
                     return true;
 
                 case JPF:

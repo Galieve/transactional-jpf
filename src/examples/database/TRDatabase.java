@@ -24,9 +24,6 @@ public class TRDatabase {
     }
 
     private void breakTransition(){
-        /*if(r < 0){
-            System.out.println("false");
-        }*/
         for(int  i = 0; i < 1; ++i){}
 
     }
@@ -45,48 +42,21 @@ public class TRDatabase {
     }
     private void beginInstruction(){
         breakTransition();
-
-        //l.lock();
-        //breakTransition();
     }
-    private void endInstruction(){
-        //l.unlock();
+    private void commitInstruction(){
+        breakTransition();
+    }
+
+    private void abortInstruction(){
         breakTransition();
     }
     private void assertInstruction(String value1, String op, String value2){
         breakTransition();
     }
 
-    /*
-
-     private String readInstruction(String variable){
-        breakTransition();
-        return "NON-VALID-VALUE";
-    }
-    private void writeInstruction(String variable, String value){ breakTransition();}
-    private void beginInstruction(){ breakTransition();}
-    private void endInstruction(){
-        breakTransition();
-    }
-    private void assertInstruction(String value1, String op, String value2){
-        breakTransition();
-    }
-     */
-
-    /*
-
-    public void read(String variable, String objective){
-        readInstruction(variable, objective);
-    }
-
-     */
     public String read(String variable){
 
         return readInstruction(variable);
-        /*System.out.println(x);
-        return x;
-
-         */
     }
 
     public void write(String variable, String value){
@@ -94,13 +64,16 @@ public class TRDatabase {
     }
 
     public void begin(){
-        //l.lock();
         beginInstruction();
     }
 
-    public void end(){
-        endInstruction();
-        //l.unlock();
+    public void commit(){
+        commitInstruction();
+    }
+
+    public void abort() throws AbortDatabaseException {
+        abortInstruction();
+        throw new AbortDatabaseException("Abort database.");
     }
 
     public void assertDB(String value1, String op, String value2){

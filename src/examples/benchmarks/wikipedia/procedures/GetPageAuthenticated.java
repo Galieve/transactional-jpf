@@ -7,6 +7,7 @@ import benchmarks.wikipedia.objects.Article;
 import benchmarks.wikipedia.objects.IPBlock;
 import benchmarks.wikipedia.objects.User;
 import benchmarks.wikipedia.objects.UserGroup;
+import database.AbortDatabaseException;
 import database.TRDatabase;
 
 import java.util.ArrayList;
@@ -17,48 +18,54 @@ public class GetPageAuthenticated extends WikipediaProcedure{
     }
 
     public Article getPageAuthenticated(boolean forSelect, String userIP, int userID,
-                                    int pageNamespace, String pageTitle){
+                                    int pageNamespace, String pageTitle) {
 
         Article a = null;
-        db.begin();
+        try {
+            db.begin();
 
-        var userText = userIP;
-        User user = null;
-        if(userID > 0) {
-            user = selectUser(userID);
-            if(user != null) {
+            var userText = userIP;
+            User user = null;
+            if (userID > 0) {
+                user = selectUser(userID);
+
+                if(user == null) db.abort();
                 userText = user.getName();
                 var userGroups = selectGroup(userID);
             }
-        }
-        if(user != null) {
 
 
             var page = selectPage(pageNamespace, pageTitle);
-            if (page != null) {
-                var pageID = page.getPageID();
-                var pageRestriction = selectPageRestriction(pageID);
 
-                var ipBlocks = selectIPBlocks(userID);
+            if (page == null) db.abort();
 
-                var rev = selectPageRevision(pageID);
-                if (rev != null) {
+            var pageID = page.getPageID();
+            var pageRestriction = selectPageRestriction(pageID);
+
+            var ipBlocks = selectIPBlocks(userID);
+
+            var rev = selectPageRevision(pageID);
+
+            if (rev == null) db.abort();
 
 
-                    var textID = rev.getTextID();
-                    var revisionID = rev.getID();
+            var textID = rev.getTextID();
+            var revisionID = rev.getID();
 
-                    var text = selectText(textID);
+            var text = selectText(textID);
+            if (text == null) db.abort();
 
-                    if (text != null && !forSelect) {
-                        a = new Article(userIP, pageID, text.getText(), textID, revisionID);
-                    }
-                }
+            if (!forSelect) {
+                a = new Article(userIP, pageID, text.getText(), textID, revisionID);
             }
-        }
-        db.end();
 
-        return a;
+
+            db.commit();
+
+            return a;
+        }catch (AbortDatabaseException ignored){
+            return null;
+        }
     }
 
 

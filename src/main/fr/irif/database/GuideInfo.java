@@ -10,7 +10,7 @@ import java.util.LinkedList;
 public class GuideInfo {
 
     public enum BacktrackTypes{
-        JPF, READ, SWAP, RESTORE, MOCK, NONE
+        JPF, READ, SWAP, RESTORE, NONE
     }
 
     protected LinkedList<Transaction> guidedPath;

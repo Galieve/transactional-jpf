@@ -5,14 +5,14 @@ import fr.irif.events.ReadTransactionalEvent;
 import fr.irif.events.TransactionalEvent;
 import fr.irif.events.WriteTransactionalEvent;
 import gov.nasa.jpf.Config;
+import gov.nasa.jpf.util.Pair;
 
 import java.util.ArrayList;
 
-public class NaiveTrDatabase extends Database{
+public class TrPolyDatabase extends TrDatabase{
 
-    public NaiveTrDatabase(Config config){
+    public TrPolyDatabase(Config config) {
         super(config);
-
     }
 
     @Override
@@ -36,32 +36,59 @@ public class NaiveTrDatabase extends Database{
 
                 var localRead = w.getTransactionId() == r.getTransactionId();
 
-                if (w.getWriteIndex() != 0 && !localRead) {
+                if (!swapped(e) && w.getWriteIndex() != 0 && !isGuided() && !localRead) {
                     WriteTransactionalEvent nw = writeEventsPerVariable.get(e.getVariable()).get(w.getWriteIndex() - 1);
                     changeWriteRead(nw, r);
                     guideInfo.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.READ);
                     return;
 
-                } else {
-                    readEventsPerVariable.get(e.getVariable()).remove(
-                            readEventsPerVariable.get(e.getVariable()).size() - 1);
+                } else if (!swapped(e) || isGuided()) {
+                    readEventsPerVariable.get(e.getVariable()).remove(readEventsPerVariable.get(e.getVariable()).size() - 1);
                     eraseWriteRead(r);
-                    maximalWriteEventIndexes.remove(r.getEventData());
+                    if(!isGuided()) {
+                        maximalWriteEventIndexes.remove(r.getEventData());
+                    }
+                    else if(!deletedOnSwap.isEmpty() && deletedOnSwap.getLast() == r) {
+                        maximalWriteEventIndexes.remove(r.getEventData());
+                        deletedOnSwap.removeLast();
+                    }
 
+                } else {
+                    guideInfo.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.RESTORE);
+                    return;
                 }
                 break;
             case WRITE:
                 ArrayList<WriteTransactionalEvent> writeEvents = writeEventsPerVariable.get(e.getVariable());
-                writeEvents.remove(writeEvents.size() - 1);
+
+                if(!writeEvents.isEmpty() && writeEvents.get(writeEvents.size()-1).getTransactionId() == e.getTransactionId()){
+                    writeEvents.remove(writeEvents.size() -1);
+
+                }
                 history.removeWrite(e.getVariable(), e.getTransactionId());
                 break;
             case COMMIT:
-                guideInfo.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.JPF);
-                //remove all backtrack points
-                for(var ei : tr){
-                    if (ei.getType() == TransactionalEvent.Type.WRITE) {
-                        backtrackPoints.remove(ei.getEventData());
+                if(isGuided()) break;
+
+                Pair<WriteTransactionalEvent, ReadTransactionalEvent> p = nextSwap();
+                if (p == null) {
+                    guideInfo.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.JPF);
+                    //remove all backtrack points
+                    for(var ei : tr){
+                        if (ei.getType() == TransactionalEvent.Type.WRITE) {
+                            backtrackPoints.remove(ei.getEventData());
+                        }
                     }
+                }
+                else {
+                    guideInfo.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.SWAP);
+                    WriteTransactionalEvent wSwap = p._1;
+                    ReadTransactionalEvent rSwap = p._2;
+                    generateBacktrackPath(wSwap, rSwap);
+
+                    rSwap.setBacktrackEvent(events.get(rSwap.getTransactionId()-1).getLast().getEventData());
+
+                    return;
                 }
 
                 break;
@@ -83,7 +110,6 @@ public class NaiveTrDatabase extends Database{
                     }
                 }
                 break;
-
             case BEGIN:
                 history.removeLastTransaction();
                 sessionOrder.get(e.getThreadId()).remove(sessionOrder.get(e.getThreadId()).size() - 1);

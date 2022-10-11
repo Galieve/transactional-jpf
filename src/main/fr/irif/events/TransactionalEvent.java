@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public abstract class TransactionalEvent{
 
     public enum Type{
-        BEGIN, READ, WRITE, END, ASSERT, UNKNOWN
+        BEGIN, READ, WRITE, COMMIT, ABORT, ASSERT, UNKNOWN
     }
 
     protected EventData eventData;
@@ -59,13 +59,6 @@ public abstract class TransactionalEvent{
     protected String getWRMessage(){
         return "";
     }
-
-    /*
-    public int getTransactionId(){
-        return transactionId;
-    }
-    
-     */
 
     public int getThreadId() {
         return threadId;

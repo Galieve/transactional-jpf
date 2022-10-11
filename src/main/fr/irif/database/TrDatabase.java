@@ -1,5 +1,6 @@
 package fr.irif.database;
 
+import com.rits.cloning.Cloner;
 import fr.irif.events.EventData;
 import fr.irif.events.ReadTransactionalEvent;
 import fr.irif.events.TransactionalEvent;
@@ -25,7 +26,6 @@ public class TrDatabase extends Database{
                 else timesPathExecuted.put(mockPath, n - 1);
                 mockPath = null;
             }
-            guideInfo.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.MOCK);
             return;
         }
         var tr = events.get(events.size() - 1);
@@ -55,17 +55,21 @@ public class TrDatabase extends Database{
                     }
 
                 } else {
-                    generateRestorePath(r); //useless!
+                    generateRestorePath(r);
                     guideInfo.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.RESTORE);
                     return;
                 }
                 break;
             case WRITE:
                 ArrayList<WriteTransactionalEvent> writeEvents = writeEventsPerVariable.get(e.getVariable());
-                writeEvents.remove(writeEvents.size() - 1);
+
+                if(!writeEvents.isEmpty() && writeEvents.get(writeEvents.size()-1).getTransactionId() == e.getTransactionId()){
+                    writeEvents.remove(writeEvents.size() -1);
+
+                }
                 history.removeWrite(e.getVariable(), e.getTransactionId());
                 break;
-            case END:
+            case COMMIT:
                 if(isGuided()) break;
 
                 Pair<WriteTransactionalEvent, ReadTransactionalEvent> p = nextSwap();
@@ -85,15 +89,32 @@ public class TrDatabase extends Database{
                     generateBacktrackPath(wSwap, rSwap);
 
                     rSwap.setBacktrackEvent(events.get(rSwap.getTransactionId()-1).getLast().getEventData());
-
                     return;
                 }
+                break;
+            case ABORT:
+                //If T is not longer aborted, the writes have to be added to the history: if a read change its wr, it
+                //may be committed.
+                for(var ea: events.get(events.size() - 1)){
+                    if(ea.getType() == TransactionalEvent.Type.WRITE) {
 
+                        var wa = (WriteTransactionalEvent) ea;
+                        var writes = writeEventsPerVariable.get(ea.getVariable());
+
+                        //Transactions have at most one visible write per variable.
+                        if (!writes.isEmpty() && writes.get(writes.size() - 1).getTransactionId() == ea.getTransactionId()) {
+                            writes.remove(writes.size() - 1);
+                        }
+                        writes.add(wa);
+                        history.addWrite(wa.getVariable(), wa.getTransactionId());
+                    }
+                }
                 break;
             case BEGIN:
                 history.removeLastTransaction();
                 sessionOrder.get(e.getThreadId()).remove(sessionOrder.get(e.getThreadId()).size() - 1);
                 break;
+
 
         }
 
@@ -120,4 +141,6 @@ public class TrDatabase extends Database{
         }
 
     }
+
+
 }

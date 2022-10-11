@@ -77,7 +77,6 @@ public class NaiveTrDFSearch extends TrDFSearch {
             backtrackDatabase();
             switch (database.getDatabaseBacktrackMode()){
                 case READ:
-                    trEventRegister.setChoiceGeneratorShared(true);
                     ReadTransactionalEvent r = (ReadTransactionalEvent) database.getLastEvent();
                     WriteTransactionalEvent nw = r.getWriteEvent();
                     WriteTransactionalEvent ow = database.getWriteEvent(nw.getVariable(), nw.getWriteIndex()+1);
@@ -89,8 +88,6 @@ public class NaiveTrDFSearch extends TrDFSearch {
                 case SWAP:
                 case RESTORE:
                     // There is no SWAP nor RESTORE in Naive Searches.
-                    break;
-                case MOCK:
                     break;
                 case JPF:
                     var id = lastTransition.getThreadInfo().getId();
