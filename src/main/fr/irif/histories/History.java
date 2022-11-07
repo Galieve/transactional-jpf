@@ -10,7 +10,7 @@ import java.util.HashMap;
 public abstract class History {
     protected ArrayList<ArrayList<Boolean>> sessionOrderMatrix;
 
-    protected HashMap<String,ArrayList<ArrayList<Integer>>> writeReadMatrix;
+    protected HashMap<String,ArrayList<ArrayList<ArrayList<Integer>>>> writeReadMatrix;
 
     protected ArrayList<HashMap<String, Integer>> writesPerTransaction;
 
@@ -18,9 +18,7 @@ public abstract class History {
 
     protected int numberTransactions;
 
-
     protected Boolean consistent;
-
     protected String forbiddenVariable;
 
     protected History(Config config){
@@ -28,7 +26,7 @@ public abstract class History {
                 config.getString("db.database_isolation_level.forbidden_variable", "FORBIDDEN"));
     }
 
-    protected History(ArrayList<ArrayList<Boolean>> soMatrix, HashMap<String,ArrayList<ArrayList<Integer>>> wrMatrix,
+    protected History(ArrayList<ArrayList<Boolean>> soMatrix, HashMap<String,ArrayList<ArrayList<ArrayList<Integer>>>> wrMatrix,
                       ArrayList<HashMap<String, Integer>> wrPerTransaction, String forbidden){
         sessionOrderMatrix = soMatrix;
         writeReadMatrix = wrMatrix;
@@ -52,12 +50,18 @@ public abstract class History {
         writesPerTransaction.add(new HashMap<>());
         restoreSemanticFlags();
 
-
+        Cloner c = new Cloner();
+        ArrayList<ArrayList<Integer>> row = new ArrayList<>();
+        for(int i = 0; i < numberTransactions; ++i){
+            row.add(new ArrayList<>());
+        }
         ++numberTransactions;
-        for(ArrayList<ArrayList<Integer>> wrx : writeReadMatrix.values()){
-            wrx.add(new ArrayList<>(Collections.nCopies(numberTransactions - 1,0)));
-            for (ArrayList<Integer> integers : wrx) {
-                integers.add(0);
+        //TODO: revisar este bucle cuando las transacciones añaden random writes al final.
+        for(var wrx : writeReadMatrix.values()){
+
+            wrx.add(c.deepClone(row));
+            for (var integers : wrx) {
+                integers.add(new ArrayList<>());
             }
         }
 
@@ -81,32 +85,47 @@ public abstract class History {
         }
     }
 
-    public void setWR(String var,int write, int read){
+    public void setWR(String var,int write, int read, int id){
         if(var.startsWith(forbiddenVariable)){
             throw new IllegalCallerException("variable "+ var + " forbidden: reserved prefix");
         }
         if(!writeReadMatrix.containsKey(var)){
-            writeReadMatrix.put(var, new ArrayList<>(Collections.nCopies(numberTransactions,new ArrayList<>(Collections.nCopies(numberTransactions,0)))));
+
+            addVarToWriteReadMatrix(var);
         }
-        int n = writeReadMatrix.get(var).get(write).get(read);
-        writeReadMatrix.get(var).get(write).set(read, n+1);
+        writeReadMatrix.get(var).get(write).get(read).add(id);
+        //writeReadMatrix.get(var).get(write).set(read, n+1);
         restoreSemanticFlags();
 
 
     }
 
     public void removeWR(String var, int write, int read){
-        int n = writeReadMatrix.get(var).get(write).get(read);
-        writeReadMatrix.get(var).get(write).set(read, n-1);
+        var l = writeReadMatrix.get(var).get(write).get(read);
+        l.remove(l.size() - 1);
+        //writeReadMatrix.get(var).get(write).set(read, n-1);
         restoreSemanticFlags();
     }
 
+    protected void addVarToWriteReadMatrix(String var){
+        Cloner c = new Cloner();
+        var row = new ArrayList<ArrayList<Integer>>();
+        var mat = new ArrayList<ArrayList<ArrayList<Integer>>>();
+        for(int i = 0; i < numberTransactions; ++i){
+            row.add(new ArrayList<>());
+        }
+        for(int i = 0; i < numberTransactions; ++i){
+            mat.add(c.deepClone(row));
+        }
+        writeReadMatrix.put(var, mat);
+    }
     public void addWrite(String var, int id){
         if(var.startsWith(forbiddenVariable)){
             throw new IllegalCallerException("variable "+ var + " forbidden: reserved prefix");
         }
         if(!writeReadMatrix.containsKey(var)){
-            writeReadMatrix.put(var, new ArrayList<>(Collections.nCopies(numberTransactions,new ArrayList<>(Collections.nCopies(numberTransactions,0)))));
+
+            addVarToWriteReadMatrix(var);
         }
 
         //For consistency checks we have to know the number of writes; for reading it, we only care about the last one.
@@ -121,7 +140,6 @@ public abstract class History {
         int n = writesPerTransaction.get(id).get(var);
         if(n == 1) writesPerTransaction.get(id).remove(var);
         else writesPerTransaction.get(id).put(var, n-1);
-        //restoreSemanticFlags();
 
     }
 
@@ -134,8 +152,8 @@ public abstract class History {
         for(int i = 0; i < numberTransactions; ++i){
             for(int j = 0; j < numberTransactions; ++j){
                 boolean reads = false;
-                for(ArrayList<ArrayList<Integer>> wrx: writeReadMatrix.values()){
-                    reads = wrx.get(i).get(j) > 0;
+                for(ArrayList<ArrayList<ArrayList<Integer>>> wrx: writeReadMatrix.values()){
+                    reads = wrx.get(i).get(j).size() > 0;
                     if(reads) break;
                 }
                 sowr.get(i).set(j, sessionOrderMatrix.get(i).get(j) ||
@@ -180,8 +198,8 @@ public abstract class History {
     }
 
     public boolean areWR(int a, int b){
-        for(ArrayList<ArrayList<Integer>> wrx : writeReadMatrix.values()){
-            if(wrx.get(a).get(b) > 0){
+        for(var wrx : writeReadMatrix.values()){
+            if(wrx.get(a).get(b).size() > 0){
                 return true;
             }
         }
@@ -198,9 +216,9 @@ public abstract class History {
         writesPerTransaction.remove(numberTransactions);
 
 
-        for(ArrayList<ArrayList<Integer>> wrx : writeReadMatrix.values()){
+        for(var wrx : writeReadMatrix.values()){
             wrx.remove(numberTransactions);
-            for(ArrayList<Integer> wrxi : wrx){
+            for(var wrxi : wrx){
                 wrxi.remove(numberTransactions);
             }
         }

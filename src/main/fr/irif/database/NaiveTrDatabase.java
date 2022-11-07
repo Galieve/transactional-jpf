@@ -1,19 +1,158 @@
 package fr.irif.database;
 
-import fr.irif.events.EventData;
-import fr.irif.events.ReadTransactionalEvent;
-import fr.irif.events.TransactionalEvent;
-import fr.irif.events.WriteTransactionalEvent;
+import fr.irif.events.*;
 import gov.nasa.jpf.Config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 public class NaiveTrDatabase extends Database{
 
+
+    private HashMap<Integer, Integer> threadToTransaction;
     public NaiveTrDatabase(Config config){
         super(config);
+        threadToTransaction = new HashMap<>();
+    }
+
+    @Override
+    public void addEvent(TransactionalEvent t){
+
+        threadToTransaction.putIfAbsent(t.getThreadId(),0);
+        var beg = t.getType() == TransactionalEvent.Type.BEGIN ? 1 : 0;
+        t.setTransactionalId(threadToTransaction.get(t.getThreadId())+beg);
+        EventData ed = t.getEventData();
+        timesPathExecuted.put(ed.getPath(), ed.getTime()); //before mockAccess, we need it to check path of alternatives
+
+        if(isMockAccess()){
+            mockPath = ed.getPath();
+            return;
+        }
+
+        instructionsMapped.put(ed, t);
+        timesPathExecuted.put(ed.getPath(), ed.getTime());
+
+
+        switch (t.getType()) {
+            case WRITE:
+                if(!isGuided()) {
+                    readEventsPerVariable.putIfAbsent(t.getVariable(), new ArrayList<>());
+                }
+                writeEventsPerVariable.putIfAbsent(t.getVariable(), new ArrayList<>());
+
+
+                var writesOfX = writeEventsPerVariable.get(t.getVariable());
+                for(int i = 0; i < writesOfX.size(); ++i){
+                    if(writesOfX.get(i).getTransactionId() == t.getTransactionId()){
+                        writesOfX.remove(i);
+                    }
+                }
+                writesOfX.add((WriteTransactionalEvent) t);
+
+                history.addWrite(t.getVariable(),t.getTransactionId());
+
+                break;
+            case READ:
+                ArrayList<WriteTransactionalEvent> writeEvents = writeEventsPerVariable.get(t.getVariable());
+                ReadTransactionalEvent r = (ReadTransactionalEvent) t;
+                WriteTransactionalEvent w = null;
+
+                if(writeEventsPerVariable.get(t.getVariable()) == null){
+                    //If the event does not exist we create a new event out
+                    //of the blue that writes null and that would be theoretically
+                    //placed just before the read.
+                    var edw = new EventData(ed.getPath()+"---"+"FAKE WRITE EVENT", ed.getTime(), ed.getBeginEvent());
+                    w = new WriteTransactionalEvent(edw,
+                            new ArrayList<>(Arrays.asList(r.getVariable(), "null")),
+                            0, r.getObservationSequenceIndex(),
+                            r.getThreadId(), r.getTransactionId(),
+                            r.getTransactionalSessionId(), r.getPoId()-1);
+                    instructionsMapped.put(edw, w);
+
+                }
+                else {
+                    w = writeEvents.get(writeEvents.size() - 1);
+
+                    for(var we : writeEvents){
+                        if(we.getTransactionId() == r.getTransactionId()){
+                            w = we;
+                            break;
+                        }
+                    }
+
+                }
+                r.setWriteEvent(w);
+                setWriteRead(r);
+                readEventsPerVariable.putIfAbsent(t.getVariable(), new ArrayList<>());
+                readEventsPerVariable.get(t.getVariable()).add((ReadTransactionalEvent) t);
+                break;
+            case BEGIN:
+                sessionOrder.putIfAbsent(t.getThreadId(), new ArrayList<>());
+                history.addTransaction(t.getTransactionId(), t.getThreadId(), sessionOrder.get(t.getThreadId()));
+                sessionOrder.get(t.getThreadId()).add(t.getTransactionId());
+                programExtendedOrder.putIfAbsent(t.getThreadId(), 0);
+                oracle.addBegin(ed);
+                events.add(new Transaction(new LinkedList<>()));
+                break;
+            case COMMIT:
+                var begin = events.get(events.size() -1).getFirst();
+                oracle.addCommit(begin.getEventData(), ed);
+
+                for(var e: events.get(events.size()-1)){
+                    if (e.getType() == TransactionalEvent.Type.WRITE) {
+                        var writes = writeEventsPerVariable.get(e.getVariable());
+                        if(writes.size() == 0){
+                            System.out.println(e);
+                            System.out.println("---");
+                            for(var trTest: events){
+                                for(var eTest: trTest){
+                                    System.out.println(eTest);
+                                }
+                            }
+                            System.out.println(t);
+                            throw new IndexOutOfBoundsException();
+                        }
+                        int i = 0;
+                        while(i < writes.size()){
+                            if(writes.get(i).getTransactionId() == e.getTransactionId()) {
+                                backtrackPoints.putIfAbsent(e.getEventData(),
+                                        readEventsPerVariable.get(e.getVariable()).size() - 1);
+                                break;
+                            }
+                            ++i;
+                        }
+                        if(i == writes.size()){
+                            backtrackPoints.putIfAbsent(e.getEventData(), -1);
+
+                        }
+                    }
+                }
+
+                break;
+            case ABORT:
+                for(var e: events.get(events.size() - 1)){
+                    if(e.getType() == TransactionalEvent.Type.WRITE) {
+                        var writes = writeEventsPerVariable.get(e.getVariable());
+                        for(int i = 0; i < writes.size(); ++i){
+                            if(writes.get(i).getTransactionId() == e.getTransactionId()){
+                                writes.remove(i);
+                            }
+                        }
+                        history.removeWrite(e.getVariable(), e.getTransactionId());
+                    }
+                }
+                break;
+        }
+
+        trueHistory = null;
+
+        events.get(events.size()-1).addEvent(t);
+        programExtendedOrder.put(t.getThreadId(), programExtendedOrder.get(t.getThreadId()) + 1);
 
     }
+
 
     @Override
     public void backtrackDatabase() {
@@ -52,7 +191,9 @@ public class NaiveTrDatabase extends Database{
                 break;
             case WRITE:
                 ArrayList<WriteTransactionalEvent> writeEvents = writeEventsPerVariable.get(e.getVariable());
-                writeEvents.remove(writeEvents.size() - 1);
+                if(!writeEvents.isEmpty() && writeEvents.get(writeEvents.size()-1).getTransactionId() == e.getTransactionId()){
+                    writeEvents.remove(writeEvents.size() -1);
+                }
                 history.removeWrite(e.getVariable(), e.getTransactionId());
                 break;
             case COMMIT:
@@ -90,6 +231,8 @@ public class NaiveTrDatabase extends Database{
                 break;
 
         }
+
+        trueHistory = null;
 
         if(!isGuided()) {
             guideInfo.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.JPF);

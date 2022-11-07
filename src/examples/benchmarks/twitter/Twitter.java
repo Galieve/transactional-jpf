@@ -1,10 +1,12 @@
 package benchmarks.twitter;
 
 import benchmarks.BenchmarkModule;
-import database.TRUtility;
+import gov.nasa.jpf.jvm.bytecode.ARETURN;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.function.Function;
 
 public class Twitter extends BenchmarkModule {
 
@@ -45,49 +47,49 @@ public class Twitter extends BenchmarkModule {
     public ArrayList<User> getFollowers(User u){
         db.begin();
 
-        var followersIds = TRUtility.generateHashMap(db.read(FOLLOWERS),
-                (lu)->(TRUtility.generateArrayList(lu)));
+        var followersIDs = readAllIDsStartsWith(FOLLOWERS, u.getUserId());
+        var followersUserIDs = new ArrayList<String>();
+        for(var f: followersIDs){
+            followersUserIDs.add(f.substring(u.getUserId().length()+1));
+        }
 
-        var users = TRUtility.generateHashMap(db.read(USERS), (s)->(new User(s)));
-
+        var followersSet = new HashSet<String>(followersUserIDs);
+        var followersString = db.readIfIsIn(USERS, followersSet);
 
         db.commit();
 
-        followersIds.putIfAbsent(u.getUserId(), new ArrayList<>());
 
+        if(followersString == null) return null;
         var followers = new ArrayList<User>();
-        for(var fol: followersIds.get(u.getUserId())){
-            followers.add(users.get(fol));
+        for(var f: followersString){
+            followers.add(new User(f));
         }
+
         return followers;
+
+
+
+    }
+
+    public Tweet getTweet(String tweetId){
+        db.begin();
+        //var t = db.readIfIDStartsWith(TWEETS, tweetId);
+        db.commit();
+        String t = null;
+        return t == null ? null : new Tweet(t);
     }
 
 
+
     public void follow(User a, User b){
-
-        if(a.getUserId().equals(b.getUserId())) return;
-
         db.begin();
 
-        var followIds = TRUtility.generateHashMap(db.read(FOLLOWS),
-                (lu)->(TRUtility.generateArrayList(lu)));
+        if(!a.getUserId().equals(b.getUserId())) {
 
-        var followersIds = TRUtility.generateHashMap(db.read(FOLLOWERS),
-                (lu)->(TRUtility.generateArrayList(lu)));
+            db.insertRow(FOLLOWS, a.getUserId()+":"+b.getUserId());
+            db.insertRow(FOLLOWERS, b.getUserId()+":"+a.getUserId());
 
-        followIds.putIfAbsent(a.getUserId(), new ArrayList<>());
-        followersIds.putIfAbsent(b.getUserId(), new ArrayList<>());
-
-
-        if(!followIds.get(a.getUserId()).contains(b.getUserId())){
-            followIds.get(a.getUserId()).add(b.getUserId());
-            followersIds.get(b.getUserId()).add(a.getUserId());
         }
-
-        db.write(FOLLOWS, followIds.toString());
-
-        db.write(FOLLOWERS, followersIds.toString());
-
         db.commit();
 
 
@@ -95,67 +97,52 @@ public class Twitter extends BenchmarkModule {
 
     public void publishTweet(Tweet t){
         db.begin();
-        var map = TRUtility.generateHashMap(db.read(TWEETS), TRUtility::generateArrayList);
-
-        map.putIfAbsent(t.getUserId(), new ArrayList<>());
-        map.get(t.getUserId()).add(t.toString());
-
-        db.write(TWEETS, map.toString());
-
+        db.insertRow(TWEETS,t.getTweetId()+":"+t.getUserId(), t.toString());
         db.commit();
     }
 
-    public Tweet getTweet(String tweetId){
-        db.begin();
-        var map =
-                TRUtility.generateHashMap(db.read(TWEETS),
-                        (lt) -> (TRUtility.generateArrayList(lt)));
-
-
-        db.commit();
-        for(var list: map.values()){
-            for(var t : list){
-                var tw = new Tweet(t);
-                if(tw.getTweetId().equals(tweetId)){
-                    return tw;
-                }
-            }
-        }
-
-        return null;
-    }
 
     public ArrayList<Tweet> getNewsfeed(User u){
         db.begin();
-        var uFollowing = TRUtility.generateHashMap(db.read(FOLLOWS),
-                (s)->(TRUtility.generateArrayList(s)));
+        var userID = u.getUserId();
 
 
-        var allTweets = new ArrayList<Tweet>();
-        uFollowing.putIfAbsent(u.getUserId(), new ArrayList<>());
-        for(var folId : uFollowing.get(u.getUserId())){
-
-            var folTL = getTimeline(folId);
-            allTweets.addAll(folTL);
+        var followersIDAll = db.readAllIDs(FOLLOWS);
+        var followersIDs = new ArrayList<String>();
+        for(var f: followersIDAll){
+            if(f.startsWith(userID)){
+                followersIDs.add(f.substring(userID.length()+1));
+            }
         }
+        var tweets = new ArrayList<Tweet>();
+        for(var f: followersIDs){
+            var tweetsStr = db.readIfIDEndsWith(TWEETS,f);
+            for(var t : tweetsStr){
+                tweets.add(new Tweet(t));
+            }
+        }
+
+
         db.commit();
-        //allTweets.sort((a, b)-> (int) (a.getTimestamp() - b.getTimestamp()));
+
+        tweets.sort((a, b)-> (int) (a.getTimestamp() - b.getTimestamp()));
 
 
-        return allTweets;
+        return tweets;
+
     }
 
-    protected ArrayList<Tweet> getTimeline(String userId){
+    protected ArrayList<Tweet> getTimeline(String userID){
         db.begin();
 
-        var map = TRUtility.generateHashMap(db.read(TWEETS),
-                (t) -> (TRUtility.generateArrayList(t,(s) -> (new Tweet(s)))));
-
+        var tweetsStr = db.readIfIDEndsWith(TWEETS, userID);
+        var tweets = new ArrayList<Tweet>();
+        for(var t: tweetsStr){
+            tweets.add(new Tweet(t));
+        }
         db.commit();
 
-        map.putIfAbsent(userId, new ArrayList<>());
-        return map.get(userId);
-
+        return tweets;
     }
 
     public ArrayList<Tweet> getTimeline(User u){
@@ -166,6 +153,20 @@ public class Twitter extends BenchmarkModule {
         db.begin();
         db.assertDB(b);
         db.commit();
+    }
+
+    protected ArrayList<String> readAllIDsStartsWith(String tableName, String filter){
+        var tList = db.readAllIDs(tableName);
+        if(tList == null) return null;
+
+        var filtered = new ArrayList<String>();
+        for(var el: tList){
+            if(el.startsWith(filter)){
+                filtered.add(el);
+            }
+        }
+        return filtered;
+
     }
 
 

@@ -1,6 +1,6 @@
 package benchmarks.twitter;
 
-import database.TRDatabase;
+import database.APIDatabase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,19 +74,11 @@ public class TestTwitter {
 
     public static void main(String [] args) throws InterruptedException {
 
-       /* var tweets = "{user0=[t0;user0;Hello;0, t1;user0;World;1]}";
 
-        var aux = TRUtility.generateHashMap(tweets, (s)->(s));
 
-        System.out.println(aux);
 
-        if(true){
-            return;
-        }
 
-        */
-
-        TRDatabase dbMain = TRDatabase.getDatabase();
+        APIDatabase dbMain = APIDatabase.getDatabase();
 
         dbMain.begin();
         dbMain.write("users", new ArrayList<>().toString());
@@ -103,7 +95,31 @@ public class TestTwitter {
 
         dbMain.commit();
 
+        Thread t1 = new Thread(() -> {
+            APIDatabase database1 = APIDatabase.getDatabase();
+            database1.begin();
+            database1.read("user");
+            database1.commit();
 
+        });
+
+
+        Thread t2 = new Thread(() -> {
+            APIDatabase database2 = APIDatabase.getDatabase();
+            database2.begin();
+            database2.commit();
+
+        });
+
+
+
+
+        t1.start();
+        t2.start();
+        t2.join();
+        t1.join();
+
+        /*
         Thread t2 = new Thread(() -> doOperations2());
 
         Thread t3 = new Thread(() -> doOperations3());
@@ -119,6 +135,8 @@ public class TestTwitter {
         t3.join();
         t2.join();
         t1.join();
+
+         */
 
 
     }

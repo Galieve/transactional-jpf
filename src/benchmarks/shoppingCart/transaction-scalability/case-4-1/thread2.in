@@ -1,0 +1,4 @@
+addItemQuantity 5;almond;2.7 3
+getItem 1
+changeQuantity 1 0
+getList

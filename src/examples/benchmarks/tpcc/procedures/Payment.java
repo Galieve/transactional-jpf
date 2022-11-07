@@ -7,14 +7,14 @@ import benchmarks.tpcc.objects.District;
 import benchmarks.tpcc.objects.History;
 import benchmarks.tpcc.objects.Warehouse;
 import database.AbortDatabaseException;
-import database.TRDatabase;
+import database.APIDatabase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Payment extends BasicTPCCProcedure{
 
-    public Payment(TRDatabase db){
+    public Payment(APIDatabase db){
         super(db);
     }
 
@@ -68,11 +68,13 @@ public class Payment extends BasicTPCCProcedure{
         return c;
     }
 
-    private String getData( int warehouseID, int districtID, Customer c, float paymentAmount){
+    private String getData( int warehouseID, int districtID, Customer c, float paymentAmount) throws AbortDatabaseException {
 
-        var cus = getCustomerById(c);
+        if(c == null) db.abort();
+        var cus = getCustomerById(warehouseID, districtID, c.getID());
 
-        if(cus == null || c == null) return null;
+        if(cus == null) db.abort();
+
         var cData = c.getID() + " " + c.getDistrictID() + " " + c.getWarehouseID() + " " +
                 districtID + " " + warehouseID + " " + paymentAmount + " | " + cus.getData();
         if (cData.length() > 500) {
@@ -86,21 +88,7 @@ public class Payment extends BasicTPCCProcedure{
     private void updateBalanceData(Customer c){
 
         if(c != null) {
-            var customerTable = TPCCUtility.readCustomer(db.read(TPCC.CUSTOMER));
-
-            var customerList = customerTable.get(c.getWarehouseID() + ":" + c.getDistrictID());
-            if(customerList == null) return;
-
-            for (var cus : customerList) {
-                if (cus.getID() == c.getID()) {
-                    cus.setBalance(c.getBalance());
-                    cus.setYtdPayment(c.getYtdPayment());
-                    cus.setPaymentCnt(c.getPaymentCnt());
-                    cus.setData(c.getData());
-                }
-            }
-
-            db.write(TPCC.CUSTOMER, customerTable.toString());
+            db.writeRow(TPCC.CUSTOMER, c.getKey(), c.toString());
         }
 
     }
@@ -122,16 +110,11 @@ public class Payment extends BasicTPCCProcedure{
         var h = new History(c.getID(), c.getDistrictID(), c.getWarehouseID(),d.getID(),
                 w.getID(),System.currentTimeMillis(), paymentAmount, hData);
 
-        var historyTable = TPCCUtility.readHistory(db.read(TPCC.HISTORY));
-        historyTable.put(h.getWarehouseID()+":"+h.getDistrictID(), h);
-
-        db.write(TPCC.HISTORY, historyTable.toString());
-
-
-
+        db.writeRow(TPCC.HISTORY, h.getKey(), h.toString());
     }
 
-    protected Customer getCustomerById(Customer c)  {
+    //TODO
+    /*private Customer getCustomerById(Customer c)  {
 
         if(c == null) return null;
 
@@ -148,30 +131,26 @@ public class Payment extends BasicTPCCProcedure{
             }
         }
         return null;
-    }
+    }*/
 
     private void updateWarehouse(int warehouseID, float paymentAmount){
-        var warehouseTable = TPCCUtility.readWarehouse(db.read(TPCC.WAREHOUSE));
-        var w = warehouseTable.get(warehouseID+"");
+
+        var wSt = db.readRow(TPCC.WAREHOUSE, warehouseID+"");
+        var w = wSt == null ? null : new Warehouse(wSt);
 
         if(w == null) return;
         w.setYtd(paymentAmount);
-        db.write(TPCC.WAREHOUSE, warehouseTable.toString());
+        db.writeRow(TPCC.WAREHOUSE, warehouseID+"", w.toString());
     }
 
     private void updateDistrictPayment(int warehouseID, int districtID, float paymentAmount){
-        /*Function<District, District> f = (District d)->{
-            d.setYtd(paymentAmount);
-            return d;
-        };
 
-         */
-        var districtTable = TPCCUtility.readDistrict(db.read(TPCC.DISTRICT));
-        var d = districtTable.get(warehouseID+":"+districtID);
+        var dSt = db.readRow(TPCC.DISTRICT, warehouseID+":"+districtID);
+        var d = dSt == null ? null : new District(dSt);
+
         if(d != null) {
             d.setYtd(paymentAmount);
-            districtTable.put(warehouseID + ":" + districtID, d);
-            db.write(TPCC.DISTRICT, districtTable.toString());
+            db.writeRow(TPCC.DISTRICT, warehouseID+":"+districtID, d.toString());
         }
 
     }

@@ -1,11 +1,10 @@
 package benchmarks.wikipedia.procedures;
 
 import benchmarks.wikipedia.Wikipedia;
-import benchmarks.wikipedia.WikipediaUtility;
-import database.TRDatabase;
+import database.APIDatabase;
 
 public class RemoveWatchList extends WikipediaProcedure {
-    public RemoveWatchList(TRDatabase db) {
+    public RemoveWatchList(APIDatabase db) {
         super(db);
     }
 
@@ -26,10 +25,7 @@ public class RemoveWatchList extends WikipediaProcedure {
     }
 
     private void deleteWatchList(int userID, int nameSpace, String pageTitle){
-        var watchListTable = WikipediaUtility.readWatchList(db.read(Wikipedia.WATCHLIST));
-        if(watchListTable.containsKey(userID +":"+nameSpace+":"+pageTitle)) {
-            watchListTable.remove(userID + ":" + nameSpace + ":" + pageTitle);
-            db.write(Wikipedia.WATCHLIST, watchListTable.toString());
-        }
+
+        db.deleteRow(Wikipedia.WATCHLIST, userID +":"+nameSpace+":"+pageTitle);
     }
 }

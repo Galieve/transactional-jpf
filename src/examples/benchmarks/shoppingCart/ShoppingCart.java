@@ -1,6 +1,7 @@
 package benchmarks.shoppingCart;
 
 import benchmarks.BenchmarkModule;
+import database.AbortDatabaseException;
 import database.TRUtility;
 
 import java.util.ArrayList;
@@ -36,42 +37,41 @@ public class ShoppingCart extends BenchmarkModule {
         return shoppingCartInstance;
     }
 
-    protected HashMap<String, ShoppingItem> generateHashMap(String s){
-        return TRUtility.generateHashMap(s, (t)->{
-            return new ShoppingItem(t);}
-        );
-    }
-
     public void addItem(String product){
         addItemQuantity(product, 1);
     }
 
     public void addItemQuantity(String productStr, int q){
 
-        if(productStr == null) return;
-        var product = new ShoppingItem(productStr+";"+q);
 
-        db.begin();
-        var map = generateHashMap(db.read(STORE));
-        map.put(product.getId(), product);
-        db.write(STORE, map.toString());
-        db.commit();
+        try {
+
+            db.begin();
+            if(productStr == null) db.abort();
+
+            var product = new ShoppingItem(productStr+";"+q);
+
+            db.insertRow(STORE, product.getId(), product.toString());
+
+            db.commit();
+
+        } catch (AbortDatabaseException ignored) {
+        }
     }
 
     public void removeItem(int productID){
         db.begin();
-        var map = generateHashMap(db.read(STORE));
-        if(map.containsKey(productID+"")) {
-            map.remove(productID + "");
-            db.write(STORE, map.toString());
-        }
+
+        db.deleteRow(STORE, productID+"");
+
         db.commit();
 
     }
 
     protected ShoppingItem getShoppingItem(String id){
-        var map = generateHashMap(db.read(STORE));
-        return map.get(id);
+
+        var item = db.readRow(STORE, id);
+        return item == null ? null : new ShoppingItem(item);
     }
 
     public Item getItem(String id){
@@ -85,28 +85,37 @@ public class ShoppingCart extends BenchmarkModule {
         db.begin();
         var si = getShoppingItem(itemID);
         db.commit();
-        return si == null? null : si.getQuantity();
+        return si == null ? null : si.getQuantity();
     }
 
     public ArrayList<ShoppingItem> getList(){
         db.begin();
-        var map = generateHashMap(db.read(STORE));
+        var map = db.readAll(STORE);
         db.commit();
-        return new ArrayList<>(map.values());
+        var list = new ArrayList<ShoppingItem>();
+        for(var s: map){
+            var item = s == null ? null : new ShoppingItem(s);
+            list.add(item);
+        }
+        return list;
     }
 
     public void changeQuantity(String itemID, int q){
-        db.begin();
-        var map = generateHashMap(db.read(STORE));
-        var si = map.get(itemID);
-        if(si != null) {
+
+        try {
+            db.begin();
+
+            var row = db.readRow(STORE, itemID);
+            if(row == null) {
+                db.abort();
+            }
+            var si = new ShoppingItem(row);
             si.setQuantity(q);
-            db.write(STORE, map.toString());
+            db.writeRow(STORE, itemID, si.toString());
+
+            db.commit();
+        } catch (AbortDatabaseException ignored) {
         }
-        db.commit();
-
-
-
     }
 
 }

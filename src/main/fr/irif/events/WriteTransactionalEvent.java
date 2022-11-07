@@ -8,8 +8,8 @@ public class WriteTransactionalEvent extends TransactionalEvent {
 
     protected String computedValue;
 
-    protected WriteTransactionalEvent(EventData eventData, ArrayList<String> args, int writeIndex,
-                                      int obsIdx, int threadId, int trId, int sesId, int poId) {
+    public WriteTransactionalEvent(EventData eventData, ArrayList<String> args, int writeIndex,
+                                   int obsIdx, int threadId, int trId, int sesId, int poId) {
         super(eventData, args, Type.WRITE, obsIdx, threadId, trId, sesId, poId);
         this.writeIndex = writeIndex;
     }

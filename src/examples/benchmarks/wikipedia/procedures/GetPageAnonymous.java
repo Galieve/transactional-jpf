@@ -2,15 +2,14 @@ package benchmarks.wikipedia.procedures;
 
 
 import benchmarks.wikipedia.Wikipedia;
-import benchmarks.wikipedia.WikipediaUtility;
 import benchmarks.wikipedia.objects.*;
 import database.AbortDatabaseException;
-import database.TRDatabase;
+import database.APIDatabase;
 
 import java.util.ArrayList;
 
 public class GetPageAnonymous extends WikipediaProcedure{
-    public GetPageAnonymous(TRDatabase db) {
+    public GetPageAnonymous(APIDatabase db) {
         super(db);
     }
 
@@ -62,9 +61,14 @@ public class GetPageAnonymous extends WikipediaProcedure{
 
 
     protected ArrayList<IPBlock> selectIPBlocks(String userIP){
-        var ipBlocksTable
-                = WikipediaUtility.readIPBlocks(
-                db.read(Wikipedia.IPBLOCKS));
-        return ipBlocksTable.get(userIP+"");
+
+        //userIP+":"+userID
+        var ipBlocks = db.readIfIDStartsWith(Wikipedia.IPBLOCKS, userIP+"");
+        var ipBlocksUser = new ArrayList<IPBlock>();
+        for(var ip : ipBlocks){
+            var ipblock = ip == null ? null : new IPBlock(ip);
+            ipBlocksUser.add(ipblock);
+        }
+       return ipBlocksUser;
     }
 }

@@ -2,7 +2,7 @@ package benchmarks.wikipedia;
 
 import benchmarks.MainUtility;
 import benchmarks.Worker;
-import database.TRDatabase;
+import database.APIDatabase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class BigTestWikipedia {
 
     private static int populateDB(String ... args){
 
-        TRDatabase dbMain = TRDatabase.getDatabase();
+        APIDatabase dbMain = APIDatabase.getDatabase();
 
         HashMap<String, String> tableInfo = new HashMap<>();
         HashSet<String> arraySet = new HashSet<>();
@@ -57,13 +57,6 @@ public class BigTestWikipedia {
         tableInfo.put(Wikipedia.USER, "{}");
         tableInfo.put(Wikipedia.USERGROUPS, "{}");
         tableInfo.put(Wikipedia.WATCHLIST, "{}");
-
-
-        //warehouse, district, history, item, stock are not array
-        arraySet.add(Wikipedia.IPBLOCKS);
-        arraySet.add(Wikipedia.PAGERESTRICTIONS);
-        arraySet.add(Wikipedia.TEXT);
-        arraySet.add(Wikipedia.USERGROUPS);
 
 
         int ret = args.length - 1;

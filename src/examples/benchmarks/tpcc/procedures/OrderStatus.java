@@ -4,15 +4,15 @@ import benchmarks.tpcc.TPCC;
 import benchmarks.tpcc.TPCCUtility;
 import benchmarks.tpcc.objects.Customer;
 import benchmarks.tpcc.objects.Order;
+import database.APIDatabase;
 import database.AbortDatabaseException;
-import database.TRDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrderStatus  extends BasicTPCCProcedure{
+public class OrderStatus extends BasicTPCCProcedure{
 
-    public OrderStatus(TRDatabase db){
+    public OrderStatus(APIDatabase db){
         super(db);
     }
 
@@ -64,11 +64,16 @@ public class OrderStatus  extends BasicTPCCProcedure{
     }
 
     private Order getOrderDetails(int warehouseID, int districtID, Customer c) throws AbortDatabaseException {
-        var orderTable = TPCCUtility.readOpenOrder(db.read(TPCC.OPENORDER));
+
+        var oLSt = db.readIfIDStartsWith(TPCC.OPENORDER, warehouseID+":"+districtID);
+        var orders = new ArrayList<Order>();
+        for(var oSt : oLSt){
+            if(oSt == null) db.abort();
+            orders.add(new Order(oSt));
+        }
 
         if(c == null) return null; //The transaction must always be executed.
 
-        var orders = orderTable.get(warehouseID+":"+districtID);
         orders.sort((a, b)->(int) (b.getID() - a.getID()));
         for(var o: orders){
             if(o.getCustomerID() == c.getID()) return o;
@@ -79,21 +84,8 @@ public class OrderStatus  extends BasicTPCCProcedure{
     }
 
     private List<String> getOrderLines(int warehouseID, int districtID, Order o){
-        var orderLineTable = TPCCUtility.readOrderLine(db.read(TPCC.ORDERLINE));
 
-        if(o == null) return null; //The transaction must always be executed.
-
-
-        orderLineTable.putIfAbsent(warehouseID+":"+districtID, new ArrayList<>());
-
-        var ret = new ArrayList<String>();
-        for(var ol : orderLineTable.get(warehouseID+":"+districtID)){
-            if(ol.getOrderID() == o.getID()){
-                ret.add(ol.toString());
-            }
-        }
-
-        return ret;
+        return db.readIfIDStartsWith(TPCC.ORDERLINE, warehouseID+":"+districtID+":"+o.getID());
 
     }
 

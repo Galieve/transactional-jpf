@@ -1,0 +1,5 @@
+stockLevel 0 1 100
+createNewOrder 0 1 33496 2 0 [123, 666] [0, 1] [1, 1]
+stockLevel 0 1 100
+orderStatus 0 1 33496 "Patin Piti" false
+orderStatus 0 1 33496 "Patin Piti" true

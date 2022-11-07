@@ -1,5 +1,6 @@
 package fr.irif.histories;
 
+import com.rits.cloning.Cloner;
 import gov.nasa.jpf.Config;
 
 import java.util.ArrayList;
@@ -17,7 +18,15 @@ public class SnapshotIsolationHistory extends PrefixHistory{
         super(h);
     }
 
-    protected void addSIConflicts(HashMap<String, ArrayList<ArrayList<Integer>>> wr, ArrayList<HashMap<String, Integer>> wpt){
+    protected void addSIConflicts(HashMap<String, ArrayList<ArrayList<ArrayList<Integer>>>> wr,
+                                  ArrayList<HashMap<String, Integer>> wpt){
+
+        Cloner c = new Cloner();
+        ArrayList<ArrayList<Integer>> row = new ArrayList<>();
+        for(int i = 0; i < 2*numberTransactions; ++i){
+            row.add(new ArrayList<>());
+        }
+
         for(int i = 0; i < writesPerTransaction.size(); ++i){
             for(int j = i+1; j < writesPerTransaction.size(); ++j){
                 var seti = writesPerTransaction.get(i);
@@ -33,11 +42,11 @@ public class SnapshotIsolationHistory extends PrefixHistory{
                     wr.put(s1, new ArrayList<>());
                     wr.put(s2, new ArrayList<>());
                     for(int k = 0; k < 2*numberTransactions; ++k){
-                        wr.get(s1).add(new ArrayList<>(Collections.nCopies(2*numberTransactions,0)));
-                        wr.get(s2).add(new ArrayList<>(Collections.nCopies(2*numberTransactions,0)));
+                        wr.get(s1).add(c.deepClone(row));
+                        wr.get(s2).add(c.deepClone(row));
                     }
-                    wr.get(s1).get(2*i).set(2*i+1, 1);
-                    wr.get(s2).get(2*j).set(2*j+1, 1);
+                    wr.get(s1).get(2*i).get(2*i+1).add(0);
+                    wr.get(s2).get(2*j).get(2*j+1).add(1);
                     //TODO FIX
 
                 }

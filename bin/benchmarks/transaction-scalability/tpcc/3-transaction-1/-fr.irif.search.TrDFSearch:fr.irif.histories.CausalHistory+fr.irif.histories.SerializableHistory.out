@@ -1,0 +1,23 @@
+JavaPathfinder core system v8.0 (rev 30de3712f2f2bc23f46e30f2b1056a72b6f77270) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+benchmarks.tpcc.BigTestTPCC.main("-d","src/benchmarks/tpcc/database/districts.in","-n","src/benchmarks/tpcc/database/neworder.in","-i","src/benchmarks/tpcc/database/item.in","-w","src/benchmarks/tpcc/database/warehouse.in","-s","src/benchmarks/tpcc/database/stock.in","-l","src/benchmarks/tpcc/database/orderline.in","-c","src/benchmarks/tpcc/database/customer.in","-o","src/benchmarks/tpcc/database/order.in","src/benchmarks/tpcc/transaction-scalability/case-3-1/thread1.in","src/benchmarks/tpcc/transaction-scalability/case-3-1/thread2.in","src/benchmarks/tpcc/transaction-scalability/case-3-1/thread3.in")
+
+====================================================== search started: 6/11/22 5:20
+
+====================================================== results
+no errors detected
+
+====================================================== statistics
+elapsed time:       00:00:04
+states:             new=10,visited=715,backtracked=725,end=4
+transactional:      histories=2,swaps=0
+search:             maxDepth=591,constraints=0
+choice generators:  thread=722 (signal=0,lock=7,sharedRef=361,threadApi=6,reschedule=348), data=0
+heap:               new=41776,released=40562,maxLive=1634,gcCycles=1631
+instructions:       644613
+max memory:         308MB
+loaded code:        classes=178,methods=3866
+
+====================================================== search finished: 6/11/22 5:20

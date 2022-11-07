@@ -1,4 +1,0 @@
-stockLevel 0 1 37
-payment 1 1 20027 Rodolfo false 7.34
-stockLevel 0 0 100
-createNewOrder 0 1 100007 2 0 [123, 66] [0, 1] [1, 1]

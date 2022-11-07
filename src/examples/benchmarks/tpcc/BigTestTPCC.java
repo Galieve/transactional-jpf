@@ -2,9 +2,10 @@ package benchmarks.tpcc;
 
 import benchmarks.MainUtility;
 import benchmarks.Worker;
-import database.TRDatabase;
+import database.APIDatabase;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.function.Function;
@@ -14,14 +15,23 @@ public class BigTestTPCC {
     private static Function<String, String> idGenerator(String type){
         switch (type) {
             case TPCC.ORDERLINE:
-            case TPCC.NEWORDER:
-            case TPCC.DISTRICT:
-            case TPCC.OPENORDER:
+                return (s)->{
+                    var sl = s.split(";");
+                    return sl[0]+":"+sl[1]+":"+sl[2]+":"+sl[3]+":"+sl[4]+":"+sl[5];
+                };
             case TPCC.CUSTOMER:
+            case TPCC.NEWORDER:
+            case TPCC.OPENORDER:
+                return (s)->{
+                    var sl = s.split(";");
+                    return sl[0]+":"+sl[1]+":"+sl[2];
+                };
+            case TPCC.DISTRICT:
             case TPCC.HISTORY:
             case TPCC.STOCK: //warehouse + item (but it is the same formula)
                 return (s)->{
                     var sl = s.split(";");
+
                     return sl[0]+":"+sl[1];
                 };
             case TPCC.WAREHOUSE:
@@ -39,7 +49,7 @@ public class BigTestTPCC {
 
     private static int populateDB(String ... args){
 
-        TRDatabase dbMain = TRDatabase.getDatabase();
+        APIDatabase dbMain = APIDatabase.getDatabase();
 
         HashMap<String, String> tableInfo = new HashMap<>();
         HashSet<String> arraySet = new HashSet<>();
@@ -56,10 +66,7 @@ public class BigTestTPCC {
         tableInfo.put(TPCC.WAREHOUSE, "{}");
 
         //warehouse, district, history, item, stock are not array
-        arraySet.add(TPCC.NEWORDER);
-        arraySet.add(TPCC.ORDERLINE);
-        arraySet.add(TPCC.OPENORDER);
-        arraySet.add(TPCC.CUSTOMER);
+
 
 
         int ret = args.length - 1;

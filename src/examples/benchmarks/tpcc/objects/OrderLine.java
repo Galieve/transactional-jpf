@@ -2,7 +2,7 @@ package benchmarks.tpcc.objects;
 
 import database.TRUtility;
 
-public class OrderLine {
+public class OrderLine implements TPCCObject{
 
     private int warehouseID;
     private int districtID;
@@ -83,5 +83,12 @@ public class OrderLine {
 
     public float getAmount() {
         return amount;
+    }
+
+
+    @Override
+    public String getKey() {
+        return  warehouseID + ":" + districtID + ":" + orderID + ":" + number
+                + ":" + itemID + ":" + supplyWarehouseID;
     }
 }

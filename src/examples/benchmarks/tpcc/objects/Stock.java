@@ -4,7 +4,7 @@ import database.TRUtility;
 
 import java.util.HashMap;
 
-public class Stock {
+public class Stock implements TPCCObject{
 
     private int itemID; // PRIMARY KEY 2
     private int warehouseID; // PRIMARY KEY 1
@@ -91,4 +91,9 @@ public class Stock {
         return dist.get(id);
     }
 
+
+    @Override
+    public String getKey() {
+        return warehouseID+ ":"+itemID;
+    }
 }

@@ -15,7 +15,6 @@ public abstract class Database {
     protected Oracle oracle;
 
     protected ArrayList<Transaction> events;
-
     protected HashMap<EventData, Integer> backtrackPoints;
 
     //It points to the event w in writeEventsPerVariable.get(e.getVariable()) such that
@@ -39,6 +38,8 @@ public abstract class Database {
     protected GuideInfo guideInfo;
 
     protected History history;
+
+    protected History trueHistory;
     protected static Database databaseInstance;
     protected String mockPath;
 
@@ -103,98 +104,7 @@ public abstract class Database {
     }
 
 
-    public void addEvent(TransactionalEvent t){
-
-        EventData ed = t.getEventData();
-        timesPathExecuted.put(ed.getPath(), ed.getTime()); //before mockAccess, we need it to check path of alternatives
-
-        if(isMockAccess()){
-            mockPath = ed.getPath();
-            return;
-        }
-
-        instructionsMapped.put(ed, t);
-        timesPathExecuted.put(ed.getPath(), ed.getTime());
-
-
-        switch (t.getType()) {
-            case WRITE:
-                if(t.getTransactionId() != 0 && writeEventsPerVariable.get(t.getVariable()) == null){
-                    throw new IllegalStateException("Initial transaction does not contain variable " + t.getVariable());
-                }
-
-                if(!isGuided()) {
-                    readEventsPerVariable.putIfAbsent(t.getVariable(), new ArrayList<>());
-                }
-                writeEventsPerVariable.putIfAbsent(t.getVariable(), new ArrayList<>());
-
-
-                var writesOfX = writeEventsPerVariable.get(t.getVariable());
-                if(!writesOfX.isEmpty() && writesOfX.get(writesOfX.size()-1).getTransactionId() == t.getTransactionId()){
-                    writesOfX.remove(writesOfX.size() -1);
-
-                }
-                writesOfX.add((WriteTransactionalEvent) t);
-
-                history.addWrite(t.getVariable(),t.getTransactionId());
-
-                break;
-            case READ:
-                ArrayList<WriteTransactionalEvent> writeEvents = writeEventsPerVariable.get(t.getVariable());
-                if(writeEventsPerVariable.get(t.getVariable()) == null){
-                    throw new IllegalStateException("Initial transaction does not contain variable " + t.getVariable());
-                }
-
-                WriteTransactionalEvent w = writeEvents.get(writeEvents.size() - 1);
-                ReadTransactionalEvent r = (ReadTransactionalEvent) t;
-                r.setWriteEvent(w);
-                setWriteRead(r);
-                readEventsPerVariable.putIfAbsent(t.getVariable(), new ArrayList<>());
-                readEventsPerVariable.get(t.getVariable()).add((ReadTransactionalEvent) t);
-                break;
-            case BEGIN:
-                sessionOrder.putIfAbsent(t.getThreadId(), new ArrayList<>());
-                history.addTransaction(t.getTransactionId(), t.getThreadId(), sessionOrder.get(t.getThreadId()));
-                sessionOrder.get(t.getThreadId()).add(t.getTransactionId());
-                programExtendedOrder.putIfAbsent(t.getThreadId(), 0);
-                oracle.addBegin(ed);
-                events.add(new Transaction(new LinkedList<>()));
-                break;
-            case COMMIT:
-                if(getDatabaseBacktrackMode() != GuideInfo.BacktrackTypes.SWAP) {
-                    var begin = events.get(events.size() -1).getFirst();
-                    oracle.addCommit(begin.getEventData(), ed);
-                    for(var e: events.get(events.size()-1)){
-                        if (e.getType() == TransactionalEvent.Type.WRITE) {
-                            var writes = writeEventsPerVariable.get(e.getVariable());
-                            if(writes.get(writes.size() - 1).getObservationSequenceIndex() == e.getObservationSequenceIndex()) {
-                                backtrackPoints.putIfAbsent(e.getEventData(), readEventsPerVariable.get(e.getVariable()).size() - 1);
-                            }
-                            else{
-                                //TODO: remove this
-                                backtrackPoints.putIfAbsent(e.getEventData(), -1);
-                            }
-                        }
-                    }
-                }
-                break;
-            case ABORT:
-                for(var e: events.get(events.size() - 1)){
-                    if(e.getType() == TransactionalEvent.Type.WRITE) {
-                        var writes = writeEventsPerVariable.get(e.getVariable());
-                        if (!writes.isEmpty() && writes.get(writes.size() - 1).getTransactionId() == e.getTransactionId()) {
-                            writes.remove(writes.size() - 1);
-                        }
-                        history.removeWrite(e.getVariable(), e.getTransactionId());
-                    }
-                }
-                break;
-        }
-
-        events.get(events.size()-1).addEvent(t);
-        programExtendedOrder.put(t.getThreadId(), programExtendedOrder.get(t.getThreadId()) + 1);
-
-    }
+    public abstract void addEvent(TransactionalEvent t);
 
     public boolean isLastEventReadBacktrackable(){
         var e = getLastEvent();
@@ -274,7 +184,7 @@ public abstract class Database {
             orac_idx = oracle.getNextData(orac_idx);
 
         }
-        guideInfo.addGuide(restorePath, e, null);
+        guideInfo.addGuide(restorePath, e, null, new HashSet<>());
     }
 
 
@@ -282,6 +192,7 @@ public abstract class Database {
     protected void generateBacktrackPath(WriteTransactionalEvent w, ReadTransactionalEvent r){
         LinkedList<Transaction> backtrackPath = new LinkedList<>();
         LinkedList<TransactionalEvent> transaction = new LinkedList<>();
+        HashSet<BeginTransactionalEvent> deleted = new HashSet<>();
 
         //We need to start in a complete transaction, i.e. after the read.
         //int i = events.get(r.getTransactionId()).getFirst().getObservationSequenceIndex();
@@ -297,9 +208,10 @@ public abstract class Database {
                 transaction = new LinkedList<>();
             }
             else{
+                deleted.add((BeginTransactionalEvent) events.get(i).getFirst());
                 for(var e: events.get(i)){
-                    if(e.getType() == TransactionalEvent.Type.READ)
-                        deletedOnSwap.add(e);
+                    //if(e.getType() == TransactionalEvent.Type.READ)
+                    deletedOnSwap.add(e);
                 }
             }
 
@@ -309,20 +221,20 @@ public abstract class Database {
             if(e.getObservationSequenceIndex() <= r.getObservationSequenceIndex()) {
                 transaction.add(e);
             }
-            else if(e.getType() == TransactionalEvent.Type.READ){
+            else {
                 deletedOnSwapR.addFirst(e);
             }
         }
         if(!deletedOnSwapR.isEmpty()) {
-            var prevIt = deletedOnSwapR.listIterator(deletedOnSwapR.size() - 1);
-            while (prevIt.hasPrevious()) {
-                deletedOnSwap.addFirst(prevIt.previous());
+            var prevIt = deletedOnSwapR.listIterator();
+            while (prevIt.hasNext()) {
+                deletedOnSwap.addFirst(prevIt.next());
             }
         }
 
         backtrackPath.add(new Transaction(transaction));
 
-        guideInfo.addGuide(backtrackPath, events.get(r.getTransactionId()-1).getLast(), w);
+        guideInfo.addGuide(backtrackPath, events.get(r.getTransactionId()-1).getLast(), w, deleted);
     }
 
     public abstract void backtrackDatabase();
@@ -383,17 +295,20 @@ public abstract class Database {
 
 
     protected void addEventMockHistory(History h, TransactionalEvent e,
-                                       HashMap<Integer, Integer> trTranslator){
+                                       HashMap<Integer, Integer> trTranslator,
+                                       boolean aborted){
         switch(e.getType()){
             case READ:
                 var r = (ReadTransactionalEvent) e;
                 h.setWR(r.getVariable(),
                         trTranslator.get(r.getWriteEvent().getTransactionId()),
-                        trTranslator.get(r.getTransactionId()));
+                        trTranslator.get(r.getTransactionId()), r.getPoId());
                 break;
             case WRITE:
-                var w = (WriteTransactionalEvent) e;
-                h.addWrite(w.getVariable(),trTranslator.get(w.getTransactionId()));
+                if(!aborted) {
+                    var w = (WriteTransactionalEvent) e;
+                    h.addWrite(w.getVariable(), trTranslator.get(w.getTransactionId()));
+                }
             default:
                 break;
         }
@@ -426,8 +341,10 @@ public abstract class Database {
                         h.getNumberTransactions());
                 h.addTransaction(h.getNumberTransactions(), thID,
                         so.get(thID));
+                var aborted = events.get(i).getLast().getType() ==
+                        TransactionalEvent.Type.ABORT;
                 for(var e: events.get(i)){
-                    addEventMockHistory(h, e, trTranslator);
+                    addEventMockHistory(h, e, trTranslator, aborted);
                 }
             }
         }
@@ -441,11 +358,11 @@ public abstract class Database {
             if(e == r) {
                 h.setWR(r.getVariable(),
                         trTranslator.get(w.getTransactionId()),
-                        trTranslator.get(r.getTransactionId()));
+                        trTranslator.get(r.getTransactionId()), r.getPoId());
                 break;
             }
             else{
-                addEventMockHistory(h,e,trTranslator);
+                addEventMockHistory(h,e,trTranslator, false);
             }
 
         }
@@ -527,13 +444,18 @@ public abstract class Database {
       guideInfo.resetPath();
     }
 
+    public void fullResetGuidedInfo(){
+        guideInfo.fullResetPath();
+    }
+
     public TransactionalEvent getEventFromEventData(EventData eventData) {
         return instructionsMapped.get(eventData);
     }
 
     protected void setWriteRead(ReadTransactionalEvent r){
         WriteTransactionalEvent w = r.getWriteEvent();
-        history.setWR(r.getVariable(), w.getTransactionId(), r.getTransactionId());
+        history.setWR(r.getVariable(), w.getTransactionId(), r.getTransactionId(), r.getPoId());
+        trueHistory = null;
     }
 
     public void changeWriteRead(WriteTransactionalEvent w, ReadTransactionalEvent r){
@@ -545,6 +467,7 @@ public abstract class Database {
     protected void eraseWriteRead(ReadTransactionalEvent r){
         WriteTransactionalEvent w = r.getWriteEvent();
         history.removeWR(r.getVariable(), w.getTransactionId(), r.getTransactionId());
+        trueHistory = null;
     }
 
     public boolean isMockAccess() {
@@ -624,11 +547,14 @@ public abstract class Database {
         return sb.toString();
     }
 
+
     public boolean isTrulyConsistent(){
-        if(config.getString("db.database_isolation_level.class") != null) {
-            var trueHistory = config.getEssentialInstance("db.database_isolation_level.class", History.class,
-                    new Class[]{History.class},
-                    new Object[]{history});
+        if(config.getString("db.database_true_isolation_level.class") != null) {
+            if(trueHistory == null) {
+                trueHistory = config.getEssentialInstance("db.database_true_isolation_level.class", History.class,
+                        new Class[]{History.class},
+                        new Object[]{history});
+            }
             return !isAssertionViolated() && trueHistory.isConsistent();
         }
         else return isConsistent();

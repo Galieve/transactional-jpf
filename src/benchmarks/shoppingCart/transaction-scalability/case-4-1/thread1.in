@@ -1,0 +1,4 @@
+addItem 6;bee;2.5
+removeItem 6
+addItem 7;rocket;200
+changeQuantity 7 10

@@ -54,6 +54,3 @@ public class TRARETURN extends ARETURN {
         else return super.execute(ti);
     }
 }
-
-//heap.newString(concatenatedString, ti);
-//ti.getTopFrame().getMethodName().equals("readReturn")

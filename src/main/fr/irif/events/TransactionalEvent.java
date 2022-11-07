@@ -94,4 +94,11 @@ public abstract class TransactionalEvent{
         return getBaseName() + s;
     }
 
+    public int getTransactionalSessionId() {
+        return relSOId;
+    }
+
+    public void setTransactionalId(int trId) {
+        this.trId = trId;
+    }
 }

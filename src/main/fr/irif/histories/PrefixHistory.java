@@ -1,5 +1,6 @@
 package fr.irif.histories;
 
+import com.rits.cloning.Cloner;
 import gov.nasa.jpf.Config;
 
 import java.util.ArrayList;
@@ -53,22 +54,25 @@ public class PrefixHistory extends SerializableHistory {
         return wrPerTransaction;
     }
 
-    protected HashMap<String,ArrayList<ArrayList<Integer>>> computeWR_SER(){
-        HashMap<String,ArrayList<ArrayList<Integer>>> wrMatrix = new HashMap<>();
-
+    protected HashMap<String,ArrayList<ArrayList<ArrayList<Integer>>>> computeWR_SER(){
+        HashMap<String,ArrayList<ArrayList<ArrayList<Integer>>>> wrMatrix = new HashMap<>();
+        var c = new Cloner();
         for(var p : writeReadMatrix.entrySet()){
             var k = p.getKey();
             var v = p.getValue();
             wrMatrix.put(k,  new ArrayList<>());
-            //wrMatrix.put(k,  new ArrayList<>(Collections.nCopies(2*numberTransactions,
-            //                        new ArrayList<>(Collections.nCopies(2*numberTransactions,0)))));
+
+            var row = new ArrayList<ArrayList<Integer>>();
+            for(int i = 0; i < 2*numberTransactions; ++i){
+                row.add(new ArrayList<>());
+            }
             for(int i = 0; i < v.size(); ++i){
-                wrMatrix.get(k).add(new ArrayList<>(Collections.nCopies(2*numberTransactions,0)));
-                wrMatrix.get(k).add(new ArrayList<>(Collections.nCopies(2*numberTransactions,0)));
+                wrMatrix.get(k).add(c.deepClone(row));
+                wrMatrix.get(k).add(c.deepClone(row));
                 for(int j = 0; j < v.get(i).size(); ++j){
 
                     if(i != j) {
-                        wrMatrix.get(k).get(2 * i + 1).set(2 * j, v.get(i).get(j));
+                        wrMatrix.get(k).get(2 * i + 1).set(2 * j, c.deepClone(v.get(i).get(j)));
                     }
                     //What happens if a transaction reads from itself?
                 }

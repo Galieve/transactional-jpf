@@ -1,17 +1,16 @@
 package benchmarks.courseware;
 
 import benchmarks.BenchmarkModule;
+import database.AbortDatabaseException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class CourseWare extends BenchmarkModule {
 
     public static final String STUDENT = "STUDENT";
     public static final String COURSE = "COURSE";
     public static final String ENROLLMENTS = "ENROLLMENTS";
-
     private static CourseWare courseWareInstance;
 
     public static CourseWare getInstance() {
@@ -35,37 +34,41 @@ public class CourseWare extends BenchmarkModule {
     }
 
     public void enroll(int studentID, int courseID){
-        db.begin();
-        var studentTable = CourseWareUtility.readStudent(db.read(STUDENT));
-        var student = studentTable.get(studentID+"");
-        var courseTable = CourseWareUtility.readCourse(db.read(COURSE));
-        var course = courseTable.get(courseID+"");
+        try {
+            db.begin();
+            var stString = db.readRow(STUDENT, studentID + "");
+            if(stString == null) db.abort();
 
-        if(student != null && course != null &&
-                !student.isRegistered() && course.getStatus().equals("open")){
+            var student = new Student(stString);
 
-            var enrollmentsTable =
-                    CourseWareUtility.readEnrollements(db.read(ENROLLMENTS));
+            var cString = db.readRow(COURSE, courseID + "");
+            if(cString == null) db.abort();
+            var course = new Course(cString);
 
-            enrollmentsTable.putIfAbsent(courseID+"", new ArrayList<>());
-            var enrollments = enrollmentsTable.get(courseID+"");
-            if(enrollments.size() < course.getCapacity()){
-                enrollments.add(studentID+"");
 
-                db.write(ENROLLMENTS, enrollmentsTable.toString());
+            if(!student.isRegistered() && course.getStatus().equals("open")){
+
+                var enrollments = db.readIfIDStartsWith(ENROLLMENTS, courseID+ "");
+                if(enrollments.size() < course.getCapacity()){
+                    enrollments.add(studentID+"");
+
+                    db.insertRow(ENROLLMENTS, courseID+":"+studentID);
+                }
             }
 
-        }
+            db.commit();
+        } catch (Exception ignored) {
 
-        db.commit();
+        }
     }
 
-    public Map<String, ArrayList<String>> getEnrollments(){
+    public ArrayList<String> getEnrollments(){
         db.begin();
-        var enrollmentsTable =
-                CourseWareUtility.readEnrollements(db.read(ENROLLMENTS));
+
+        var enrollments = db.readAllIDs(ENROLLMENTS);
+
         db.commit();
-        return enrollmentsTable;
+        return enrollments;
     }
 
     public void closeCourse(int courseID){
@@ -75,12 +78,13 @@ public class CourseWare extends BenchmarkModule {
     }
 
     protected void modifyCourseStatusBody(int courseID, String label){
-        var courseTable =
-                CourseWareUtility.readCourse(db.read(COURSE));
-        var course = courseTable.get(courseID+"");
-        if(course != null){
+
+        var courseSt = db.readRow(COURSE, courseID+"");
+
+        if(courseSt != null){
+            var course = new Course(courseSt);
             course.setStatus(label);
-            db.write(COURSE, courseTable.toString());
+            db.writeRow(COURSE, courseID+"", course.toString());
         }
     }
 
@@ -93,15 +97,17 @@ public class CourseWare extends BenchmarkModule {
 
     public void deleteCourse(int courseID){
         db.begin();
-        modifyCourseStatusBody(courseID, "close");
-        var courseTable =
-                CourseWareUtility.readCourse(db.read(COURSE));
-        courseTable.remove(courseID+"");
-        db.write(COURSE, courseTable.toString());
 
-        var enrollmentsTable = CourseWareUtility.readEnrollements(db.read(ENROLLMENTS));
-        enrollmentsTable.remove(courseID+"");
-        db.write(ENROLLMENTS, enrollmentsTable.toString());
+        modifyCourseStatusBody(courseID, "close");
+
+        db.deleteRow(COURSE, courseID+"");
+
+        var enrollments = db.readAllIDs(ENROLLMENTS);
+        for(var e: enrollments){
+            if(e.startsWith(courseID+"")){
+                db.deleteRow(ENROLLMENTS, e.toString());
+            }
+        }
 
         db.commit();
     }

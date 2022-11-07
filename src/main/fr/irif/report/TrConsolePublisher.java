@@ -13,11 +13,12 @@ public class TrConsolePublisher extends ConsolePublisher {
     public TrConsolePublisher(Config conf, Reporter reporter) {
         super(conf, reporter);
         var pref = conf.getString("report.console.file-prefix");
+        var search = conf.getString("search.class");
         var model = conf.getString("db.database_isolation_level.class");
-        var trueModel = conf.getOrDefault("db.database_isolation_level.class",
+        var trueModel = conf.getOrDefault("db.database_true_isolation_level.class",
                 conf.getString("db.database_isolation_level.class"));
-        if(pref != null && model != null && trueModel != null) {
-            fileName = pref + "-" + model + "+" + trueModel + ".out";
+        if(pref != null && search != null && model != null && trueModel != null) {
+            fileName = pref + "-"+  search +":" + model + "+" + trueModel + ".out";
         }
         else{
             System.out.println("ERROR: "+pref + "-" + model + "+" + trueModel + ".out");
@@ -33,8 +34,7 @@ public class TrConsolePublisher extends ConsolePublisher {
         pw.println("elapsed time:       " + formatHMS(reporter.getElapsedTime()));
         pw.println("states:             new=" + stat.newStates + ",visited=" + stat.visitedStates
                 + ",backtracked=" + stat.backtracked + ",end=" + stat.endStates);
-        pw.println("transactional:      histories="+trStat.histories + ",swaps=" + trStat.swaps
-                + ",usefulSwaps="+ trStat.usefulSwaps);
+        pw.println("transactional:      histories="+trStat.histories + ",swaps=" + trStat.swaps);
         pw.println("search:             maxDepth=" + stat.maxDepth + ",constraints=" + stat.constraints);
         pw.println("choice generators:  thread=" + stat.threadCGs
                 + " (signal=" + stat.signalCGs + ",lock=" + stat.monitorCGs + ",sharedRef=" + stat.sharedAccessCGs

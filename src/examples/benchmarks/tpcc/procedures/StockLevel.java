@@ -2,15 +2,18 @@ package benchmarks.tpcc.procedures;
 
 import benchmarks.tpcc.TPCC;
 import benchmarks.tpcc.TPCCUtility;
+import benchmarks.tpcc.objects.District;
+import benchmarks.tpcc.objects.OrderLine;
+import benchmarks.tpcc.objects.Stock;
 import database.AbortDatabaseException;
-import database.TRDatabase;
+import database.APIDatabase;
 
 import java.util.ArrayList;
 
 
 public class StockLevel extends BasicTPCCProcedure{
 
-    public StockLevel(TRDatabase db) {
+    public StockLevel(APIDatabase db) {
         super(db);
     }
 
@@ -34,28 +37,19 @@ public class StockLevel extends BasicTPCCProcedure{
                                   int threshold, int orderID) throws AbortDatabaseException {
 
         int count = 0;
-        var orderLineTable = TPCCUtility.readOrderLine(db.read(TPCC.ORDERLINE));
-        var stockTable = TPCCUtility.readStock(db.read(TPCC.STOCK));
+        var ols = db.readIfIDStartsWith(TPCC.ORDERLINE, warehouseID+":"+districtID);
+
+        for(var olSt: ols){
+
+            var ol = olSt == null ? null : new OrderLine(olSt);
+            if(ol == null) continue;
+
+            var stString = db.readRow(TPCC.STOCK, warehouseID+":"+ ol.getItemID());
+            if(stString == null) continue;
+            var st = new Stock(stString);
 
 
-        orderLineTable.putIfAbsent(warehouseID+":"+districtID, new ArrayList<>());
-
-        System.out.println("IRIF");
-        System.out.println(stockTable);
-        System.out.println(orderLineTable);
-        System.out.println(warehouseID+":"+districtID);
-
-
-        for(var ol: orderLineTable.get(warehouseID+":"+districtID)){
-            var st = stockTable.get(warehouseID+":"+ ol.getItemID());
-            System.out.println(st);
-            System.out.println(ol);
-            System.out.println(warehouseID+":"+ol.getItemID());
-            System.out.println(orderID);
-            System.out.println(threshold);
-            System.out.println("----");
-
-            if(st != null && ol.getOrderID() < orderID && ol.getOrderID() >= orderID - 20
+            if(ol.getOrderID() < orderID && ol.getOrderID() >= orderID - 20
                     && st.getQuantity() < threshold){
                 ++count;
             }
@@ -64,15 +58,12 @@ public class StockLevel extends BasicTPCCProcedure{
         if(count == 0) db.abort();
 
         return count;
-
-
-
-
     }
 
     private Integer getOrderID(int warehouseID, int districtID) throws AbortDatabaseException {
-        var districtTable = TPCCUtility.readDistrict(db.read(TPCC.DISTRICT));
-        var d = districtTable.get(warehouseID+":"+districtID);
+        var dSt = db.readRow(TPCC.DISTRICT, warehouseID+":"+districtID);
+        var d = dSt == null ? null : new District(dSt);
+
         if(d == null) db.abort();
         return d.getNextOrderID();
     }

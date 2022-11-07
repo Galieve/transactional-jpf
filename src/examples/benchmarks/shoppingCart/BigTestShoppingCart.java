@@ -2,7 +2,7 @@ package benchmarks.shoppingCart;
 
 import benchmarks.MainUtility;
 import benchmarks.Worker;
-import database.TRDatabase;
+import database.APIDatabase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +30,7 @@ public class BigTestShoppingCart {
 
     private static int populateDB(String ... args){
 
-        TRDatabase dbMain = TRDatabase.getDatabase();
+        APIDatabase dbMain = APIDatabase.getDatabase();
 
         HashMap<String, String> tableInfo = new HashMap<>();
         HashSet<String> arraySet = new HashSet<>();

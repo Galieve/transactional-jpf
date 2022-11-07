@@ -1,0 +1,23 @@
+JavaPathfinder core system v8.0 (rev 30de3712f2f2bc23f46e30f2b1056a72b6f77270) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+benchmarks.wikipedia.BigTestWikipedia.main("-p","src/benchmarks/wikipedia/database/page.in","-r","src/benchmarks/wikipedia/database/revision.in","-t","src/benchmarks/wikipedia/database/text.in","-u","src/benchmarks/wikipedia/database/user.in","-w","src/benchmarks/wikipedia/database/watchlist.in","src/benchmarks/wikipedia/thread-scalability/case-4-1/thread1.in","src/benchmarks/wikipedia/thread-scalability/case-4-1/thread2.in","src/benchmarks/wikipedia/thread-scalability/case-4-1/thread3.in","src/benchmarks/wikipedia/thread-scalability/case-4-1/thread4.in")
+
+====================================================== search started: 6/11/22 18:32
+
+====================================================== results
+no errors detected
+
+====================================================== statistics
+elapsed time:       00:30:00
+states:             new=28308,visited=1372739,backtracked=1400467,end=130848
+transactional:      histories=130848,swaps=0
+search:             maxDepth=583,constraints=0
+choice generators:  thread=1270199 (signal=0,lock=1,sharedRef=4340,threadApi=241,reschedule=1265617), data=0
+heap:               new=68799224,released=125281560,maxLive=1428,gcCycles=2803408
+instructions:       3068831768
+max memory:         370MB
+loaded code:        classes=150,methods=3593
+
+====================================================== search finished: 6/11/22 19:02

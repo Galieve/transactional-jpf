@@ -1,11 +1,11 @@
 package benchmarks;
 
-import database.TRDatabase;
+import database.APIDatabase;
 
 public abstract class Procedure {
-    protected final TRDatabase db;
+    protected final APIDatabase db;
 
-    public Procedure(TRDatabase db) {
+    public Procedure(APIDatabase db) {
         this.db = db;
     }
 }

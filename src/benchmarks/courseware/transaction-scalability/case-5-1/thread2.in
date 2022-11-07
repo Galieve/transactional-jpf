@@ -1,0 +1,5 @@
+closeCourse 6
+getEnrollments
+openCourse 5
+enroll 1 5
+enroll 4 6

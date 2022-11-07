@@ -1,3 +1,4 @@
-stockLevel 0 0 100
-orderStatus 0 1 33496 "Victoria Federica" false
-delivery 2 1 2222
+payment 1 1 20027 Chikilicuatre false 7.34
+payment 0 1 33496 "Victoria Federica" true 6.19
+payment 1 1 3322466 "Emmy" false 12.34
+

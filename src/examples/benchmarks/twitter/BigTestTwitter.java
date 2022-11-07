@@ -2,7 +2,7 @@ package benchmarks.twitter;
 
 import benchmarks.MainUtility;
 import benchmarks.Worker;
-import database.TRDatabase;
+import database.APIDatabase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,11 +15,18 @@ public class BigTestTwitter {
         switch (type) {
             case Twitter.FOLLOWERS:
             case Twitter.FOLLOWS:
+                return (s)->{
+                    return s.replace(";", ":");
+                };
             case Twitter.TWEETS:
+                return (s)->{
+                    var sl = s.split(";");
+                    return sl[0]+":"+sl[1];
+                };
             case Twitter.USERS:
                 return (s)->{
                     var sl = s.split(";");
-                    return sl[0];
+                    return sl[1];
                 };
             default:
                 return null;
@@ -35,7 +42,7 @@ public class BigTestTwitter {
 
 
 
-        TRDatabase dbMain = TRDatabase.getDatabase();
+        APIDatabase dbMain = APIDatabase.getDatabase();
 
         tableInfo.put(Twitter.FOLLOWS, "{}");
         tableInfo.put(Twitter.FOLLOWERS, "{}");
@@ -65,16 +72,14 @@ public class BigTestTwitter {
             }
         }
 
-
-        new MainUtility(dbMain).initTransaction(tableInfo, arraySet, (s)->(idGenerator(s)));
+        new MainUtility(dbMain).initTransaction(
+                tableInfo, arraySet, (s)->(idGenerator(s)));
         return ret;
     }
 
     public static void main(String [] args) {
 
-
         var iStart = populateDB(args);
-
 
         var ses = Twitter.getTwitterSession();
 

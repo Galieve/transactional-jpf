@@ -1,0 +1,23 @@
+JavaPathfinder core system v8.0 (rev 30de3712f2f2bc23f46e30f2b1056a72b6f77270) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+benchmarks.shoppingCart.BigTestShoppingCart.main("-s","src/benchmarks/shoppingCart/database/store.in","src/benchmarks/shoppingCart/transaction-scalability/case-4-1/thread1.in","src/benchmarks/shoppingCart/transaction-scalability/case-4-1/thread2.in","src/benchmarks/shoppingCart/transaction-scalability/case-4-1/thread3.in")
+
+====================================================== search started: 6/11/22 4:30
+
+====================================================== results
+no errors detected
+
+====================================================== statistics
+elapsed time:       00:01:17
+states:             new=0,visited=78003,backtracked=78003,end=8165
+transactional:      histories=60,swaps=0
+search:             maxDepth=0,constraints=0
+choice generators:  thread=69839 (signal=0,lock=5,sharedRef=1339,threadApi=60,reschedule=68435), data=0
+heap:               new=4550610,released=7064958,maxLive=1334,gcCycles=156425
+instructions:       115811953
+max memory:         308MB
+loaded code:        classes=159,methods=3681
+
+====================================================== search finished: 6/11/22 4:32

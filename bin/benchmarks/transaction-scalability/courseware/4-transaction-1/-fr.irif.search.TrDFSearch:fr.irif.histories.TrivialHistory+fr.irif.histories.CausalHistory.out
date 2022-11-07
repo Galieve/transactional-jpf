@@ -1,0 +1,23 @@
+JavaPathfinder core system v8.0 (rev 30de3712f2f2bc23f46e30f2b1056a72b6f77270) - (C) 2005-2014 United States Government. All rights reserved.
+
+
+====================================================== system under test
+benchmarks.courseware.BigTestCourseWare.main("-s","src/benchmarks/courseware/database/students.in","-c","src/benchmarks/courseware/database/courses.in","src/benchmarks/courseware/transaction-scalability/case-4-1/thread1.in","src/benchmarks/courseware/transaction-scalability/case-4-1/thread2.in","src/benchmarks/courseware/transaction-scalability/case-4-1/thread3.in")
+
+====================================================== search started: 5/11/22 20:49
+
+====================================================== results
+no errors detected
+
+====================================================== statistics
+elapsed time:       00:35:56
+states:             new=0,visited=529428,backtracked=529066,end=113793
+transactional:      histories=66,swaps=0
+search:             maxDepth=0,constraints=0
+choice generators:  thread=415635 (signal=0,lock=1,sharedRef=2219,threadApi=118,reschedule=413297), data=0
+heap:               new=21520524,released=57075746,maxLive=1280,gcCycles=1059524
+instructions:       435046684
+max memory:         308MB
+loaded code:        classes=149,methods=3596
+
+====================================================== search finished: 5/11/22 21:25

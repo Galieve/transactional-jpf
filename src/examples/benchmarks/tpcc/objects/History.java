@@ -2,7 +2,7 @@ package benchmarks.tpcc.objects;
 
 import database.TRUtility;
 
-public class History {
+public class History implements TPCCObject {
     private int customerID;
     private int customerDistrictID;
     private int customerWarehouseID;
@@ -64,4 +64,8 @@ public class History {
         return warehouseID;
     }
 
+    @Override
+    public String getKey() {
+        return warehouseID+":"+ districtID;
+    }
 }

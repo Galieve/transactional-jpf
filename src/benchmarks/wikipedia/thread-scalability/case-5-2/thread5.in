@@ -1,0 +1,3 @@
+removeWatchList 111 0 Paris
+addWatchList 2324 0 Paris
+getPageAuthenticated true 192.168.1.254 68 0 Madrid

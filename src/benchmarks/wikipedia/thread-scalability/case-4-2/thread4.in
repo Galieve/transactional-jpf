@@ -1,0 +1,3 @@
+getPageAuthenticated false 192.168.1.254 2324 0 Paris
+updatePage Rome "Rome is the capital city of Italy. It is also the capital of the Lazio region the centre of the Metropolitan City of Rome and a special comune named Comune di Roma Capitale. With 2860009 residents in 1285 km2 (496.1 sq mi) Rome is the country's most populated comune and the third most populous city in the European Union by population within city limits." 0 2324 192.168.1.254 "correction on point" 0
+getPageAnonymous true 192.168.1.254 0 Paris

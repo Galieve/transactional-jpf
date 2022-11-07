@@ -1,5 +1,6 @@
 #!/bin/bash
 
+RC="fr.irif.database.ReadCommittedHistory"
 RA="fr.irif.database.ReadAtomicHistory"
 CC="fr.irif.database.CausalHistory"
 trueModels=("fr.irif.database.CausalHistory"

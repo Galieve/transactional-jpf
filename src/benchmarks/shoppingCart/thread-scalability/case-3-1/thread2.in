@@ -1,0 +1,3 @@
+removeItem 6
+getList
+changeQuantity 6 666

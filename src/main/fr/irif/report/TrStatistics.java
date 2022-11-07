@@ -10,9 +10,7 @@ import gov.nasa.jpf.vm.VM;
 
 public class TrStatistics extends Statistics {
 
-    public int swaps = 0;
-    public int usefulSwaps = 0;
-    public int histories = 0;
+    public int swaps = 0;public int histories = 0;
 
     @Override
     public TrStatistics clone() {
@@ -36,9 +34,6 @@ public class TrStatistics extends Statistics {
             //var msg = trSearch.getAndClearMessage(); //The reporter is the last listener that will use this message.
             if (msg != null && msg.equals(GuideInfo.BacktrackTypes.SWAP + " mode ended.")) {
                 ++swaps;
-                if (Database.getDatabase().isTrulyConsistent()) {
-                    ++usefulSwaps;
-                }
             }
         }
 

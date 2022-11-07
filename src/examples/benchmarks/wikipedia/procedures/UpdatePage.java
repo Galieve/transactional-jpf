@@ -1,17 +1,13 @@
 package benchmarks.wikipedia.procedures;
 
 import benchmarks.wikipedia.Wikipedia;
-import benchmarks.wikipedia.WikipediaUtility;
-import benchmarks.wikipedia.objects.Logging;
-import benchmarks.wikipedia.objects.RecentChange;
-import benchmarks.wikipedia.objects.Revision;
-import benchmarks.wikipedia.objects.Text;
-import database.TRDatabase;
+import benchmarks.wikipedia.objects.*;
+import database.APIDatabase;
 
 import java.util.ArrayList;
 
 public class UpdatePage extends WikipediaProcedure{
-    public UpdatePage(TRDatabase db) {
+    public UpdatePage(APIDatabase db) {
         super(db);
     }
 
@@ -22,8 +18,10 @@ public class UpdatePage extends WikipediaProcedure{
         var timestamp = System.currentTimeMillis();
 
         var nextTextID = insertText(pageID, pageText);
+
         var nextRevisionID = insertRevision(pageID,textID,revComment, revMinorEdit, userID,
                 userText, timestamp, pageText, revisionID);
+
         updatePage(nextRevisionID, timestamp, pageText, pageID);
 
         insertRecentChanges(timestamp, pageNamespace, pageTitle, pageID, userID, userText,
@@ -44,19 +42,12 @@ public class UpdatePage extends WikipediaProcedure{
     }
 
     protected long insertText(int pageID, String pageText){
-        var textTable = WikipediaUtility.readText(
-                db.read(Wikipedia.TEXT));
-        //new ID would be maximumID +1
-        long maxID = Long.MIN_VALUE;
-        for(var t: textTable.keySet()){
-            maxID = Math.max(maxID, Long.parseLong(t));
-        }
-        maxID+= 1;
+
+        var maxID = getFreeID(Wikipedia.TEXT);
+
         var txt = new Text(maxID, pageID, pageText, "utf-8");
 
-        textTable.putIfAbsent(maxID+"", new ArrayList<>());
-        textTable.get(maxID+"").add(txt);
-        db.write(Wikipedia.TEXT, textTable.toString());
+        db.insertRow(Wikipedia.TEXT, maxID+"", txt.toString());
         return maxID;
     }
 
@@ -64,29 +55,22 @@ public class UpdatePage extends WikipediaProcedure{
                                   int userID, String userText, long timestamp,
                                   String pageText, long parentID){
 
-        var revisionTable = WikipediaUtility.readRevision(
-                db.read(Wikipedia.REVISION));
 
+       var maxID = getFreeID(Wikipedia.REVISION);
 
-
-        //new ID would be maximumID +1
-        long maxID = Long.MIN_VALUE;
-        for(var t: revisionTable.keySet()){
-            maxID = Math.max(maxID, Long.parseLong(t));
-        }
-        maxID+= 1;
         var revision = new Revision(maxID, pageID, textID, revComment, revMinorEdit, userID,
                 userText, timestamp, pageText.length(), parentID);
 
-        revisionTable.put(maxID+"",revision);
-        db.write(Wikipedia.REVISION, revisionTable.toString());
+        db.insertRow(Wikipedia.REVISION, maxID+"", revision.toString());
         return maxID;
     }
 
     protected void updatePage(long nextRevID, long timestamp, String pageText, int pageID){
-        var pageTable = WikipediaUtility.readPage(db.read(Wikipedia.PAGE));
-        var page = pageTable.get(pageID+"");
-        if(page == null) return;
+
+        var pageSt = db.readRow(Wikipedia.PAGE, pageID+"");
+        if(pageSt == null) return;
+
+        var page = new Page(pageSt);
 
         page.setIsNew(0);
         page.setIsRedirect(0);
@@ -94,17 +78,18 @@ public class UpdatePage extends WikipediaProcedure{
         page.setTouched(timestamp);
         page.setLength(pageText.length());
 
-        db.write(Wikipedia.PAGE, pageTable.toString());
+        db.writeRow(Wikipedia.PAGE, pageID+"", page.toString());
 
 
     }
 
     protected ArrayList<Integer> selectWatchList(String pageTitle, int pageNamespace, int userID){
-        var watchListTable = WikipediaUtility.readWatchList(db.read(Wikipedia.WATCHLIST));
+
+        var wlStr =  db.readIfIDEndsWith(Wikipedia.WATCHLIST, pageNamespace+":"+pageTitle);
         var watchListUser = new ArrayList<Integer>();
-        for(var wl: watchListTable.values()){
-            if(wl.getTitle().equals(pageTitle) && wl.getNamespace() == pageNamespace
-                    && wl.getUserID() != userID && wl.getNotificationStamp() == null){
+        for(var wls: wlStr){
+            var wl = wls == null ? null : new WatchList(wls);
+            if(wl != null && wl.getUserID() != userID && wl.getNotificationStamp() == null){
                 watchListUser.add(wl.getUserID());
             }
         }
@@ -113,48 +98,44 @@ public class UpdatePage extends WikipediaProcedure{
 
     private void updateWatchList(int userID, int nameSpace, String pageTitle, long timestamp){
 
-        var watchListTable = WikipediaUtility.readWatchList(db.read(Wikipedia.WATCHLIST));
-        var w = watchListTable.get(userID +":"+nameSpace+":"+pageTitle);
+        var wl = db.readRow(Wikipedia.WATCHLIST, userID +":"+nameSpace+":"+pageTitle);
+        if(wl == null ) return;
+        var w = new WatchList(wl);
         w.setNotificationStamp(timestamp);
-        db.write(Wikipedia.WATCHLIST, watchListTable.toString());
+        db.writeRow(Wikipedia.WATCHLIST,userID +":"+nameSpace+":"+pageTitle, w.toString());
     }
 
     private void updateUserEditCount(int userID){
-        var userTable = WikipediaUtility.readUser(db.read(Wikipedia.USER));
-        var u = userTable.get(userID+"");
-        if(u != null){
-            u.setEditCount(u.getEditCount()+1);
-            db.write(Wikipedia.USER, userTable.toString());
-        }
+
+        var uSt = db.readRow(Wikipedia.USER, userID+"");
+        if(uSt == null) return;
+        var u = new User(uSt);
+        u.setEditCount(u.getEditCount()+1);
+        db.writeRow(Wikipedia.USER, userID+"", u.toString());
+
     }
 
     private void insertRecentChanges(long timestamp, int namespace, String title, int curID,
                                      int userID, String userText, String comment, long textID,
                                      long nextTextID, String userIP, int length){
-        var recentChangesTable =
-                WikipediaUtility.readRecentChanges(db.read(Wikipedia.RECENTCHANGES));
-        long ID = Long.MIN_VALUE;
-        for(var rc : recentChangesTable.keySet()){
-            ID = Math.max(ID, Long.parseLong(rc));
-        }
+
+        var ID = getFreeID(Wikipedia.RECENTCHANGES);
+
         var r = new RecentChange(ID, timestamp, namespace, title, curID, userID,
                 userText, comment, textID, nextTextID, userIP, length);
-        recentChangesTable.put(ID+"", r);
-        db.write(Wikipedia.RECENTCHANGES, recentChangesTable.toString());
+        db.insertRow(Wikipedia.RECENTCHANGES, ID+"", r.toString());
     }
 
     private void insertLogging(long timestamp, int userID, String title, int namespace,
                                       String userText, int pageID, long nextRevID, long revisionID){
-        var loggingTable =
-                WikipediaUtility.readLogging(db.read(Wikipedia.LOGGING));
-        long ID = Long.MIN_VALUE;
-        for(var rc : loggingTable.keySet()){
-            ID = Math.max(ID, Long.parseLong(rc));
-        }
+
+
+        var ID = getFreeID(Wikipedia.LOGGING);
+
         var l = new Logging(ID, timestamp, userID, title, namespace,
                 userText, pageID, nextRevID, revisionID);
-        loggingTable.put(ID+"", l);
-        db.write(Wikipedia.LOGGING, loggingTable.toString());
+
+        db.insertRow(Wikipedia.LOGGING, ID+"", l.toString());
     }
 
 }

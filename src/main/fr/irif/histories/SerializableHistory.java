@@ -22,7 +22,7 @@ public class SerializableHistory extends COInductiveHistory {
     }
 
     public SerializableHistory(ArrayList<ArrayList<Boolean>> splitSO,
-                               HashMap<String, ArrayList<ArrayList<Integer>>> wrMatrix,
+                               HashMap<String, ArrayList<ArrayList<ArrayList<Integer>>>> wrMatrix,
                                ArrayList<HashMap<String, Integer>> wrPerTransaction,
                                String forbidden) {
         super(splitSO, wrMatrix, wrPerTransaction, forbidden);
@@ -42,7 +42,7 @@ public class SerializableHistory extends COInductiveHistory {
                 if(idxSet.contains(j)) continue;
                 for(int k : idxSet){
                     if(k == i) continue;
-                    if(writeReadMatrix.get(var).get(j).get(k) > 0){
+                    if(writeReadMatrix.get(var).get(j).get(k).size() > 0){
                         return false;
                     }
                 }

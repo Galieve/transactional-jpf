@@ -1,0 +1,4 @@
+payment 0 1 33496 "Victoria Federica" true 6.19
+delivery 2 0 33496
+stockLevel 0 1 234
+orderStatus 0 1 33496 "Patin Piti" true

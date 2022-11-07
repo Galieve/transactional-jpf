@@ -22,12 +22,18 @@ public class TrDFSearch extends DFSearch {
     protected String msgListener;
     protected Integer currentAdvance;
 
+    protected Long timeout;
+
     public TrDFSearch(Config config, VM vm) {
         super(config, vm);
         database = Database.getDatabase(config);
         trEventRegister = TrEventRegister.getEventRegister(config);
         msgListener = null;
         currentAdvance = null;
+        timeout = config.hasValue("search.timeout") ?
+                System.currentTimeMillis() + config.getLong("search.timeout")*1000
+                : null;
+
     }
 
     protected boolean guideForward(TransactionalEvent e){
@@ -52,6 +58,8 @@ public class TrDFSearch extends DFSearch {
             }
         }
     }
+
+
 
     protected void backtrackWithPath(LinkedList<Transaction> guidePath, TransactionalEvent branchingPoint, WriteTransactionalEvent wSwap) {
 
@@ -273,12 +281,6 @@ public class TrDFSearch extends DFSearch {
 
         checkPropertyViolation();
 
-        /*if(!ret) {
-            trEventRegister.addReturn();
-        }
-
-         */
-
         return ret;
     }
 
@@ -310,6 +312,7 @@ public class TrDFSearch extends DFSearch {
                         WriteTransactionalEvent wSwap = guide.getWriteEventSwap();
                         database.resetGuidedInfo();
                         backtrackWithPath(path, endEvent, wSwap);
+                        database.fullResetGuidedInfo();
                         return true;
                     }
                     else break;
@@ -334,6 +337,10 @@ public class TrDFSearch extends DFSearch {
         }
     }
 
+    protected boolean isTimeout(){
+        return timeout != null && System.currentTimeMillis() >= timeout;
+    }
+
     @Override
     public void search() {
         boolean depthLimitReached = false;
@@ -341,8 +348,7 @@ public class TrDFSearch extends DFSearch {
         depth = 0;
 
         notifySearchStarted();
-
-        while (!done) {
+        while (!done && !isTimeout()) {
 
             Pair<Boolean, Integer> p = computeStepsEvent();
             applyResetJumps(p);
@@ -376,7 +382,7 @@ public class TrDFSearch extends DFSearch {
                 notifyStateProcessed();
                 if (checkAndResetBacktrackRequest() || !isNewState() || isEndState() || isIgnoredState() || depthLimitReached || !database.isConsistent()) {
 
-                    while(continueBacktracking()){
+                    while(!isTimeout() && continueBacktracking()){
                         if(database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.JPF ||
                                 database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.NONE ) {
                             depth--;

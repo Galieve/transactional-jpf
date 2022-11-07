@@ -2,18 +2,17 @@ package benchmarks.wikipedia.procedures;
 
 
 import benchmarks.wikipedia.Wikipedia;
-import benchmarks.wikipedia.WikipediaUtility;
 import benchmarks.wikipedia.objects.Article;
 import benchmarks.wikipedia.objects.IPBlock;
 import benchmarks.wikipedia.objects.User;
 import benchmarks.wikipedia.objects.UserGroup;
 import database.AbortDatabaseException;
-import database.TRDatabase;
+import database.APIDatabase;
 
 import java.util.ArrayList;
 
 public class GetPageAuthenticated extends WikipediaProcedure{
-    public GetPageAuthenticated(TRDatabase db) {
+    public GetPageAuthenticated(APIDatabase db) {
         super(db);
     }
 
@@ -70,24 +69,29 @@ public class GetPageAuthenticated extends WikipediaProcedure{
 
 
     protected ArrayList<IPBlock> selectIPBlocks(int userID){
-        var ipBlocksTable
-                = WikipediaUtility.readIPBlocks(
-                db.read(Wikipedia.IPBLOCKS));
 
-        var ipBlocks = new ArrayList<IPBlock>();
-        for(var ipblockList : ipBlocksTable.values()){
-            for(var i : ipblockList){
-                if(i.getUserID() == userID){
-                    ipBlocks.add(i);
-                }
+        //userIP+":"+userID
+        var ipBlocks = db.readIfIDEndsWith(Wikipedia.IPBLOCKS, userID+"");
+        var ipBlocksUser = new ArrayList<IPBlock>();
+        for(var ip : ipBlocks){
+            if(ip != null){
+                var i = new IPBlock(ip);
+                ipBlocksUser.add(i);
             }
         }
-        return ipBlocks;
+
+
+        return ipBlocksUser;
     }
 
     protected ArrayList<UserGroup> selectGroup(int userID){
-        var userGroupsTable =
-                WikipediaUtility.readUserGroup(db.read(Wikipedia.USERGROUPS));
-        return userGroupsTable.get(userID+"");
+
+        var userGroupsStr = db.readIfIDStartsWith(Wikipedia.USERGROUPS, userID+"");
+        var userGroups = new ArrayList<UserGroup>();
+        for(var uSt: userGroupsStr){
+            var u = uSt == null ? null : new UserGroup(uSt);
+            userGroups.add(u);
+        }
+        return userGroups;
     }
 }

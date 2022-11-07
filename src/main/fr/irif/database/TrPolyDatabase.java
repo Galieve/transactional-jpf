@@ -68,7 +68,18 @@ public class TrPolyDatabase extends TrDatabase{
                 history.removeWrite(e.getVariable(), e.getTransactionId());
                 break;
             case COMMIT:
-                if(isGuided()) break;
+                if(getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.SWAP &&
+                        guideInfo.getDeleted().contains(tr.getFirst())) {
+                    for(var ei : tr){
+                        if (ei.getType() == TransactionalEvent.Type.WRITE) {
+                            backtrackPoints.remove(ei.getEventData());
+                        }
+                    }
+                    break;
+                }
+                else if(isGuided()){
+                    break;
+                }
 
                 Pair<WriteTransactionalEvent, ReadTransactionalEvent> p = nextSwap();
                 if (p == null) {
@@ -116,6 +127,8 @@ public class TrPolyDatabase extends TrDatabase{
                 break;
 
         }
+
+        trueHistory = null;
 
         if(!isGuided()) {
             guideInfo.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.JPF);

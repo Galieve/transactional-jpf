@@ -2,7 +2,7 @@ package benchmarks.tpcc.objects;
 
 import database.TRUtility;
 
-public class NewOrder {
+public class NewOrder implements TPCCObject{
 
     private int warehouseID;
     private int districtID;
@@ -28,4 +28,9 @@ public class NewOrder {
     public String toString() {
         return  warehouseID + ";" + districtID+ ";" + orderID;
     }
+
+    public String getKey() {
+        return  warehouseID + ":" + districtID+ ":" + orderID;
+    }
+
 }

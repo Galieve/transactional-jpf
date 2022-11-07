@@ -1,6 +1,6 @@
 package benchmarks;
 
-import database.TRDatabase;
+import database.APIDatabase;
 import database.TRUtility;
 
 import java.lang.reflect.InvocationTargetException;
@@ -10,10 +10,10 @@ import java.util.List;
 
 public abstract class BenchmarkModule {
 
-    protected TRDatabase db;
+    protected APIDatabase db;
 
     protected BenchmarkModule(){
-        db = TRDatabase.getDatabase();
+        db = APIDatabase.getDatabase();
     }
 
     public abstract HashMap<String, Class<?>[]> getAllMethods(); //Name + List of args

@@ -4,15 +4,14 @@ import benchmarks.tpcc.TPCC;
 import benchmarks.tpcc.TPCCUtility;
 import benchmarks.tpcc.objects.*;
 import database.AbortDatabaseException;
-import database.TRDatabase;
+import database.APIDatabase;
 
-import java.util.ArrayList;
 import java.util.function.Function;
 
 public class CreateNewOrder extends BasicTPCCProcedure{
 
 
-    public CreateNewOrder(TRDatabase db) {
+    public CreateNewOrder(APIDatabase db) {
         super(db);
     }
 
@@ -30,9 +29,11 @@ public class CreateNewOrder extends BasicTPCCProcedure{
 
             var d = getDistrict(warehouseID, districtID);
 
+
             if(d != null) {
 
                 var orderID = d.getNextOrderID();
+
                 updateDistrict(warehouseID, districtID);
 
                 insertOpenOrder(warehouseID, districtID, customerID,
@@ -52,10 +53,13 @@ public class CreateNewOrder extends BasicTPCCProcedure{
                     var ol = new OrderLine(warehouseID, districtID, orderID, i, itemID,
                             supplyWarehouseID, quantity, amount, s.getDistrict(districtID));
 
-                    insertOrderLine(warehouseID, districtID, ol);
+                    insertOrderLine(ol);
                     updateStock(s, ol);
 
+
                 }
+
+
             }
 
             db.commit();
@@ -70,11 +74,8 @@ public class CreateNewOrder extends BasicTPCCProcedure{
     private void insertNewOrder(int warehouseID, int districtID, int nextOrderID) {
 
         var no = new NewOrder(warehouseID, districtID, nextOrderID);
+        db.insertRow(TPCC.NEWORDER, no.getKey());
 
-        var orderTable = TPCCUtility.readNewOrder(db.read(TPCC.NEWORDER));
-        orderTable.putIfAbsent(warehouseID+":"+districtID, new ArrayList<>());
-        orderTable.get(warehouseID+":"+districtID).add(no);
-        db.write(TPCC.NEWORDER, orderTable.toString());
     }
 
     private void updateDistrict(int warehouseID, int districtID) throws AbortDatabaseException {
@@ -91,36 +92,32 @@ public class CreateNewOrder extends BasicTPCCProcedure{
         var o = new Order(warehouseID, districtID,orderId,
                 customerID, orderLineCnt,allLocal, System.currentTimeMillis());
 
-        var orderTable = TPCCUtility.readOpenOrder(db.read(TPCC.OPENORDER));
-        orderTable.putIfAbsent(warehouseID+":"+districtID, new ArrayList<>());
-        orderTable.get(warehouseID+":"+districtID).add(o);
-        db.write(TPCC.OPENORDER, orderTable.toString());
+        db.insertRow(TPCC.OPENORDER, o.getKey(), o.toString());
     }
 
 
     private Float getItemPrice(int itemID) throws AbortDatabaseException {
 
-        var itemTable = TPCCUtility.readItem(db.read(TPCC.ITEM));
-        var i = itemTable.get(itemID+"");
+        var iSt = db.readRow(TPCC.ITEM, itemID+"");
+        var i = iSt == null ? null : new Item(iSt);
 
         if(i == null) db.abort();
         return i.getPrice();
     }
 
-    private void insertOrderLine(int warehouseID, int districtID, OrderLine orderLine){
-        var orderLineTable = TPCCUtility.readOrderLine(db.read(TPCC.ORDERLINE));
-        orderLineTable.putIfAbsent(warehouseID + ":" + districtID, new ArrayList<>());
-        orderLineTable.get(warehouseID + ":" + districtID).add(orderLine);
-        db.write(TPCC.ORDERLINE, orderLineTable.toString());
+
+    private void insertOrderLine(OrderLine orderLine){
+
+        db.insertRow(TPCC.ORDERLINE, orderLine.getKey(), orderLine.toString());
+
 
     }
 
     private Stock getStock(int warehouseID, int itemID, int quantity) throws AbortDatabaseException {
-        Stock s = null;
 
-        var stockTable = TPCCUtility.readStock(db.read(TPCC.STOCK));
-        s = stockTable.get(warehouseID + ":" + itemID);
+        var sSt = db.readRow(TPCC.STOCK, warehouseID+":"+itemID);
 
+        var s = sSt == null ? null : new Stock(sSt);
 
         if(s == null) db.abort();
 
@@ -138,14 +135,13 @@ public class CreateNewOrder extends BasicTPCCProcedure{
 
     private void updateStock(Stock s, OrderLine ol){
 
-        var stockTable = TPCCUtility.readStock(db.read(TPCC.STOCK));
         int remoteCntIncrement = ol.getSupplyWarehouseID() == ol.getWarehouseID() ? 0 : 1;
         s.setQuantity(ol.getQuantity());
         s.setYtd(s.getYtd() + ol.getQuantity());
         s.setOrderCnt(s.getOrderCnt() + 1);
         s.setRemoteCnt(s.getRemoteCnt() + remoteCntIncrement);
-        stockTable.put(ol.getWarehouseID() + ":" + ol.getItemID(), s);
-        db.write(TPCC.STOCK, stockTable.toString());
+        db.writeRow(TPCC.STOCK, s.getKey(), s.toString());
+
 
     }
 
