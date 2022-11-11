@@ -11,6 +11,12 @@ import java.util.function.Function;
 
 public class BigTestCourseWare {
 
+    /**
+     * ID Generator. Given a database table name, returns a function that given some data
+     * (String representation) returns its ID.
+     * @param type
+     * @return
+     */
     private static Function<String, String> idGenerator(String type){
 
         switch (type) {

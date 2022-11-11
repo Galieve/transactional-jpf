@@ -1,9 +1,0 @@
-benchmarks.wikipedia.BigTestWikipedia
--p "src/benchmarks/wikipedia/database/page.in"
--r "src/benchmarks/wikipedia/database/revision.in"
--t "src/benchmarks/wikipedia/database/text.in"
--u "src/benchmarks/wikipedia/database/user.in"
-
-"src/benchmarks/wikipedia/mock/mock0.in" "src/benchmarks/wikipedia/mock/mock1.in"
-"src/benchmarks/wikipedia/mock/mock2.in" "src/benchmarks/wikipedia/mock/mock3.in"
-"src/benchmarks/wikipedia/mock/mock4.in"

@@ -1,3 +1,0 @@
-java -jar build/RunJPF.jar +report.console.file-prefix=bin/benchmarks/application-scalability/shoppingCart/uru
-benchmarks.shoppingCart.BigTestShoppingCart
--s src/benchmarks/shoppingCart/database/store.in src/benchmarks/shoppingCart/application-scalability/update-read-update/uru0.in src/benchmarks/shoppingCart/application-scalability/update-read-update/uru1.in src/benchmarks/shoppingCart/application-scalability/update-read-update/uru2.in

@@ -2,7 +2,6 @@ package benchmarks.tpcc.procedures;
 
 import benchmarks.Procedure;
 import benchmarks.tpcc.TPCC;
-import benchmarks.tpcc.TPCCUtility;
 import benchmarks.tpcc.objects.Customer;
 import benchmarks.tpcc.objects.District;
 import benchmarks.tpcc.objects.Warehouse;
@@ -25,11 +24,11 @@ public abstract class BasicTPCCProcedure extends Procedure {
             return getCustomerById(warehouseID, districtID, customerID);
         }
         else{
-            return getCustomerByName(warehouseID, districtID, customerName);
+            return getCustomerBySurname(warehouseID, districtID, customerName);
         }
     }
 
-    protected Customer getCustomerByName(int warehouseID, int districtID, String customerLast) throws AbortDatabaseException {
+    protected Customer getCustomerBySurname(int warehouseID, int districtID, String customerLast) throws AbortDatabaseException {
 
         var cuLSt = db.readIfIDStartsWith(TPCC.CUSTOMER, warehouseID+":"+districtID);
         var cList = new ArrayList<Customer>();

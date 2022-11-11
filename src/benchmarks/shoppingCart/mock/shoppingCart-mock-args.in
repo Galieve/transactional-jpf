@@ -1,3 +1,0 @@
-java -jar build/RunJPF.jar +report.console.file-prefix=bin/benchmarks/mock/shoppingCart
-benchmarks.shoppingCart.BigTestShoppingCart -s "src/benchmarks/shoppingCart/database/store.in"
-"src/benchmarks/shoppingCart/mock/mock0.in" "src/benchmarks/shoppingCart/mock/mock1.in"

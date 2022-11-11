@@ -6,6 +6,11 @@ import java.util.HashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Class for parsing data from its String representation to the
+ * Java Object representation. Can deal with maps and arrays up to
+ * some level of nesting (Java regex limitations).
+ */
 public class TRUtility {
 
     //does not work for map of map!

@@ -4,20 +4,20 @@ JavaPathfinder core system v8.0 (rev 30de3712f2f2bc23f46e30f2b1056a72b6f77270) -
 ====================================================== system under test
 benchmarks.tpcc.BigTestTPCC.main("-d","src/benchmarks/tpcc/database/districts.in","-n","src/benchmarks/tpcc/database/neworder.in","-i","src/benchmarks/tpcc/database/item.in","-w","src/benchmarks/tpcc/database/warehouse.in","-s","src/benchmarks/tpcc/database/stock.in","-l","src/benchmarks/tpcc/database/orderline.in","-c","src/benchmarks/tpcc/database/customer.in","-o","src/benchmarks/tpcc/database/order.in","src/benchmarks/tpcc/application-scalability/update-update-update/uuu3.in","src/benchmarks/tpcc/application-scalability/update-update-update/uuu4.in","src/benchmarks/tpcc/application-scalability/update-update-update/uuu5.in")
 
-====================================================== search started: 3/11/22 13:10
+====================================================== search started: 9/11/22 1:18
 
 ====================================================== results
 no errors detected
 
 ====================================================== statistics
-elapsed time:       00:00:07
-states:             new=32,visited=2229,backtracked=2261,end=36
-transactional:      histories=36,swaps=0
-search:             maxDepth=743,constraints=0
-choice generators:  thread=2226 (signal=0,lock=7,sharedRef=678,threadApi=9,reschedule=1532), data=0
-heap:               new=238186,released=250856,maxLive=1621,gcCycles=4788
-instructions:       2894820
-max memory:         370MB
+elapsed time:       00:00:15
+states:             new=87,visited=4472,backtracked=4559,end=88
+transactional:      histories=88,swaps=0
+search:             maxDepth=802,constraints=0
+choice generators:  thread=4472 (signal=0,lock=7,sharedRef=762,threadApi=9,reschedule=3694), data=0
+heap:               new=617950,released=653312,maxLive=1617,gcCycles=9393
+instructions:       8515230
+max memory:         375MB
 loaded code:        classes=178,methods=3865
 
-====================================================== search finished: 3/11/22 13:10
+====================================================== search finished: 9/11/22 1:19

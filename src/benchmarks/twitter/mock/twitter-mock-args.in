@@ -1,3 +1,0 @@
-benchmarks.twitter.BigTestTwitter -u "src/benchmarks/twitter/mock/twitter-users.in"
-"src/benchmarks/twitter/mock/mock0.in" "src/benchmarks/twitter/mock/mock1.in"
- "src/benchmarks/twitter/mock/mock2.in"

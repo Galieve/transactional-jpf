@@ -9,8 +9,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.function.Function;
 
+
+
 public class BigTestTwitter {
 
+    /**
+     * ID Generator. Given a database table name, returns a function that given some data
+     * (String representation) returns its ID.
+     * @param type
+     * @return
+     */
     private static Function<String, String> idGenerator(String type){
         switch (type) {
             case Twitter.FOLLOWERS:
@@ -39,8 +47,6 @@ public class BigTestTwitter {
 
         HashMap<String, String> tableInfo = new HashMap<>();
         HashSet<String> arraySet = new HashSet<>();
-
-
 
         APIDatabase dbMain = APIDatabase.getDatabase();
 
@@ -98,10 +104,6 @@ public class BigTestTwitter {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-
-
 
     }
 }

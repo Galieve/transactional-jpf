@@ -4,20 +4,20 @@ JavaPathfinder core system v8.0 (rev 30de3712f2f2bc23f46e30f2b1056a72b6f77270) -
 ====================================================== system under test
 benchmarks.tpcc.BigTestTPCC.main("-d","src/benchmarks/tpcc/database/districts.in","-n","src/benchmarks/tpcc/database/neworder.in","-i","src/benchmarks/tpcc/database/item.in","-w","src/benchmarks/tpcc/database/warehouse.in","-s","src/benchmarks/tpcc/database/stock.in","-l","src/benchmarks/tpcc/database/orderline.in","-c","src/benchmarks/tpcc/database/customer.in","-o","src/benchmarks/tpcc/database/order.in","src/benchmarks/tpcc/application-scalability/update-update-update-strong/uuu0.in","src/benchmarks/tpcc/application-scalability/update-update-update-strong/uuu1.in","src/benchmarks/tpcc/application-scalability/update-update-update-strong/uuu2.in")
 
-====================================================== search started: 3/11/22 17:10
+====================================================== search started: 9/11/22 7:42
 
 ====================================================== results
 no errors detected
 
 ====================================================== statistics
-elapsed time:       00:30:00
-states:             new=21922,visited=1167918,backtracked=1184806,end=9519
-transactional:      histories=9519,swaps=0
-search:             maxDepth=1237,constraints=0
-choice generators:  thread=1180321 (signal=0,lock=77,sharedRef=522129,threadApi=3462,reschedule=654653), data=0
-heap:               new=71406576,released=76444068,maxLive=1629,gcCycles=2764278
-instructions:       1201491634
-max memory:         1585MB
+elapsed time:       00:29:59
+states:             new=29914,visited=1024225,backtracked=1051778,end=25389
+transactional:      histories=25389,swaps=0
+search:             maxDepth=1229,constraints=0
+choice generators:  thread=1028750 (signal=0,lock=9,sharedRef=278425,threadApi=3083,reschedule=747233), data=0
+heap:               new=72094928,released=85317832,maxLive=1608,gcCycles=2292886
+instructions:       1702179450
+max memory:         1349MB
 loaded code:        classes=173,methods=3810
 
-====================================================== search finished: 3/11/22 17:40
+====================================================== search finished: 9/11/22 8:12

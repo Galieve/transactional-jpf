@@ -113,26 +113,6 @@ public class Payment extends BasicTPCCProcedure{
         db.writeRow(TPCC.HISTORY, h.getKey(), h.toString());
     }
 
-    //TODO
-    /*private Customer getCustomerById(Customer c)  {
-
-        if(c == null) return null;
-
-        HashMap<String, ArrayList<Customer>> customerTable = null;
-        customerTable = TPCCUtility.readCustomer(db.read(TPCC.CUSTOMER));
-
-        //customerTable != null
-        var cList = customerTable.get(c.getWarehouseID()+":"+c.getDistrictID());
-        if(cList == null) return null;
-
-        for(var cl: cList){
-            if(cl.getID() == c.getID()){
-                return c;
-            }
-        }
-        return null;
-    }*/
-
     private void updateWarehouse(int warehouseID, float paymentAmount){
 
         var wSt = db.readRow(TPCC.WAREHOUSE, warehouseID+"");

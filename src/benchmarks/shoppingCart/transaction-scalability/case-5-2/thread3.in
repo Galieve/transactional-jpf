@@ -1,5 +1,0 @@
-removeItem 6
-addItem 7;lentils;0.5
-changeQuantity 7 2
-changeQuantity 5 12
-getList

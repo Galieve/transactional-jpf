@@ -10,6 +10,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Class representing a session. A session execute several transactions, one after another.
+ * In its construction receives the file with the specific transaction's names. Then, it runs
+ * them one after the other invoking the homonymous method in the bencharkModule.
+ * @param <T>
+ */
 public class Worker<T extends BenchmarkModule> implements Runnable{
 
     protected List<List<String>> listTransactions;
@@ -23,6 +29,12 @@ public class Worker<T extends BenchmarkModule> implements Runnable{
         listTransactions = prepareInfo(filename);
     }
 
+    /**
+     * Read all transactions' names and args from the file.
+     * @param filename
+     * @return
+     * @throws IOException
+     */
     protected List<List<String>> prepareInfo(String filename) throws IOException {
 
         var info = new ArrayList<List<String>>();

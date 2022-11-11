@@ -1,0 +1,5 @@
+payment 0 0 100007 "Lovelace" true 6.19
+delivery 2 1 69004
+createNewOrder 0 0 100007 2 0 [77, 666] [0, 1] [1, 1]
+payment 1 0 3412412 "Stan" false 0.74
+createNewOrder 1 0 3412412 2 0 [666, 77] [0, 1] [1, 1]

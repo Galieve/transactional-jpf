@@ -13,9 +13,7 @@ public abstract class History {
     protected HashMap<String,ArrayList<ArrayList<ArrayList<Integer>>>> writeReadMatrix;
 
     protected ArrayList<HashMap<String, Integer>> writesPerTransaction;
-
     protected ArrayList<ArrayList<Boolean>> transitiveClosure;
-
     protected int numberTransactions;
 
     protected Boolean consistent;

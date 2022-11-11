@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+
+/**
+ * Benchmark module skeleton.
+ */
 public abstract class BenchmarkModule {
 
     protected APIDatabase db;
@@ -16,8 +20,23 @@ public abstract class BenchmarkModule {
         db = APIDatabase.getDatabase();
     }
 
+    /**
+     * API to know which methods (i.e. possible transactions) from the module can be employed by the user
+     * @return
+     */
     public abstract HashMap<String, Class<?>[]> getAllMethods(); //Name + List of args
 
+    /**
+     * Execute the method whose name is homonymous to transactionName
+     * @param transactionName
+     * @param args
+     * @return
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws IllegalAccessException
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     */
     public Object executeTransaction(String transactionName, List<String> args) throws NoSuchMethodException, InvocationTargetException,
             IllegalAccessException, ClassNotFoundException, InstantiationException {
 

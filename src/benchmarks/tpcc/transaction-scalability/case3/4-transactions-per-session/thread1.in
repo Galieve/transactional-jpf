@@ -1,0 +1,4 @@
+createNewOrder 1 0 3412412 2 0 [123, 666] [0, 1] [1, 1]
+delivery 2 1 69002
+payment 1 0 3412412 "Stan" true 8.20
+delivery 2 0 69003

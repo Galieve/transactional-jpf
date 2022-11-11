@@ -4,18 +4,23 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * API for the database. All procedures have to use it to simulate the database behaviour.
+ * This is NOT a real database. There is no actual write/read/lock effect.
+ * However, Transactional JPF can detect specific calls to this API and write/read the
+ * desired values. A code executing this functions without Transactional JPF will fail.
+ *
+ * Basic primitives: BEGIN, READ, WRITE, COMMIT, ABORT, ASSERT.
+ * Other primitives: readRow, writeRow, insertRow... (based on the previous ones).
+ */
 public class APIDatabase {
 
     protected static APIDatabase databaseInstance;
 
     protected int r;
 
-    protected ReentrantLock l;
-
-
     private APIDatabase(){
         r = 0;
-        l = new ReentrantLock();
     }
 
     public static APIDatabase getDatabase(){
@@ -25,22 +30,23 @@ public class APIDatabase {
         return databaseInstance;
     }
 
+
+    /**
+     * Abuse of JPF to break transitions.
+     */
     private void breakTransition(){
         for(int  i = 0; i < 1; ++i){}
 
     }
 
-    // private void readInstruction(String variable, String objective){}
-
-
     private String readInstruction(String variable){
         breakTransition();
+        //This value will be overwritten when the actual instruction is executed.
         return "NON-VALID-VALUE";
+
     }
     private void writeInstruction(String variable, String value){
         breakTransition();
-
-
     }
     private void beginInstruction(){
         breakTransition();
@@ -58,7 +64,6 @@ public class APIDatabase {
 
     public String read(String variable){
         return readInstruction(variable);
-        //return r.equals("null") ? null : r;
     }
 
     public void write(String variable, String value){
