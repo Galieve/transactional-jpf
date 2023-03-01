@@ -2,22 +2,22 @@ JavaPathfinder core system v8.0 (rev 30de3712f2f2bc23f46e30f2b1056a72b6f77270) -
 
 
 ====================================================== system under test
-benchmarks.tpcc.BigTestTPCC.main("-d","src/benchmarks/tpcc/database/districts.in","-n","src/benchmarks/tpcc/database/neworder.in","-i","src/benchmarks/tpcc/database/item.in","-w","src/benchmarks/tpcc/database/warehouse.in","-s","src/benchmarks/tpcc/database/stock.in","-l","src/benchmarks/tpcc/database/orderline.in","-c","src/benchmarks/tpcc/database/customer.in","-o","src/benchmarks/tpcc/database/order.in","src/benchmarks/tpcc/application-scalability/update-update-update-strong/uuu5.in","src/benchmarks/tpcc/application-scalability/update-update-update-strong/uuu4.in","src/benchmarks/tpcc/application-scalability/update-update-update-strong/uuu3.in")
+benchmarks.tpcc.BigTestTPCC.main("-d","src/benchmarks/tpcc/database/districts.in","-n","src/benchmarks/tpcc/database/neworder.in","-i","src/benchmarks/tpcc/database/item.in","-w","src/benchmarks/tpcc/database/warehouse.in","-s","src/benchmarks/tpcc/database/stock.in","-l","src/benchmarks/tpcc/database/orderline.in","-c","src/benchmarks/tpcc/database/customer.in","-o","src/benchmarks/tpcc/database/order.in","src/benchmarks/tpcc/application-scalability/update-update-update/uuu5.in","src/benchmarks/tpcc/application-scalability/update-update-update/uuu1.in","src/benchmarks/tpcc/application-scalability/update-update-update/uuu3.in")
 
-====================================================== search started: 5/11/22 17:29
+====================================================== search started: 9/11/22 3:57
 
 ====================================================== results
 no errors detected
 
 ====================================================== statistics
-elapsed time:       00:27:47
-states:             new=11695,visited=1295287,backtracked=1302197,end=11280
-transactional:      histories=11280,swaps=0
-search:             maxDepth=1155,constraints=0
-choice generators:  thread=1295703 (signal=0,lock=25,sharedRef=581304,threadApi=3661,reschedule=710713), data=0
-heap:               new=83277488,released=88996580,maxLive=1664,gcCycles=3031561
-instructions:       1162690224
-max memory:         1355MB
-loaded code:        classes=176,methods=3853
+elapsed time:       00:30:00
+states:             new=27601,visited=940737,backtracked=966464,end=20466
+transactional:      histories=20466,swaps=0
+search:             maxDepth=936,constraints=0
+choice generators:  thread=947872 (signal=0,lock=7,sharedRef=213365,threadApi=1728,reschedule=732772), data=0
+heap:               new=101557538,released=110392562,maxLive=1644,gcCycles=2065895
+instructions:       1679457096
+max memory:         1194MB
+loaded code:        classes=174,methods=3832
 
-====================================================== search finished: 5/11/22 17:57
+====================================================== search finished: 9/11/22 4:27

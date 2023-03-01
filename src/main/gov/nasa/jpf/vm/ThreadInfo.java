@@ -17,7 +17,7 @@
  */
 package gov.nasa.jpf.vm;
 
-import fr.irif.events.TrEventRegister;
+import country.lab.events.TrEventRegister;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.JPFException;
