@@ -1,0 +1,153 @@
+Downloading https://services.gradle.org/distributions/gradle-7.6-bin.zip
+....................................................................................................................
+
+Welcome to Gradle 7.6!
+
+Here are the highlights of this release:
+ - Added support for Java 19.
+ - Introduced `--rerun` flag for individual task rerun.
+ - Improved dependency block for test suites to be strongly typed.
+ - Added a pluggable system for Java toolchains provisioning.
+
+For more details see https://docs.gradle.org/7.6/release-notes.html
+
+Starting a Gradle Daemon (subsequent builds will be faster)
+> Task :compileAnnotationsJava
+> Task :processAnnotationsResources NO-SOURCE
+> Task :annotationsClasses
+
+> Task :compileJava
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :processResources NO-SOURCE
+> Task :classes
+> Task :compileExamplesJava
+
+> Task :compileClassesJava FAILED
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:54: error: cannot find symbol
+  private static JavaUtilJarAccess javaUtilJarAccess;
+                 ^
+  symbol:   class JavaUtilJarAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:56: error: cannot find symbol
+  private static JavaLangInvokeAccess javaLangInvokeAccess;
+                 ^
+  symbol:   class JavaLangInvokeAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:58: error: cannot find symbol
+  private static JavaNetURLAccess javaNetURLAccess;
+                 ^
+  symbol:   class JavaNetURLAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:64: error: cannot find symbol
+  private static JavaObjectInputStreamAccess javaObjectInputStreamAccess;
+                 ^
+  symbol:   class JavaObjectInputStreamAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:65: error: cannot find symbol
+  private static JavaObjectInputFilterAccess javaObjectInputFilterAccess;
+                 ^
+  symbol:   class JavaObjectInputFilterAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:76: error: cannot find symbol
+  public static void setJavaLangInvokeAccess(JavaLangInvokeAccess jlia) {
+                                             ^
+  symbol:   class JavaLangInvokeAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:80: error: cannot find symbol
+  public static JavaLangInvokeAccess getJavaLangInvokeAccess() {
+                ^
+  symbol:   class JavaLangInvokeAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:99: error: cannot find symbol
+  public static void setJavaNetURLAccess(JavaNetURLAccess jnua) {
+                                         ^
+  symbol:   class JavaNetURLAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:103: error: cannot find symbol
+  public static JavaNetURLAccess getJavaNetURLAccess() {
+                ^
+  symbol:   class JavaNetURLAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:109: error: cannot find symbol
+  public static JavaUtilJarAccess javaUtilJarAccess() {
+                ^
+  symbol:   class JavaUtilJarAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:115: error: cannot find symbol
+  public static void setJavaUtilJarAccess(JavaUtilJarAccess access) {
+                                          ^
+  symbol:   class JavaUtilJarAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:169: error: cannot find symbol
+  public static JavaObjectInputStreamAccess getJavaObjectInputStreamAccess() {
+                ^
+  symbol:   class JavaObjectInputStreamAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:178: error: cannot find symbol
+  public static void setJavaObjectInputStreamAccess(JavaObjectInputStreamAccess access) {
+                                                    ^
+  symbol:   class JavaObjectInputStreamAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:182: error: cannot find symbol
+  public static JavaObjectInputFilterAccess getJavaObjectInputFilterAccess() {
+                ^
+  symbol:   class JavaObjectInputFilterAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:189: error: cannot find symbol
+  public static void setJavaObjectInputFilterAccess(JavaObjectInputFilterAccess access) {
+                                                    ^
+  symbol:   class JavaObjectInputFilterAccess
+  location: class SharedSecrets
+/trans-jpf/src/classes/modules/java.base/jdk/internal/misc/SharedSecrets.java:25: error: package java does not exist
+import java.*;
+^
+/trans-jpf/src/classes/modules/java.base/java/lang/String.java:149: error: cannot find symbol
+		StringCoding.Result result =  StringCoding.decode(cset, x, offset, length);
+		            ^
+  symbol:   class Result
+  location: class StringCoding
+/trans-jpf/src/classes/modules/java.base/java/lang/String.java:149: error: cannot find symbol
+		StringCoding.Result result =  StringCoding.decode(cset, x, offset, length);
+		                                          ^
+  symbol:   method decode(Charset,byte[],int,int)
+  location: class StringCoding
+/trans-jpf/src/classes/modules/java.base/java/lang/String.java:246: error: cannot find symbol
+		return StringCoding.encode(x, coder(), value);
+		                   ^
+  symbol:   method encode(Charset,byte,byte[])
+  location: class StringCoding
+/trans-jpf/src/classes/modules/java.base/java/lang/System.java:160: warning: [removal] SecurityManager in java.lang has been deprecated and marked for removal
+  static SecurityManager securityManager;
+         ^
+/trans-jpf/src/classes/modules/java.base/java/lang/System.java:162: warning: [removal] SecurityManager in java.lang has been deprecated and marked for removal
+  public static void setSecurityManager (SecurityManager newManager) {
+                                         ^
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+See https://docs.gradle.org/7.6/userguide/command_line_interface.html#sec:command_line_warnings
+4 actionable tasks: 4 executed
+
+/trans-jpf/src/classes/modules/java.base/java/lang/System.java:166: warning: [removal] SecurityManager in java.lang has been deprecated and marked for removal
+  public static SecurityManager getSecurityManager() {
+                ^
+19 errors
+3 warnings
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileClassesJava'.
+> Compilation failed; see the compiler error output for details.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+
+* Get more help at https://help.gradle.org
+
+BUILD FAILED in 20s

@@ -54,7 +54,6 @@ public abstract class History {
             row.add(new ArrayList<>());
         }
         ++numberTransactions;
-        //TODO: revisar este bucle cuando las transacciones añaden random writes al final.
         for(var wrx : writeReadMatrix.values()){
 
             wrx.add(c.deepClone(row));
