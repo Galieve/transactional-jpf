@@ -9,7 +9,7 @@ Our artifact is split into different parts following the architecture of Java Pa
 - The directory [`src/main`](src/main/README.md) contains the main source code, including JPF and TrJPF.
 - The directory [`src/examples`](src/examples/README.md) contains both the API database along with the source code that describe the benchmarks in section 7.2 (Courseware, ShoppingCart, TPC-C, Twitter and Wikipedia).
 - The directory [`src/benchmarks`](src/benchmarks/README.md) contains the parameters that define clients tested in section 7.3 and the initial state of the database in each execution. Clients are instantiation of code from examples directory according to adequate parameters.
-- The directory [`bin/benchmarks`](bin/benchmarks/README.md) containing the default output files of our tool.
+- The directory [`bin/benchmarks`](bin/benchmarks/README.md) will contain the output files after each execution.
 - Configuration file [`jpf.properties`](jpf.properties), including the isolation levels, search mode, output configuration, client APIs to take into account, etc... Configuration parameters can be modified 
 
 
@@ -18,44 +18,86 @@ Our artifact is split into different parts following the architecture of Java Pa
 For building, simply run the following:
 
 ```
-docker build -t tr-jpf:latest.
+docker build -t tr-jpf:latest .
 ```
 
 # Run
 
 The three experiments in section 7.3 have an associated script. It suffices to run it for obtaining the results. For a detailed description about the design, input or output of the experiments check the links above.
 
+The following command shall be run before executing any experiment. It produces the container where our experiments will be run.
+
+```
+docker run -it tr-jpf:latest bash
+```
+
+Every experiment produce several short `.out` files. It is recommended to read their content either with cat or copying it to the host machine via [`docker cp`](https://docs.docker.com/engine/reference/commandline/cp/).
+
+**Notes**
+
+The time limit set is to 30' per case. It is recommended to be careful when running each script as it may take up to 1 day per script. Some sub-benchmarks are already predefined for having a satisfactory user experience.
+
+
 ## First experiment: application scalability
+
+---
 
 The following command shall be run. Its outcome can be found in "bin/benchmarks/application-scalability" folder.
 
 ```
-docker run tr-jpf:latest "bash bench-application-scalability.sh"
+bash bench-application-scalability.sh
 ```
 
 It will produce 5 folders ("courseware/", "shoppingCart/", "tpcc/", "twitter/" and "wikipedia/"), each with 5 subfolders (one per number of sessions in the benchmark). Each subfolder will contain 7 .out files, one per isolation level treated (Appendix F, Table F1).
 
-## Second and third experiment: session and transaction scalability
+### Demo version
 
-The following command shall be run.
+---
 
-- Second experiment. Its outcome can be found in "bin/benchmarks/thread-scalability" folder:
+One can run the command below to execute a smaller benchmark where only the first two rows of Table F1 are executed. The results of this test case can be found in `bin/benchmarks/demo-application-scalability`.
 
 ```
-docker run tr-jpf:latest "bash bench-thread-scalability.sh"
+bash bench-demo-app.sh
+```
+
+## Second and third experiment: session and transaction scalability
+
+---
+
+The following commands shall be run:
+
+- Second experiment. Its outcome can be found in "bin/benchmarks/session-scalability" folder:
+
+```
+bash bench-session-scalability.sh
 ```
 
 - Third experiment. Its outcome can be found in "bin/benchmarks/transaction-scalability" folder:
 
 ```
-docker run tr-jpf:latest "bash bench-transaction-scalability.sh"
+bash bench-transaction-scalability.sh
 ```
 
-Both of them will produce 5 folders ("courseware/", "shoppingCart/", "tpcc/", "twitter/" and "wikipedia/"), each with 10 subfolders (two per number of sessions in the benchmark). Each subfolder will contain 1 .out file (Appendix F, Table F2 and Table F3).
+Both of them will produce 2 folders ("tpcc/" and "wikipedia/"), each with 5 subfolders (one per study case). Inside them, 5 folders can be found; obtaining in total a system of 50 folders. 
+For example, one of those final directories will be `bin/benchmarks/transaction-scalability/tpcc/case1/2-transactions-per-session`.
 
-**Notes**
+Each final folder will contain 1 .out file, corresponding with a cell in Appendix F, Table F2 or Appendix F, Table F3.
 
-The time limit set is to 30' per case. It is recommended to be careful when running each script as it may take up to 1 day per script. 
+
+### Demo version
+---
+
+One can run the command below to execute a smaller benchmark where only the first two rows and first three columns of Table F2 (respectively F3) are executed. The results of this test case can be found in `bin/benchmarks/demo-session-scalability` (respectively `bin/benchmarks/demo-transaction-scalability`).
+
+**Second experiment:**
+```
+bash bench-demo-session.sh
+```
+
+**Third experiment:**
+```
+bash bench-demo-transaction.sh
+```
 
 # Requirements
 

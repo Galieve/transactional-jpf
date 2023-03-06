@@ -12,13 +12,13 @@ import java.io.PrintWriter;
 public class TrConsolePublisher extends ConsolePublisher {
     public TrConsolePublisher(Config conf, Reporter reporter) {
         super(conf, reporter);
-        var pref = conf.getString("report.console.file-prefix");
+        var pref = conf.getString("report.console.file-folder");
         var search = conf.getString("search.class");
         var model = conf.getString("db.database_isolation_level.class");
         var trueModel = conf.getOrDefault("db.database_true_isolation_level.class",
                 conf.getString("db.database_isolation_level.class"));
         if(pref != null && search != null && model != null && trueModel != null) {
-            fileName = pref + "-"+  search +":" + model + "+" + trueModel + ".out";
+            fileName = pref + search +":" + model + "+" + trueModel + ".out";
         }
         else{
             System.out.println("ERROR: "+pref + "-" + model + "+" + trueModel + ".out");
