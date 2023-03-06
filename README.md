@@ -40,8 +40,6 @@ The time limit set is to 30' per case. It is recommended to be careful when runn
 
 ## First experiment: application scalability
 
----
-
 The following command shall be run. Its outcome can be found in "bin/benchmarks/application-scalability" folder.
 
 ```
@@ -61,8 +59,6 @@ bash bench-demo-app.sh
 ```
 
 ## Second and third experiment: session and transaction scalability
-
----
 
 The following commands shall be run:
 
