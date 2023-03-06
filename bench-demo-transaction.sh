@@ -18,22 +18,19 @@ models=(
 
 benchmarks=(
   benchmarks.tpcc.BigTestTPCC
-  benchmarks.wikipedia.BigTestWikipedia
 )
 
 databaseArgs=(
   "-d src/benchmarks/tpcc/database/districts.in -n src/benchmarks/tpcc/database/neworder.in -i src/benchmarks/tpcc/database/item.in -w src/benchmarks/tpcc/database/warehouse.in -s src/benchmarks/tpcc/database/stock.in -l src/benchmarks/tpcc/database/orderline.in -c src/benchmarks/tpcc/database/customer.in -o src/benchmarks/tpcc/database/order.in"
-  "-p src/benchmarks/wikipedia/database/page.in -r src/benchmarks/wikipedia/database/revision.in -t src/benchmarks/wikipedia/database/text.in -u src/benchmarks/wikipedia/database/user.in -w src/benchmarks/wikipedia/database/watchlist.in"
 )
 
 benchmarkNames=(
   tpcc
-  wikipedia
 )
 
-num_rows=2
-num_columns=5
-num_cases=5
+num_rows=1
+num_columns=3
+num_cases=2
 
 for ((i=0;i<num_rows;i++)) do
   benchmarkName="${benchmarkNames[i]}"
@@ -41,7 +38,7 @@ for ((i=0;i<num_rows;i++)) do
   database="${databaseArgs[i]}"
   for((k=1;k<=num_cases;k++)) do
     for ((j=1;j<=num_columns;j++)) do
-      fold=bin/benchmarks/transaction-scalability/"$benchmarkName"/case$k/$j-transactions-per-session/
+      fold=bin/benchmarks/demo-transaction-scalability/"$benchmarkName"/case$k/$j-transactions-per-session/
 
       args=src/benchmarks/$benchmarkName/transaction-scalability/case$k/$j-transactions-per-session/thread1.in\ src/benchmarks/$benchmarkName/transaction-scalability/case$k/$j-transactions-per-session/thread2.in\ src/benchmarks/$benchmarkName/transaction-scalability/case$k/$j-transactions-per-session/thread3.in
       execute_benchmark

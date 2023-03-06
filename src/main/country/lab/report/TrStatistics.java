@@ -8,7 +8,9 @@ import gov.nasa.jpf.search.Search;
 
 public class TrStatistics extends Statistics {
 
-    public int swaps = 0;public int histories = 0;
+    public int swaps = 0;
+
+    public int histories = 0;
 
     @Override
     public TrStatistics clone() {

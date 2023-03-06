@@ -13,7 +13,7 @@ WORKDIR /trans-jpf
 
 ADD . /trans-jpf/
 
-RUN mkdir build && \
+RUN mkdir -p build && \
     cp lib/cloning-1.10.3.jar build && \
     ./gradlew buildJars
 
