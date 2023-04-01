@@ -44,7 +44,7 @@ public class NaiveIsoTrDatabase extends Database{
                 }
                 writesOfX.add((WriteTransactionalEvent) t);
 
-                history.addWrite(t.getVariable(),t.getTransactionId());
+                history.addWrite(t.getVariable(),t.getTransactionId(), t.getPoId());
 
                 break;
             case READ:
@@ -68,8 +68,7 @@ public class NaiveIsoTrDatabase extends Database{
                 else {
                     w = writeEvents.get(writeEvents.size() - 1);
                 }
-                r.setWriteEvent(w);
-                setWriteRead(r);
+                setWriteRead(w, r);
                 readEventsPerVariable.putIfAbsent(t.getVariable(), new ArrayList<>());
                 readEventsPerVariable.get(t.getVariable()).add((ReadTransactionalEvent) t);
                 break;
@@ -153,8 +152,6 @@ public class NaiveIsoTrDatabase extends Database{
                     readEventsPerVariable.get(e.getVariable()).remove(
                             readEventsPerVariable.get(e.getVariable()).size() - 1);
                     eraseWriteRead(r);
-                    maximalWriteEventIndexes.remove(r.getEventData());
-
                 }
                 break;
             case WRITE:
@@ -188,7 +185,7 @@ public class NaiveIsoTrDatabase extends Database{
                             writes.remove(writes.size() - 1);
                         }
                         writes.add(wa);
-                        history.addWrite(wa.getVariable(), wa.getTransactionId());
+                        history.addWrite(wa.getVariable(), wa.getTransactionId(), wa.getPoId());
                     }
                 }
 

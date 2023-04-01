@@ -2,10 +2,9 @@ package country.lab.histories;
 
 import com.rits.cloning.Cloner;
 import gov.nasa.jpf.Config;
+import gov.nasa.jpf.util.Pair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 public class SnapshotIsolationHistory extends PrefixHistory{
 
@@ -17,13 +16,14 @@ public class SnapshotIsolationHistory extends PrefixHistory{
         super(h);
     }
 
-    protected void addSIConflicts(HashMap<String, ArrayList<ArrayList<ArrayList<Integer>>>> wr,
-                                  ArrayList<HashMap<String, Integer>> wpt){
+    protected void addSIConflicts(HashMap<String,
+            ArrayList<ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>>>> wr,
+                                  ArrayList<HashMap<String, ArrayList<Integer>>> wpt){
 
         Cloner c = new Cloner();
-        ArrayList<ArrayList<Integer>> row = new ArrayList<>();
+        ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>> row = new ArrayList<>();
         for(int i = 0; i < 2*numberTransactions; ++i){
-            row.add(new ArrayList<>());
+            row.add(new Pair<>(new ArrayList<>(), new HashSet<>()));
         }
 
         for(int i = 0; i < writesPerTransaction.size(); ++i){
@@ -34,18 +34,20 @@ public class SnapshotIsolationHistory extends PrefixHistory{
                 inter.removeAll(setj.keySet());
                 if(!inter.isEmpty()){
                     String s1 = forbiddenVariable+"-"+i+","+j, s2 = forbiddenVariable+"-"+j+","+i;
-                    wpt.get(2*i).put(s1,1);
-                    wpt.get(2*j+1).put(s1,1);
-                    wpt.get(2*j).put(s2,1);
-                    wpt.get(2*i+1).put(s2,1);
+                    wpt.get(2*i).put(s1, new ArrayList<>(List.of(1)));
+                    wpt.get(2*j+1).put(s1,new ArrayList<>(List.of(1)));
+                    wpt.get(2*j).put(s2,new ArrayList<>(List.of(1)));
+                    wpt.get(2*i+1).put(s2,new ArrayList<>(List.of(1)));
                     wr.put(s1, new ArrayList<>());
                     wr.put(s2, new ArrayList<>());
                     for(int k = 0; k < 2*numberTransactions; ++k){
                         wr.get(s1).add(c.deepClone(row));
                         wr.get(s2).add(c.deepClone(row));
                     }
-                    wr.get(s1).get(2*i).get(2*i+1).add(0);
-                    wr.get(s2).get(2*j).get(2*j+1).add(1);
+                    wr.get(s1).get(2*i).get(2*i+1)._1.add(0);
+                    wr.get(s2).get(2*j).get(2*j+1)._1.add(1);
+                    wr.get(s1).get(2*i).get(2*i+1)._2.add(0);
+                    wr.get(s2).get(2*j).get(2*j+1)._2.add(1);
                     //TODO FIX
 
                 }

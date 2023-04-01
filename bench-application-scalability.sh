@@ -38,11 +38,11 @@ models=(
 )
 
 folders=(
-  bin/benchmarks/application-scalability/courseware/
-  bin/benchmarks/application-scalability/shoppingCart/
-  bin/benchmarks/application-scalability/tpcc/
-  bin/benchmarks/application-scalability/twitter/
-  bin/benchmarks/application-scalability/wikipedia/
+  bin/benchmarks/application-scalability/courseware
+  bin/benchmarks/application-scalability/shoppingCart
+  bin/benchmarks/application-scalability/tpcc
+  bin/benchmarks/application-scalability/twitter
+  bin/benchmarks/application-scalability/wikipedia
 )
 
 databaseArgs=(

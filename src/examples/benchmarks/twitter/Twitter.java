@@ -79,8 +79,6 @@ public class Twitter extends BenchmarkModule {
         return t == null ? null : new Tweet(t);
     }
 
-
-
     public void follow(User a, User b){
         db.begin();
 
@@ -100,7 +98,6 @@ public class Twitter extends BenchmarkModule {
         db.insertRow(TWEETS,t.getTweetId()+":"+t.getUserId(), t.toString());
         db.commit();
     }
-
 
     public ArrayList<Tweet> getNewsfeed(User u){
         db.begin();

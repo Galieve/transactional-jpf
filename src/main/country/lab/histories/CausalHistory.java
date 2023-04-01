@@ -28,7 +28,7 @@ public class CausalHistory extends COPolynomialHistory {
                     for(int k = 0; k < numberTransactions; ++k){
                         //If we have found some t3 (or it is [WR u SO]+ adj) that satisfies the formula,
                         // we can move on to the next possible edge.
-                        if(writeReadMatrix.get(var).get(i).get(k).size() > 0 &&
+                        if(writeReadMatrix.get(var).get(i).get(k)._1.size() > 0 &&
                                 areWRSO_plusRelated(j,k)){
                             commitOrderMatrix.get(j).set(i, true);
                             //If we add CO-edge for one variable, other variables

@@ -3,7 +3,6 @@ package country.lab.search;
 import country.lab.database.Database;
 import country.lab.database.GuideInfo;
 import country.lab.events.*;
-import country.lab.events.*;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.search.DFSearch;
 import gov.nasa.jpf.util.Pair;
@@ -39,15 +38,20 @@ public class TrDFSearch extends DFSearch {
         if(e.getType() != TransactionalEvent.Type.UNKNOWN) {
             //TODO: careful, check if this is correct.
             forward();
+            ++depth;
+
             return true;
         }
         else{
             boolean ret = false;
             while(true){
                 ret = forward();
-                if(!ret && database.isLastEventReadBacktrackable()){
+                ++depth;
+
+                if(!ret && database.isLastReadEventBacktrackable()){
                     database.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.JPF);
                     backtrack();
+                    --depth;
                     database.setDatabaseBacktrackMode(GuideInfo.BacktrackTypes.RESTORE);
 
                 }
@@ -64,6 +68,13 @@ public class TrDFSearch extends DFSearch {
 
         msgListener = "Starting "+database.getDatabaseBacktrackMode()+" mode.";
         notifyStateProcessed();
+
+        TransactionalEvent rRestore = null;
+        if(database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.RESTORE){
+            var lastAux = guidePath.getFirst();
+            var it = lastAux.getListIterator(lastAux.size() - 2);
+            rRestore = it.next();
+        }
 
         Transition lastTransition = vm.getLastTransition();
         while(lastTransition != null && !database.isExecutingTransactionalEvent(lastTransition, branchingPoint)){
@@ -86,16 +97,13 @@ public class TrDFSearch extends DFSearch {
             applyResetJumps(p);
 
             if(p._2 != null){
-                if (e.getType() == TransactionalEvent.Type.READ) {
-                    trEventRegister.setFakeRead(true);
-                }
+                trEventRegister.setFakeRead(true);
                 guideForward(e);
                 trEventRegister.setFakeRead(false);
 
-
-
                 if(trEventRegister.isTransactionalTransition(getTransition())) {
                     t.setExecuting(true);
+                    // e is in the executed path.
                     if(database.isExecutingTransactionalEvent(getTransition(), e)) {
 
                         if (e.getType() == TransactionalEvent.Type.READ) {
@@ -106,20 +114,22 @@ public class TrDFSearch extends DFSearch {
                                     database.getEventFromEventData(rPast.getWriteEvent().getEventData());
                             if (w != null && (guidePath.size() != 1 || t.size() != 1)) {
                                 database.changeWriteRead(w, r);
-                            } else if (guidePath.size() != 1 || t.size() != 1) {
-                                //r was the swapped event, r.getWriteEvent() is its IMA event.
-                                //ONLY for notifying purposes
-                                database.changeWriteRead(r.getWriteEvent(), r);
+                            }
+                            r.setBacktrackEvent(new Pair<>(rPast.getBacktrackEvent(), rPast.getBacktrackWriteEvent()));
+                            if (rRestore != null &&
+                                    r == database.getEventFromEventData(rRestore.getEventData())){
+                                var wSwapNow = (WriteTransactionalEvent)
+                                        database.getEventFromEventData(wSwap.getEventData());
+                                database.changeWriteRead(wSwapNow, r);
+
                             }
                             //If rPast.getBacktrackInstruction() == null, it is ok
-                            r.setBacktrackEvent(rPast.getBacktrackEvent());
 
                         }
                         t.removeFirst();
                         currentAdvance = p._2;
                         prev = e;
                     }
-
 
                     var end = database.getLastEvent();
                     if(t.isEmpty() || end.getType() == TransactionalEvent.Type.COMMIT ||
@@ -131,7 +141,6 @@ public class TrDFSearch extends DFSearch {
 
                     }
                 }
-                ++depth;
                 if(!guidePath.isEmpty())
                     notifyStateAdvanced();
                 //if e.getType() != READ, fakeRead was false, so we don't have to care about this case
@@ -139,6 +148,7 @@ public class TrDFSearch extends DFSearch {
             }
 
         }
+
         if(database.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.SWAP) {
             WriteTransactionalEvent w = (WriteTransactionalEvent)
                     database.getEventFromEventData(wSwap.getEventData());
@@ -269,7 +279,7 @@ public class TrDFSearch extends DFSearch {
         }
 
 
-        database.confirmMaximumConsistency();
+        //database.confirmMaximumConsistency();
 
         //trEventRegister.addInvokeVirtual();
 
@@ -298,9 +308,11 @@ public class TrDFSearch extends DFSearch {
                     ReadTransactionalEvent r = (ReadTransactionalEvent) database.getLastEvent();
                     WriteTransactionalEvent nw = r.getWriteEvent();
                     WriteTransactionalEvent ow = database.getWriteEvent(nw.getVariable(), nw.getWriteIndex()+1);
-                    msgListener = "Branch forked: change of write-read for event "+r +
-                            "\n\t" + ow + " -> "+nw;
-                    notifyStateProcessed();
+                    if(!trEventRegister.isFakeRead()) {
+                        msgListener = "Branch forked: change of write-read for event " + r +
+                                "\n\t" + ow + " -> " + nw;
+                        notifyStateProcessed();
+                    }
                     return true;
                 case SWAP:
                 case RESTORE:

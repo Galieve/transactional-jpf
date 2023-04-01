@@ -79,4 +79,10 @@ atlassian-ide-plugin.xml
 
 #local files
 local
-temp.ser
+bin/benchmarks/application-scalability
+bin/benchmarks/session-scalability
+bin/benchmarks/transaction-scalability
+bin/benchmarks/demo-application-scalability
+bin/benchmarks/demo-session-scalability
+bin/benchmarks/demo-transaction-scalability
+graphics

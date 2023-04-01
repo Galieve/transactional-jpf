@@ -2,7 +2,6 @@ package country.lab.database;
 
 import com.rits.cloning.Cloner;
 import country.lab.events.*;
-import country.lab.events.*;
 import country.lab.histories.History;
 import gov.nasa.jpf.Config;
 import gov.nasa.jpf.util.Pair;
@@ -20,7 +19,7 @@ public abstract class Database {
 
     //It points to the event w in writeEventsPerVariable.get(e.getVariable()) such that
     //when e it was added, w was the last event in that list.
-    protected HashMap<EventData, EventData> maximalWriteEventIndexes;
+    //protected HashMap<EventData, EventData> maximalWriteEventIndexes;
 
     protected HashMap<String, ArrayList<WriteTransactionalEvent>> writeEventsPerVariable;
 
@@ -39,7 +38,6 @@ public abstract class Database {
     protected GuideInfo guideInfo;
 
     protected History history;
-
     protected History trueHistory;
     protected static Database databaseInstance;
     protected String mockPath;
@@ -58,7 +56,6 @@ public abstract class Database {
         sessionOrder = new HashMap<>();
         instructionsMapped = new HashMap<>();
         oracle = Oracle.getOracle();
-        maximalWriteEventIndexes = new HashMap<>();
         mockAccess = true;
         programExtendedOrder = new HashMap<>();
         timesPathExecuted = new HashMap<>();
@@ -104,16 +101,25 @@ public abstract class Database {
                 guideInfo.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.RESTORE;
     }
 
-
     public abstract void addEvent(TransactionalEvent t);
 
-    public boolean isLastEventReadBacktrackable(){
+    public boolean isLastReadEventBacktrackable(){
         var e = getLastEvent();
         if(e == null) return false;
         if(e.getType() != TransactionalEvent.Type.READ) return false;
         WriteTransactionalEvent w = ((ReadTransactionalEvent) e).getWriteEvent();
         return !swapped(e) && w.getWriteIndex() != 0;
     }
+
+    /*
+    public boolean isLastReadEventReadingCausallyLatest(){
+        var e = getLastEvent();
+        if(e == null) return true;
+        if(e.getType() != TransactionalEvent.Type.READ) return true;
+        return maximalWriteEventIndexes.containsKey(e.getEventData());
+    }
+    */
+
 
     public boolean isExecutingTransactionalEvent(Transition t, TransactionalEvent e){
         if(events.isEmpty() || e == null) return false;
@@ -129,115 +135,8 @@ public abstract class Database {
         return ed!=null && ed.equals(new EventData(s, timesPathExecuted.get(ed.getPath()), ed.getBeginEvent()));
     }
 
-    //TODO
-    protected void generateRestorePath(ReadTransactionalEvent r){
-        EventData backEvent = r.getBacktrackEvent();
-        TransactionalEvent e = instructionsMapped.get(backEvent);
-        TransactionalEvent w = r.getWriteEvent();
-        LinkedList<Transaction> restorePath = new LinkedList<>();
-
-        int pi_idx = e.getTransactionId()+1;
-        EventData orac_idx = new EventData("", -1, null);
-        orac_idx = oracle.getNextData(orac_idx);
-        while(true){
-            if(!instructionsMapped.containsKey(orac_idx)){
-                EventData endData = oracle.getCommit(orac_idx);
-                //TODO: remove the unknown end (it may be commit or abort)
-                restorePath.add(new Transaction(new UnknownEvent(orac_idx), new UnknownEvent(endData)));
-            }
-            else{
-                TransactionalEvent begin = instructionsMapped.get(orac_idx);
-                LinkedList<TransactionalEvent> trans = new LinkedList<>();
-
-                if(begin.getTransactionId() == r.getTransactionId()) {
-                    for (var ei : events.get(begin.getTransactionId())) {
-                        if(ei.getObservationSequenceIndex() == r.getObservationSequenceIndex()) break;
-                        trans.add(ei);
-                    }
-
-                    var wMCW = instructionsMapped.get(maximalWriteEventIndexes.get(r.getEventData()));
-                    r.setWriteEvent((WriteTransactionalEvent) wMCW);
-                    trans.add(r);
-                    var endData = oracle.getCommit(begin.getEventData());
-                    trans.add(new UnknownEvent(endData));
-                    restorePath.add(new Transaction(trans));
-                }
-                else {
-                    while (pi_idx <= begin.getTransactionId()) {
-                        for(var t : events.get(pi_idx)){
-                            trans.add(t);
-                            if(t.getType() == TransactionalEvent.Type.COMMIT ||
-                                    t.getType() == TransactionalEvent.Type.ABORT) {
-                                restorePath.add(new Transaction(trans));
-                                trans = new LinkedList<>();
-                            }
-                        }
-                        pi_idx++;
-                    }
-                }
-
-                //e.equals(w)?
-                //end will also have the same trId, but begin is always not null
-                if(begin.getTransactionId() == w.getTransactionId()){
-                    break;
-                }
-            }
-            orac_idx = oracle.getNextData(orac_idx);
-
-        }
-        guideInfo.addGuide(restorePath, e, null, new HashSet<>());
-    }
-
 
     //TODO
-    protected void generateBacktrackPath(WriteTransactionalEvent w, ReadTransactionalEvent r){
-        LinkedList<Transaction> backtrackPath = new LinkedList<>();
-        LinkedList<TransactionalEvent> transaction = new LinkedList<>();
-        HashSet<BeginTransactionalEvent> deleted = new HashSet<>();
-
-        //We need to start in a complete transaction, i.e. after the read.
-        //int i = events.get(r.getTransactionId()).getFirst().getObservationSequenceIndex();
-        var trRead = events.get(r.getTransactionId());
-
-
-        for(int i = r.getTransactionId() + 1; i < events.size(); ++i){
-            if(history.areWRSO_starRelated(i, w.getTransactionId())){
-                for(var e: events.get(i)){
-                    transaction.add(e);
-                }
-                backtrackPath.add(new Transaction(transaction));
-                transaction = new LinkedList<>();
-            }
-            else{
-                deleted.add((BeginTransactionalEvent) events.get(i).getFirst());
-                for(var e: events.get(i)){
-                    //if(e.getType() == TransactionalEvent.Type.READ)
-                    deletedOnSwap.add(e);
-                }
-            }
-
-        }
-        var deletedOnSwapR = new LinkedList<TransactionalEvent>();
-        for(var e: trRead){
-            if(e.getObservationSequenceIndex() <= r.getObservationSequenceIndex()) {
-                transaction.add(e);
-            }
-            else {
-                deletedOnSwapR.addFirst(e);
-            }
-        }
-        if(!deletedOnSwapR.isEmpty()) {
-            var prevIt = deletedOnSwapR.listIterator();
-            while (prevIt.hasNext()) {
-                deletedOnSwap.addFirst(prevIt.next());
-            }
-        }
-
-        backtrackPath.add(new Transaction(transaction));
-
-        guideInfo.addGuide(backtrackPath, events.get(r.getTransactionId()-1).getLast(), w, deleted);
-    }
-
     public abstract void backtrackDatabase();
 
     public int getTimesPathExecuted(String s){
@@ -271,7 +170,7 @@ public abstract class Database {
             if(history.areWRSO_plusRelated(w.getTransactionId(),i))
                 return false;
         }
-        //optimize with a segement tree
+        //TODO: optimize with a segement tree?
         for(var ei: events.get(e.getTransactionId())){
             if(ei.getObservationSequenceIndex() == e.getObservationSequenceIndex()) break;
             if (ei.getType() == TransactionalEvent.Type.READ &&
@@ -282,151 +181,6 @@ public abstract class Database {
         return true;
         //return databaseRelations.numberWR(w.getTransactionId(), e.getTransactionId()) == 1;
 
-    }
-
-
-    public boolean isMaximallyAdded(TransactionalEvent t) {
-        if (t.getType() == TransactionalEvent.Type.READ) {
-            var r = (ReadTransactionalEvent) t;
-            var w = maximalWriteEventIndexes.get(r.getEventData());
-            return !swapped(r) && r.getWriteEvent().getEventData().equals(w);
-        }
-        else return true;
-    }
-
-
-    protected void addEventMockHistory(History h, TransactionalEvent e,
-                                       HashMap<Integer, Integer> trTranslator,
-                                       boolean aborted){
-        switch(e.getType()){
-            case READ:
-                var r = (ReadTransactionalEvent) e;
-                h.setWR(r.getVariable(),
-                        trTranslator.get(r.getWriteEvent().getTransactionId()),
-                        trTranslator.get(r.getTransactionId()), r.getPoId());
-                break;
-            case WRITE:
-                if(!aborted) {
-                    var w = (WriteTransactionalEvent) e;
-                    h.addWrite(w.getVariable(), trTranslator.get(w.getTransactionId()));
-                }
-            default:
-                break;
-        }
-    }
-
-    protected boolean isNextHistoryConsistent(WriteTransactionalEvent w, ReadTransactionalEvent r){
-        var h = config.getEssentialInstance("db.database_isolation_level.class", History.class,
-                new Class[]{History.class},
-                new Object[]{history});
-
-        var trTranslator = new HashMap<Integer, Integer>();
-        var so = new Cloner().deepClone(sessionOrder);
-        for(int i = events.size() -1; i >= r.getTransactionId(); --i){
-            var threadID = events.get(i).getFirst().getThreadId();
-            h.removeLastTransaction();
-            so.get(threadID).
-                    remove(so.get(threadID).size() - 1);
-        }
-
-        for(int i = 0; i < r.getTransactionId(); ++i){
-            trTranslator.put(events.get(i).getFirst().getTransactionId(),
-                    events.get(i).getFirst().getTransactionId());
-        }
-
-
-        for(int i = r.getTransactionId() + 1; i < events.size(); ++i){
-            var thID = events.get(i).getFirst().getThreadId();
-            if(history.areWRSO_starRelated(i, w.getTransactionId())){
-                trTranslator.put(events.get(i).getFirst().getTransactionId(),
-                        h.getNumberTransactions());
-                h.addTransaction(h.getNumberTransactions(), thID,
-                        so.get(thID));
-                var aborted = events.get(i).getLast().getType() ==
-                        TransactionalEvent.Type.ABORT;
-                for(var e: events.get(i)){
-                    addEventMockHistory(h, e, trTranslator, aborted);
-                }
-            }
-        }
-
-        var rTID = r.getTransactionId();
-        trTranslator.put(rTID,
-                h.getNumberTransactions());
-        h.addTransaction(h.getNumberTransactions(), r.getThreadId(),
-                so.get(r.getThreadId()));
-        for(var e: events.get(rTID)){
-            if(e == r) {
-                h.setWR(r.getVariable(),
-                        trTranslator.get(w.getTransactionId()),
-                        trTranslator.get(r.getTransactionId()), r.getPoId());
-                break;
-            }
-            else{
-                addEventMockHistory(h,e,trTranslator, false);
-            }
-
-        }
-
-
-        return h.isConsistent();
-    }
-
-    //write, read
-    public Pair<WriteTransactionalEvent, ReadTransactionalEvent> nextSwap(){
-        var tr = events.get(events.size()- 1);
-        var trListIterator = tr.getListIterator(tr.size() - 1);
-        while(trListIterator.hasPrevious()){
-            var e = trListIterator.previous();
-            if(e.getType() == TransactionalEvent.Type.WRITE){
-                WriteTransactionalEvent w = (WriteTransactionalEvent) e;
-                for (int j = backtrackPoints.get(w.getEventData()); j >= 0; --j) {
-                    //TODO: revisar
-                    ReadTransactionalEvent r = readEventsPerVariable.get(w.getVariable()).get(j);
-                    if(history.areWRSO_starRelated(r.getTransactionId(), w.getTransactionId())) continue;
-                    if(!isMaximallyAdded(r)) continue;
-
-                    boolean delIMA = true;
-
-                    var trRead = events.get(r.getTransactionId());
-                    var trIteratorR = trRead.getListIterator(r.getObservationSequenceIndex() - trRead.getFirst().getObservationSequenceIndex() + 1);
-
-
-
-                    //we assume that for every pair of events e, e' \in tr, e.trID == e'.trID
-                    //events in trRead
-                    while(trIteratorR.hasNext()){
-                        var d = trIteratorR.next();
-                        if(!isMaximallyAdded(d)){
-                            delIMA = false;
-                            break;
-                        }
-                    }
-
-
-                    //events after trRead
-                    if(delIMA) {
-                        for (int t = r.getTransactionId() + 1; t < events.size(); ++t) {
-                            if(!history.areWRSO_starRelated(t, w.getTransactionId())) {
-                                for (var d : events.get(t)) {
-                                    if (!isMaximallyAdded(d)) {
-                                        delIMA = false;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if(delIMA && isNextHistoryConsistent(w, r)){
-                        backtrackPoints.put(e.getEventData(),j-1);
-                        return new Pair<>(w, r);
-                    }
-                }
-            }
-        }
-
-        return null;
     }
 
     public GuideInfo.BacktrackTypes getDatabaseBacktrackMode() {
@@ -453,16 +207,16 @@ public abstract class Database {
         return instructionsMapped.get(eventData);
     }
 
-    protected void setWriteRead(ReadTransactionalEvent r){
-        WriteTransactionalEvent w = r.getWriteEvent();
+    protected void setWriteRead(WriteTransactionalEvent w,ReadTransactionalEvent r){
+        r.setWriteEvent(w);
+
         history.setWR(r.getVariable(), w.getTransactionId(), r.getTransactionId(), r.getPoId());
         trueHistory = null;
     }
 
     public void changeWriteRead(WriteTransactionalEvent w, ReadTransactionalEvent r){
         eraseWriteRead(r);
-        r.setWriteEvent(w);
-        setWriteRead(r);
+        setWriteRead(w, r);
     }
 
     protected void eraseWriteRead(ReadTransactionalEvent r){
@@ -492,15 +246,25 @@ public abstract class Database {
         return !isAssertionViolated() && history.isConsistent();
     }
 
-    public void confirmMaximumConsistency(){
+    /*
+    protected void confirmMaximumConsistency(){
+        if(isMockAccess()) return;
         if(events.isEmpty() || guideInfo.getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.SWAP) return;
         TransactionalEvent t = events.get(events.size() - 1).getLast();
         if(t.getType() == TransactionalEvent.Type.READ){
             ReadTransactionalEvent r = (ReadTransactionalEvent) t;
-            //TODO: before there was putIfAbsent
-            maximalWriteEventIndexes.putIfAbsent(r.getEventData(), r.getWriteEvent().getEventData());
+            var w = r.getWriteEvent();
+
+            //r is the last event in the history!
+            history.removeWR(r.getVariable(), w.getTransactionId(), r.getTransactionId());
+            if(history.areWRSO_starRelated(w.getTransactionId(), r.getTransactionId())){
+                //TODO: before there was putIfAbsent
+                maximalWriteEventIndexes.putIfAbsent(r.getEventData(), r.getWriteEvent().getEventData());
+            }
+            history.setWR(r.getVariable(), w.getTransactionId(), r.getTransactionId(), r.getPoId());
         }
     }
+     */
 
     public int getTransactionalId() {
         return events.size() - 1;

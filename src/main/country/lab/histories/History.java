@@ -2,17 +2,19 @@ package country.lab.histories;
 
 import com.rits.cloning.Cloner;
 import gov.nasa.jpf.Config;
+import gov.nasa.jpf.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public abstract class History {
     protected ArrayList<ArrayList<Boolean>> sessionOrderMatrix;
 
-    protected HashMap<String,ArrayList<ArrayList<ArrayList<Integer>>>> writeReadMatrix;
+    protected HashMap<String,ArrayList<ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>>>> writeReadMatrix;
 
-    protected ArrayList<HashMap<String, Integer>> writesPerTransaction;
+    protected ArrayList<HashMap<String, ArrayList<Integer>>> writesPerTransaction;
     protected ArrayList<ArrayList<Boolean>> transitiveClosure;
     protected int numberTransactions;
 
@@ -24,8 +26,9 @@ public abstract class History {
                 config.getString("db.database_isolation_level.forbidden_variable", "FORBIDDEN"));
     }
 
-    protected History(ArrayList<ArrayList<Boolean>> soMatrix, HashMap<String,ArrayList<ArrayList<ArrayList<Integer>>>> wrMatrix,
-                      ArrayList<HashMap<String, Integer>> wrPerTransaction, String forbidden){
+    protected History(ArrayList<ArrayList<Boolean>> soMatrix,
+                      HashMap<String,ArrayList<ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>>>> wrMatrix,
+                      ArrayList<HashMap<String, ArrayList<Integer>>> wrPerTransaction, String forbidden){
         sessionOrderMatrix = soMatrix;
         writeReadMatrix = wrMatrix;
         writesPerTransaction = wrPerTransaction;
@@ -49,16 +52,16 @@ public abstract class History {
         restoreSemanticFlags();
 
         Cloner c = new Cloner();
-        ArrayList<ArrayList<Integer>> row = new ArrayList<>();
+        ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>> row = new ArrayList<>();
         for(int i = 0; i < numberTransactions; ++i){
-            row.add(new ArrayList<>());
+            row.add(new Pair<>(new ArrayList<>(), new HashSet<>()));
         }
         ++numberTransactions;
         for(var wrx : writeReadMatrix.values()){
 
             wrx.add(c.deepClone(row));
             for (var integers : wrx) {
-                integers.add(new ArrayList<>());
+                integers.add(new Pair<>(new ArrayList<>(), new HashSet<>()));
             }
         }
 
@@ -82,7 +85,7 @@ public abstract class History {
         }
     }
 
-    public void setWR(String var,int write, int read, int id){
+    public void setWR(String var, int write, int read, int id){
         if(var.startsWith(forbiddenVariable)){
             throw new IllegalCallerException("variable "+ var + " forbidden: reserved prefix");
         }
@@ -90,7 +93,8 @@ public abstract class History {
 
             addVarToWriteReadMatrix(var);
         }
-        writeReadMatrix.get(var).get(write).get(read).add(id);
+        writeReadMatrix.get(var).get(write).get(read)._1.add(id);
+        writeReadMatrix.get(var).get(write).get(read)._2.add(id);
         //writeReadMatrix.get(var).get(write).set(read, n+1);
         restoreSemanticFlags();
 
@@ -99,24 +103,27 @@ public abstract class History {
 
     public void removeWR(String var, int write, int read){
         var l = writeReadMatrix.get(var).get(write).get(read);
-        l.remove(l.size() - 1);
+        var e = l._1.get(l._1.size() - 1);
+        l._2.remove(e);
+        l._1.remove(l._1.size() - 1);
+
         //writeReadMatrix.get(var).get(write).set(read, n-1);
         restoreSemanticFlags();
     }
 
     protected void addVarToWriteReadMatrix(String var){
         Cloner c = new Cloner();
-        var row = new ArrayList<ArrayList<Integer>>();
-        var mat = new ArrayList<ArrayList<ArrayList<Integer>>>();
+        var row = new ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>>();
+        var mat = new ArrayList<ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>>>();
         for(int i = 0; i < numberTransactions; ++i){
-            row.add(new ArrayList<>());
+            row.add(new Pair<>(new ArrayList<>(), new HashSet<>()));
         }
         for(int i = 0; i < numberTransactions; ++i){
             mat.add(c.deepClone(row));
         }
         writeReadMatrix.put(var, mat);
     }
-    public void addWrite(String var, int id){
+    public void addWrite(String var, int id, int poID){
         if(var.startsWith(forbiddenVariable)){
             throw new IllegalCallerException("variable "+ var + " forbidden: reserved prefix");
         }
@@ -126,17 +133,27 @@ public abstract class History {
         }
 
         //For consistency checks we have to know the number of writes; for reading it, we only care about the last one.
-        writesPerTransaction.get(id).putIfAbsent(var, 0);
-        int n = writesPerTransaction.get(id).get(var);
-        writesPerTransaction.get(id).put(var, n+1);
+        writesPerTransaction.get(id).putIfAbsent(var, new ArrayList<>());
+        writesPerTransaction.get(id).get(var).add(poID);
         //restoreSemanticFlags();
+    }
+
+    public boolean isWrittingVariable(String var, int id){
+        var tr = writesPerTransaction.get(id);
+        return tr.containsKey(var) && tr.get(var).size() > 0;
+    }
+    public boolean isWrittingVariable(String var, int id, int poID){
+        var tr = writesPerTransaction.get(id);
+        if(tr.containsKey(var) && tr.get(var).size() > 0)
+            return tr.get(var).get(0) < poID;
+        else return false;
     }
 
     public void removeWrite(String var, int id){
 
-        int n = writesPerTransaction.get(id).get(var);
-        if(n == 1) writesPerTransaction.get(id).remove(var);
-        else writesPerTransaction.get(id).put(var, n-1);
+        var writes =writesPerTransaction.get(id).get(var);
+        writes.remove(writes.size() - 1);
+        if(writes.size() == 0) writesPerTransaction.get(id).remove(var);
 
     }
 
@@ -149,8 +166,8 @@ public abstract class History {
         for(int i = 0; i < numberTransactions; ++i){
             for(int j = 0; j < numberTransactions; ++j){
                 boolean reads = false;
-                for(ArrayList<ArrayList<ArrayList<Integer>>> wrx: writeReadMatrix.values()){
-                    reads = wrx.get(i).get(j).size() > 0;
+                for(var wrx: writeReadMatrix.values()){
+                    reads = wrx.get(i).get(j)._1.size() > 0;
                     if(reads) break;
                 }
                 sowr.get(i).set(j, sessionOrderMatrix.get(i).get(j) ||
@@ -196,7 +213,16 @@ public abstract class History {
 
     public boolean areWR(int a, int b){
         for(var wrx : writeReadMatrix.values()){
-            if(wrx.get(a).get(b).size() > 0){
+            if(wrx.get(a).get(b)._1.size() > 0){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean areWR(int a, int b, int poB){
+        for(var wrx : writeReadMatrix.values()){
+            if(wrx.get(a).get(b)._2.contains(poB)){
                 return true;
             }
         }
@@ -206,7 +232,6 @@ public abstract class History {
     public boolean areWRSORelated(int a, int b){
         return a!= b && (sessionOrderMatrix.get(a).get(b) || areWR(a, b));
     }
-
     public void removeLastTransaction(){
         --numberTransactions;
         sessionOrderMatrix.remove(numberTransactions);

@@ -46,10 +46,8 @@ public class TrPolyDatabase extends TrDatabase{
                     readEventsPerVariable.get(e.getVariable()).remove(readEventsPerVariable.get(e.getVariable()).size() - 1);
                     eraseWriteRead(r);
                     if(!isGuided()) {
-                        maximalWriteEventIndexes.remove(r.getEventData());
                     }
                     else if(!deletedOnSwap.isEmpty() && deletedOnSwap.getLast() == r) {
-                        maximalWriteEventIndexes.remove(r.getEventData());
                         deletedOnSwap.removeLast();
                     }
 
@@ -96,8 +94,9 @@ public class TrPolyDatabase extends TrDatabase{
                     WriteTransactionalEvent wSwap = p._1;
                     ReadTransactionalEvent rSwap = p._2;
                     generateBacktrackPath(wSwap, rSwap);
-
-                    rSwap.setBacktrackEvent(events.get(rSwap.getTransactionId()-1).getLast().getEventData());
+                    var previousEvent = events.get(rSwap.getTransactionId()-1).getLast();
+                    var backtrackPair = new Pair<>(previousEvent.getEventData(), rSwap.getWriteEvent().getEventData());
+                    rSwap.setBacktrackEvent(backtrackPair);
 
                     return;
                 }
@@ -117,7 +116,7 @@ public class TrPolyDatabase extends TrDatabase{
                             writes.remove(writes.size() - 1);
                         }
                         writes.add(wa);
-                        history.addWrite(wa.getVariable(), wa.getTransactionId());
+                        history.addWrite(wa.getVariable(), wa.getTransactionId(), wa.getPoId());
                     }
                 }
                 break;

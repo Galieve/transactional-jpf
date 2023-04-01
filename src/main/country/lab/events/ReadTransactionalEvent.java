@@ -1,13 +1,15 @@
 package country.lab.events;
 
+import gov.nasa.jpf.util.Pair;
+
 import java.util.ArrayList;
 
 public class ReadTransactionalEvent extends TransactionalEvent{
 
     protected WriteTransactionalEvent writeEvent;
-
     public EventData backtrackEvent;
 
+    public EventData backtrackWriteEvent;
     protected ReadTransactionalEvent(EventData eventData, ArrayList<String> args,
                                      int obsIdx, int threadId, int trId, int sesId, int poId) {
         super(eventData, args, Type.READ, obsIdx, threadId, trId, sesId, poId);
@@ -37,8 +39,13 @@ public class ReadTransactionalEvent extends TransactionalEvent{
         return backtrackEvent;
     }
 
-    public void setBacktrackEvent(EventData backtrackEvent) {
-        this.backtrackEvent = backtrackEvent;
+    public EventData getBacktrackWriteEvent() {
+        return backtrackWriteEvent;
+    }
+
+    public void setBacktrackEvent(Pair<EventData, EventData> backtrackPair) {
+        this.backtrackEvent = backtrackPair._1;
+        this.backtrackWriteEvent = backtrackPair._2;
     }
 
     @Override

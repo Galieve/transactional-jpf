@@ -2,10 +2,12 @@ package country.lab.histories;
 
 import com.rits.cloning.Cloner;
 import gov.nasa.jpf.Config;
+import gov.nasa.jpf.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class PrefixHistory extends SerializableHistory {
 
@@ -41,30 +43,31 @@ public class PrefixHistory extends SerializableHistory {
         return splitSO;
     }
 
-    protected ArrayList<HashMap<String, Integer>> computeWritesPerTransaction_SER(){
-        ArrayList<HashMap<String, Integer>> wrPerTransaction = new ArrayList<>();
+    protected ArrayList<HashMap<String, ArrayList<Integer>>> computeWritesPerTransaction_SER(){
+        ArrayList<HashMap<String, ArrayList<Integer>>> wrPerTransaction = new ArrayList<>();
+        var cloner = new Cloner();
         for(int i = 0; i < writesPerTransaction.size(); ++i){
             wrPerTransaction.add(new HashMap<>()); //reads (empty)
             wrPerTransaction.add(new HashMap<>()); //writes
             for(var p : writesPerTransaction.get(i).entrySet()){
-                wrPerTransaction.get(wrPerTransaction.size()-1).put(p.getKey(), p.getValue());
+                wrPerTransaction.get(wrPerTransaction.size()-1).put(p.getKey(), cloner.deepClone(p.getValue()));
             }
             //wrPerTransaction.set(2*i+1, writesPerTransaction.get(i));
         }
         return wrPerTransaction;
     }
 
-    protected HashMap<String,ArrayList<ArrayList<ArrayList<Integer>>>> computeWR_SER(){
-        HashMap<String,ArrayList<ArrayList<ArrayList<Integer>>>> wrMatrix = new HashMap<>();
+    protected HashMap<String,ArrayList<ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>>>> computeWR_SER(){
+        HashMap<String,ArrayList<ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>>>> wrMatrix = new HashMap<>();
         var c = new Cloner();
         for(var p : writeReadMatrix.entrySet()){
             var k = p.getKey();
             var v = p.getValue();
             wrMatrix.put(k,  new ArrayList<>());
 
-            var row = new ArrayList<ArrayList<Integer>>();
+            var row = new ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>>();
             for(int i = 0; i < 2*numberTransactions; ++i){
-                row.add(new ArrayList<>());
+                row.add(new Pair<>(new ArrayList<>(), new HashSet<>()));
             }
             for(int i = 0; i < v.size(); ++i){
                 wrMatrix.get(k).add(c.deepClone(row));

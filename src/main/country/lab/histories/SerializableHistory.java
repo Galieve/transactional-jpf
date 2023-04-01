@@ -1,6 +1,7 @@
 package country.lab.histories;
 
 import gov.nasa.jpf.Config;
+import gov.nasa.jpf.util.Pair;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,8 +23,8 @@ public class SerializableHistory extends COInductiveHistory {
     }
 
     public SerializableHistory(ArrayList<ArrayList<Boolean>> splitSO,
-                               HashMap<String, ArrayList<ArrayList<ArrayList<Integer>>>> wrMatrix,
-                               ArrayList<HashMap<String, Integer>> wrPerTransaction,
+                               HashMap<String,ArrayList<ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>>>> wrMatrix,
+                               ArrayList<HashMap<String, ArrayList<Integer>>> wrPerTransaction,
                                String forbidden) {
         super(splitSO, wrMatrix, wrPerTransaction, forbidden);
     }
@@ -42,7 +43,7 @@ public class SerializableHistory extends COInductiveHistory {
                 if(idxSet.contains(j)) continue;
                 for(int k : idxSet){
                     if(k == i) continue;
-                    if(writeReadMatrix.get(var).get(j).get(k).size() > 0){
+                    if(writeReadMatrix.get(var).get(j).get(k)._1.size() > 0){
                         return false;
                     }
                 }

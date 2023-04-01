@@ -2,10 +2,9 @@ package country.lab.events;
 
 import java.util.*;
 
-public class Transaction implements  Iterable<TransactionalEvent>{
+public class Transaction implements Iterable<TransactionalEvent>{
 
     protected LinkedList<TransactionalEvent> body;
-
     protected HashMap<String, LinkedList<WriteTransactionalEvent>> listOfWriteEvents;
 
     protected boolean executing;
@@ -97,4 +96,9 @@ public class Transaction implements  Iterable<TransactionalEvent>{
     public Iterator<TransactionalEvent> iterator() {
         return body.iterator();
     }
+
+    public Iterator<TransactionalEvent> descendingIterator(){
+        return body.descendingIterator();
+    }
+
 }

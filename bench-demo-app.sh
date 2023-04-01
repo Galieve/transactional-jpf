@@ -38,7 +38,7 @@ models=(
 )
 
 folders=(
-  bin/benchmarks/demo-application-scalability/courseware/
+  bin/benchmarks/demo-application-scalability/courseware
 )
 
 databaseArgs=(
