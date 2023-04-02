@@ -342,7 +342,9 @@ public class TrDatabase extends Database{
                 if(getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.RESTORE){
                     var begT = events.get(t.getTransactionId()).getFirst();
                     if(!restoreHistory.isWrittingVariable(t.getVariable(),
-                            restoreTranslator.translate(begT), t.getPoId() + 1))
+                            restoreTranslator.translate(begT), t.getPoId() + 1) &&
+                            restoreHistory.isCommitted(restoreTranslator.translate(begT))
+                        )
                         restoreHistory.addWrite(t.getVariable(), restoreTranslator.translate(begT), t.getPoId());
                 }
 
@@ -375,7 +377,7 @@ public class TrDatabase extends Database{
                     var begW = events.get(w.getTransactionId()).getFirst();
 
 
-                    if(!restoreHistory.areWR(restoreTranslator.translate(begW),
+                    if(!restoreHistory.areWR(r.getVariable(), restoreTranslator.translate(begW),
                             restoreTranslator.translate(begR), r.getPoId()))
                         restoreHistory.setWR(r.getVariable(), restoreTranslator.translate(begW),
                             restoreTranslator.translate(begR), r.getPoId());
@@ -423,6 +425,9 @@ public class TrDatabase extends Database{
                 }
                 break;
             case ABORT:
+                var begT = events.get(events.size() - 1).getFirst();
+                history.setCommitted(false, events.size() - 1);
+
                 for(var e: events.get(events.size() - 1)){
                     if(e.getType() == TransactionalEvent.Type.WRITE) {
                         var writes = writeEventsPerVariable.get(e.getVariable());
@@ -431,9 +436,10 @@ public class TrDatabase extends Database{
                         }
                         history.removeWrite(e.getVariable(), e.getTransactionId());
 
-                        if(getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.RESTORE){
-                            var begT = events.get(e.getTransactionId()).getFirst();
+                        if(getDatabaseBacktrackMode() == GuideInfo.BacktrackTypes.RESTORE &&
+                                restoreHistory.isWrittingVariable(e.getVariable(),restoreTranslator.translate(begT))){
                             restoreHistory.removeWrite(e.getVariable(), restoreTranslator.translate(begT));
+                            restoreHistory.setCommitted(false, restoreTranslator.translate(begT));
                         }
                     }
                 }
@@ -457,10 +463,10 @@ public class TrDatabase extends Database{
                 else if(i != rIDTranslated && !restoreHistory.isWrittingVariable(r.getVariable(), i))
                     continue;
 
-                if(!restoreHistory.areWR(i, rIDTranslated, r.getPoId()))
+                if(!restoreHistory.areWR(r.getVariable(), i, rIDTranslated, r.getPoId()))
                     restoreHistory.setWR(r.getVariable(), i, rIDTranslated, r.getPoId());
                 if(!restoreHistory.isConsistent()){
-                    restoreHistory.removeWR(r.getVariable(), i, rIDTranslated);
+                    restoreHistory.removeWR(r.getVariable(), i, rIDTranslated, r.getPoId());
                     continue;
                 }
 
@@ -495,9 +501,9 @@ public class TrDatabase extends Database{
             var rBeg = events.get(r.getTransactionId()).getFirst();
             var wBeg = events.get(w.getTransactionId()).getFirst();
 
-            restoreHistory.removeWR(r.getVariable(),
-                    restoreTranslator.translate(wPastBeg), restoreTranslator.translate(rBeg));
-            if(!restoreHistory.areWR(restoreTranslator.translate(wBeg),
+            restoreHistory.removeWR(r.getVariable(), restoreTranslator.translate(wPastBeg),
+                    restoreTranslator.translate(rBeg), r.getPoId());
+            if(!restoreHistory.areWR(r.getVariable(), restoreTranslator.translate(wBeg),
                     restoreTranslator.translate(rBeg), r.getPoId()))
                 restoreHistory.setWR(r.getVariable(),restoreTranslator.translate(wBeg),
                     restoreTranslator.translate(rBeg), r.getPoId());
@@ -529,14 +535,15 @@ public class TrDatabase extends Database{
                     if(!allReads) continue;
 
                     //This is the actual read
-                    h.removeWR(r.getVariable(), fakeWriteID, translator.getID(r));
+                    h.removeWR(r.getVariable(), fakeWriteID, translator.getID(r), r.getPoId());
                     h.setWR(r.getVariable(), translator.getID(w),
                             translator.getID(r), r.getPoId());
 
                     if (!h.isConsistent()) continue;
 
                     //We re-add the read in a causal manner to check consistency for the rest of the reads.
-                    h.removeWR(r.getVariable(), translator.getID(w), translator.getID(r));
+                    h.removeWR(r.getVariable(), translator.getID(w),
+                            translator.getID(r), r.getPoId());
                     h.setWR(r.getVariable(), fakeWriteID, translator.getID(r), r.getPoId());
 
 
@@ -664,6 +671,7 @@ public class TrDatabase extends Database{
                         trTranslator.getSO(beg));
                 var aborted = events.get(i).getLast().getType() ==
                         TransactionalEvent.Type.ABORT;
+                h.setCommitted(!aborted, h.getNumberTransactions() - 1);
                 for(var e: events.get(i)){
                     addEventInHistory(h, e, trTranslator, aborted);
                 }
@@ -694,7 +702,7 @@ public class TrDatabase extends Database{
                             return i;
                         }
                         else{
-                            h.removeWR(r.getVariable(), i, readID);
+                            h.removeWR(r.getVariable(), i, readID, r.getPoId());
                         }
                     }
                 }

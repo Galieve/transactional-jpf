@@ -61,10 +61,12 @@ public class SnapshotIsolationHistory extends PrefixHistory{
         var splitSO = computeSO_SER();
         var wrPerTransaction = computeWritesPerTransaction_SER();
         var wrMatrix = computeWR_SER();
+        var committed = computeCommitted();
 
         addSIConflicts(wrMatrix, wrPerTransaction);
 
-        return new SerializableHistory(splitSO, wrMatrix, wrPerTransaction, forbiddenVariable);
+        return new SerializableHistory(splitSO, wrMatrix,
+                wrPerTransaction, committed, forbiddenVariable);
 
 
 

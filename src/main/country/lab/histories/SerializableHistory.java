@@ -25,8 +25,9 @@ public class SerializableHistory extends COInductiveHistory {
     public SerializableHistory(ArrayList<ArrayList<Boolean>> splitSO,
                                HashMap<String,ArrayList<ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>>>> wrMatrix,
                                ArrayList<HashMap<String, ArrayList<Integer>>> wrPerTransaction,
+                               ArrayList<Boolean> committed,
                                String forbidden) {
-        super(splitSO, wrMatrix, wrPerTransaction, forbidden);
+        super(splitSO, wrMatrix, wrPerTransaction, committed, forbidden);
     }
 
     //idxSet contains the indexes' complementary extended

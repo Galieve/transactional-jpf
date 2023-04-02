@@ -19,6 +19,7 @@ public class PrefixHistory extends SerializableHistory {
         super(h);
     }
 
+
     protected ArrayList<ArrayList<Boolean>> computeSO_SER(){
         ArrayList<ArrayList<Boolean>> splitSO = new ArrayList<>();
         for(int i = 0; i < sessionOrderMatrix.size(); ++i){
@@ -41,6 +42,15 @@ public class PrefixHistory extends SerializableHistory {
         computeTransitiveClosure(splitSO);
 
         return splitSO;
+    }
+
+    protected ArrayList<Boolean> computeCommitted(){
+        ArrayList<Boolean> committed = new ArrayList<>();
+        for(int i = 0; i < committed.size(); ++i){
+            committed.add(true);
+            committed.add(committed.get(i));
+        }
+        return committed;
     }
 
     protected ArrayList<HashMap<String, ArrayList<Integer>>> computeWritesPerTransaction_SER(){
@@ -88,8 +98,10 @@ public class PrefixHistory extends SerializableHistory {
         var splitSO = computeSO_SER();
         var wrPerTransaction = computeWritesPerTransaction_SER();
         var wrMatrix = computeWR_SER();
+        var committed = computeCommitted();
 
-        return new SerializableHistory(splitSO, wrMatrix, wrPerTransaction, forbiddenVariable);
+        return new SerializableHistory(splitSO, wrMatrix, wrPerTransaction,
+                committed, forbiddenVariable);
     }
 
     @Override

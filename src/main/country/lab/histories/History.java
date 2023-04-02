@@ -11,7 +11,6 @@ import java.util.HashSet;
 
 public abstract class History {
     protected ArrayList<ArrayList<Boolean>> sessionOrderMatrix;
-
     protected HashMap<String,ArrayList<ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>>>> writeReadMatrix;
 
     protected ArrayList<HashMap<String, ArrayList<Integer>>> writesPerTransaction;
@@ -21,14 +20,18 @@ public abstract class History {
     protected Boolean consistent;
     protected String forbiddenVariable;
 
+    protected ArrayList<Boolean> committed;
+
     protected History(Config config){
-        this(new ArrayList<>(), new HashMap<>(), new ArrayList<>(),
+        this(new ArrayList<>(), new HashMap<>(), new ArrayList<>(), new ArrayList<>(),
                 config.getString("db.database_isolation_level.forbidden_variable", "FORBIDDEN"));
     }
 
     protected History(ArrayList<ArrayList<Boolean>> soMatrix,
                       HashMap<String,ArrayList<ArrayList<Pair<ArrayList<Integer>, HashSet<Integer>>>>> wrMatrix,
-                      ArrayList<HashMap<String, ArrayList<Integer>>> wrPerTransaction, String forbidden){
+                      ArrayList<HashMap<String, ArrayList<Integer>>> wrPerTransaction,
+                      ArrayList<Boolean> committedTransactions,
+                      String forbidden){
         sessionOrderMatrix = soMatrix;
         writeReadMatrix = wrMatrix;
         writesPerTransaction = wrPerTransaction;
@@ -36,12 +39,14 @@ public abstract class History {
         consistent = null;
         transitiveClosure = null;
         forbiddenVariable = forbidden;
+        committed = committedTransactions;
     }
 
     protected History(History h){
         this(new Cloner().deepClone(h.sessionOrderMatrix),
                 new Cloner().deepClone(h.writeReadMatrix),
                 new Cloner().deepClone(h.writesPerTransaction),
+                new Cloner().deepClone(h.committed),
                 h.forbiddenVariable);
     }
 
@@ -64,6 +69,8 @@ public abstract class History {
                 integers.add(new Pair<>(new ArrayList<>(), new HashSet<>()));
             }
         }
+
+        committed.add(true);
 
         for (ArrayList<Boolean> orderMatrix : sessionOrderMatrix) {
             orderMatrix.add(false);
@@ -101,11 +108,18 @@ public abstract class History {
 
     }
 
-    public void removeWR(String var, int write, int read){
+    public void setCommitted(boolean type, int index){
+        committed.set(index, type);
+    }
+
+    public void removeWR(String var, int write, int read, int poID){
         var l = writeReadMatrix.get(var).get(write).get(read);
-        var e = l._1.get(l._1.size() - 1);
-        l._2.remove(e);
-        l._1.remove(l._1.size() - 1);
+        l._2.remove(poID);
+        for(int i = l._1.size() - 1; i >= 0; --i){
+            if(l._1.get(i) == poID){
+                l._1.remove(i);
+            }
+        }
 
         //writeReadMatrix.get(var).get(write).set(read, n-1);
         restoreSemanticFlags();
@@ -220,13 +234,12 @@ public abstract class History {
         return false;
     }
 
-    public boolean areWR(int a, int b, int poB){
-        for(var wrx : writeReadMatrix.values()){
-            if(wrx.get(a).get(b)._2.contains(poB)){
-                return true;
-            }
-        }
-        return false;
+    public boolean areWR(String var, int a, int b, int poB){
+        return writeReadMatrix.get(var).get(a).get(b)._2.contains(poB);
+    }
+
+    public boolean isCommitted(int id){
+        return committed.get(id);
     }
 
     public boolean areWRSORelated(int a, int b){
@@ -248,6 +261,8 @@ public abstract class History {
         for(int i = 0; i < numberTransactions; ++i){
             sessionOrderMatrix.get(i).remove(numberTransactions);
         }
+
+        committed.remove(numberTransactions);
         restoreSemanticFlags();
 
     }

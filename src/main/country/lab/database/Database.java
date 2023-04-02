@@ -221,7 +221,7 @@ public abstract class Database {
 
     protected void eraseWriteRead(ReadTransactionalEvent r){
         WriteTransactionalEvent w = r.getWriteEvent();
-        history.removeWR(r.getVariable(), w.getTransactionId(), r.getTransactionId());
+        history.removeWR(r.getVariable(), w.getTransactionId(), r.getTransactionId(), r.getPoId());
         trueHistory = null;
     }
 
