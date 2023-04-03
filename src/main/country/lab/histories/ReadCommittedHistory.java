@@ -21,6 +21,7 @@ public class ReadCommittedHistory extends COPolynomialHistory{
             HashMap<Integer, Integer> minJToK = new HashMap<>();
             for(int k = 0; k < numberTransactions; ++k){
                 minJToK.putIfAbsent(k, Integer.MAX_VALUE);
+                if(j == k) continue;
                 for(String var: writesPerTransaction.get(j).keySet()){
                     var jTok = writeReadMatrix.get(var).get(j).get(k)._1;
                     if(jTok.size() > 0){
@@ -42,6 +43,7 @@ public class ReadCommittedHistory extends COPolynomialHistory{
                     if(commitOrderMatrix.get(j).get(i)) break;
 
                     for(int k = 0; k < numberTransactions; ++k){
+                        if(k == i || k == j) continue;
                         //If we have found some t3 (or it is [WR u SO]+ adj) that satisfies the formula,
                         // we can move on to the next possible edge.
                         var iTok = writeReadMatrix.get(var).get(i).get(k)._1;
