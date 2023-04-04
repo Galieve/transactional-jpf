@@ -55,6 +55,12 @@ for ((i=0;i<num_rows;i++)) do
   done
 done
 
+cd "graphics/files"
+
+
+python3 generate_csv.py "session-scalability"
+python3 graphics.py "session-scalability"
+
 
 exit
 

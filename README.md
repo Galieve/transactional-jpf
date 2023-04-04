@@ -33,9 +33,11 @@ docker run -it tr-jpf:latest bash
 
 Every experiment produce several short `.out` files. It is recommended to read their content either with cat or copying it to the host machine via [`docker cp`](https://docs.docker.com/engine/reference/commandline/cp/).
 
+After each experiment two scripts are executed. The first one condense all information in a CSV file while the other plot several graphics depending on the experiment realized. We strongly recommend using `docker cp` for visualizing the graphical results. Every file mentioned before is contained in the corresponding experiment folder.
+
 **Notes**
 
-The time limit set is to 30' per case. It is recommended to be careful when running each script as it may take up to 1 day per script. Some sub-benchmarks are already predefined for having a satisfactory user experience.
+The time limit set is to 30' per case. It is recommended to be careful when running each script as it may take up to 1 day per script. Some sub-benchmarks are already predefined for having a satisfactory user experience. Those sub-benchmarks are also associated with their corresponding tables and plots.
 
 
 ## First experiment: application scalability

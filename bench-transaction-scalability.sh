@@ -53,6 +53,11 @@ for ((i=0;i<num_rows;i++)) do
 done
 
 
+cd "graphics/files"
+python3 generate_csv.py "transaction-scalability"
+python3 graphics.py "transaction-scalability"
+
+
 exit
 
 

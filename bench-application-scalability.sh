@@ -81,10 +81,16 @@ for i in "${!folders[@]}"; do
     fold="${folders[i]}"/$j-threads/
     args=src/benchmarks/$benchmarkName/application-scalability/case$j/thread1.in\ src/benchmarks/$benchmarkName/application-scalability/case$j/thread2.in\ src/benchmarks/$benchmarkName/application-scalability/case$j/thread3.in
 
-    execute_benchmark
+    #execute_benchmark
   done
   
 
 done
 
+cd "graphics/files"
+
+python3 generate_csv.py "application-scalability" 
+python3 graphics.py "application-scalability" 
+
+exit
 

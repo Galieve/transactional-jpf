@@ -9,6 +9,15 @@ RUN apt-get update && \
     apt -y install git-all && \
     rm -rf /var/lib/apt/lists/*
 
+RUN apt update && \
+    apt -y upgrade && \
+    apt -y install python3-pip && \
+    apt -y install python3.11-venv
+
+RUN apt -y install python3-pandas python3-numpy python3-matplotlib
+
+# RUN apt-get -y install texlive-latex-extra texlive-fonts-recommended dvipng cm-super
+
 WORKDIR /trans-jpf
 
 ADD . /trans-jpf/
@@ -16,5 +25,7 @@ ADD . /trans-jpf/
 RUN mkdir -p build && \
     cp lib/cloning-1.10.3.jar build && \
     ./gradlew buildJars
+
+RUN apt -y install texlive-latex-extra dvipng cm-super texlive-fonts-recommended 
 
 ENTRYPOINT [ "/bin/bash", "-c" ]

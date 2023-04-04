@@ -79,4 +79,14 @@ atlassian-ide-plugin.xml
 
 #local files
 local
-temp.ser
+bin/benchmarks/application-scalability
+bin/benchmarks/session-scalability
+bin/benchmarks/transaction-scalability
+bin/benchmarks/demo-application-scalability
+bin/benchmarks/demo-session-scalability
+bin/benchmarks/demo-transaction-scalability
+bin/benchmarks/*.csv
+bin/benchmarks/*.eps
+all.sh
+/src/examples/benchmarks/twitter/TestTwitter2.java
+/src/examples/benchmarks/twitter/TestTwitter.java

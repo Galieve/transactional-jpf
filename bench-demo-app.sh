@@ -67,8 +67,14 @@ for i in "${!folders[@]}"; do
 
     execute_benchmark
   done
-  
 
 done
+
+cd "graphics/files"
+
+python3 generate_csv.py "demo-application-scalability"
+python3 graphics.py "demo-application-scalability"
+
+exit
 
 
