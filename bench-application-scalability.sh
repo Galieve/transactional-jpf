@@ -81,7 +81,7 @@ for i in "${!folders[@]}"; do
     fold="${folders[i]}"/$j-threads/
     args=src/benchmarks/$benchmarkName/application-scalability/case$j/thread1.in\ src/benchmarks/$benchmarkName/application-scalability/case$j/thread2.in\ src/benchmarks/$benchmarkName/application-scalability/case$j/thread3.in
 
-    #execute_benchmark
+    execute_benchmark
   done
   
 
