@@ -86,7 +86,8 @@ bin/benchmarks/demo-application-scalability
 bin/benchmarks/demo-session-scalability
 bin/benchmarks/demo-transaction-scalability
 bin/benchmarks/*.csv
-all.sh
-graphics
+graphics/venv
+graphics/my_venv
+graphics/graphics.iml	
 /src/examples/benchmarks/twitter/TestTwitter2.java
 /src/examples/benchmarks/twitter/TestTwitter.java

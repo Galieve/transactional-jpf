@@ -1,3 +1,4 @@
+[`Back to init`](README.md)
 # Java PathFinder
 [![Build Status](https://travis-ci.org/javapathfinder/jpf-core.svg?branch=master)](https://travis-ci.org/javapathfinder/jpf-core)
 

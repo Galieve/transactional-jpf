@@ -1,6 +1,8 @@
 # Transactional JPF Artifact 
 
-# Getting started
+## Getting started
+
+---
 
 This repository contains the software artifact that supports our PLDI'23 submission on "_Dynamic Partial Order Reduction for Checking Correctness Against Transaction Isolation Levels_". Transactional JPF (TrJPF) is an extension of [`Java PathFinder`](JPF-README.md) capable to analyze programs whose sessions _only_ communicate via database calls. Applications require adapting their transactional statements to the API syntax to be tested under TrJPF.
 
@@ -13,7 +15,9 @@ Our artifact is split into different parts following the architecture of Java Pa
 - Configuration file [`jpf.properties`](jpf.properties), including the isolation levels, search mode, output configuration, client APIs to take into account, etc... Configuration parameters can be modified 
 
 
-# Build
+## Build
+
+---
 
 For building, simply run the following:
 
@@ -21,7 +25,9 @@ For building, simply run the following:
 docker build -t tr-jpf:latest .
 ```
 
-# Run
+## Run
+
+---
 
 The three experiments in section 7.3 have an associated script. It suffices to run it for obtaining the results. For a detailed description about the design, input or output of the experiments check the links above.
 
@@ -38,7 +44,7 @@ Every experiment produce several short `.out` files. It is recommended to read t
 The time limit set is to 30' per case. It is recommended to be careful when running each script as it may take up to 1 day per script. Some sub-benchmarks are already predefined for having a satisfactory user experience.
 
 
-## First experiment: application scalability
+### First experiment: application scalability
 
 The following command shall be run. Its outcome can be found in "bin/benchmarks/application-scalability" folder.
 
@@ -48,9 +54,7 @@ bash bench-application-scalability.sh
 
 It will produce 5 folders ("courseware/", "shoppingCart/", "tpcc/", "twitter/" and "wikipedia/"), each with 5 subfolders (one per number of sessions in the benchmark). Each subfolder will contain 7 .out files, one per isolation level treated (Appendix F, Table F1).
 
-### Demo version
-
----
+#### Demo version
 
 One can run the command below to execute a smaller benchmark where only the first two rows of Table F1 are executed. The results of this test case can be found in `bin/benchmarks/demo-application-scalability`.
 
@@ -58,7 +62,7 @@ One can run the command below to execute a smaller benchmark where only the firs
 bash bench-demo-app.sh
 ```
 
-## Second and third experiment: session and transaction scalability
+### Second and third experiment: session and transaction scalability
 
 The following commands shall be run:
 
@@ -80,8 +84,7 @@ For example, one of those final directories will be `bin/benchmarks/transaction-
 Each final folder will contain 1 .out file, corresponding with a cell in Appendix F, Table F2 or Appendix F, Table F3.
 
 
-### Demo version
----
+#### Demo version
 
 One can run the command below to execute a smaller benchmark where only the first two rows and first three columns of Table F2 (respectively F3) are executed. The results of this test case can be found in `bin/benchmarks/demo-session-scalability` (respectively `bin/benchmarks/demo-transaction-scalability`).
 
@@ -95,7 +98,15 @@ bash bench-demo-session.sh
 bash bench-demo-transaction.sh
 ```
 
-# Requirements
+## Do it yourself!
+
+---
+
+If the reader wants to test their own programs, we recommend to read both the [`JPF-README`](JPF-README.md), that explains the usage of JPF, and the [`DIY-README`](DIY-README.md) that summarizes the new features that TrJPF brings.
+
+## Requirements
+
+---
 
 This artifact was tested on a Mac OS. We recommend using a Mac/Linux OS version with updated software. 
 

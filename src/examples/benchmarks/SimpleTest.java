@@ -3,9 +3,7 @@ package benchmarks;
 import database.APIDatabase;
 
 public class SimpleTest {
-
-
-
+    
     public static void doOperations11(){
         var db = APIDatabase.getDatabase();
         db.begin();
