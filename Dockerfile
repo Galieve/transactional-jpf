@@ -9,6 +9,13 @@ RUN apt-get update && \
     apt -y install git-all && \
     rm -rf /var/lib/apt/lists/*
 
+RUN apt update && \
+    apt -y upgrade && \
+    apt -y install python3-pip && \
+    apt -y install python3.11-venv
+
+RUN apt -y install python3-pandas python3-numpy python3-matplotlib
+
 WORKDIR /trans-jpf
 
 ADD . /trans-jpf/

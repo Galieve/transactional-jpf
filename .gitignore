@@ -85,4 +85,8 @@ bin/benchmarks/transaction-scalability
 bin/benchmarks/demo-application-scalability
 bin/benchmarks/demo-session-scalability
 bin/benchmarks/demo-transaction-scalability
+bin/benchmarks/*.csv
+all.sh
 graphics
+/src/examples/benchmarks/twitter/TestTwitter2.java
+/src/examples/benchmarks/twitter/TestTwitter.java
