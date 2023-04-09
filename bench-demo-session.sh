@@ -52,6 +52,10 @@ for ((i=0;i<num_rows;i++)) do
   done
 done
 
+cd "graphics/files"
+
+python3 generate_csv.py "demo-session-scalability" 
+python3 graphics-docker.py "demo-session-scalability" 
 
 exit
 

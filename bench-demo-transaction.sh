@@ -49,6 +49,11 @@ for ((i=0;i<num_rows;i++)) do
 
 done
 
+cd "graphics/files"
+
+python3 generate_csv.py "demo-transaction-scalability" 
+python3 graphics-docker.py "demo-transaction-scalability" 
+
 
 exit
 

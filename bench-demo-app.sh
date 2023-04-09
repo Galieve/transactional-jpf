@@ -71,4 +71,9 @@ for i in "${!folders[@]}"; do
 
 done
 
+cd "graphics/files"
+
+python3 generate_csv.py "demo-application-scalability" 
+python3 graphics-docker.py "demo-application-scalability" 
+
 
