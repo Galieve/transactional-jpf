@@ -13,6 +13,7 @@ import ast
 import numpy as np
 import warnings
 import matplotlib.pyplot as plt
+from datetime import timedelta
 from matplotlib import collections as matcoll
 import matplotlib.ticker as tick
 from textwrap import wrap
@@ -86,7 +87,7 @@ def prepare_dataframe_parameters(file, n):
     df['Memory'] = df['Memory'].map(lambda x: x)
 
 
-def prepare_dataframe_scalability(file, parameter):
+def prepare_dataframe_scalability(file, parameter, n):
     df = load_csv(file + ".csv")
 
     df['Time'] = df['Time'].map(lambda x: time_to_int(x))
@@ -95,7 +96,7 @@ def prepare_dataframe_scalability(file, parameter):
 
     df['Histories'] = df['Histories'].map(lambda x: x / 1000)
     df['Memory'] = df['Memory'].map(lambda x: x / 1024)
-    return process_dataframe_trso(df, parameter)
+    return process_dataframe_trso(df, parameter, n)
 
 
 def process_dataframe_application(df):
@@ -124,8 +125,8 @@ def process_dataframe_application(df):
     return other_df
 
 
-def process_dataframe_trso(df, parameter):
-    labels_app = ['1', '2', '3', '4', '5']
+def process_dataframe_trso(df, parameter, n):
+    labels_app = [str(i) for i in range(1, n+1)]
 
     i = 1
     # 'Case', 'Base ISO', 'True ISO', 'Histories', 'End States', 'Time', 'Memory'
@@ -137,10 +138,10 @@ def process_dataframe_trso(df, parameter):
     i = 1
     for case in labels_app:
         aux_df = df.loc[(df[parameter] == i)]
-        other_df['Histories' + str(i)] = aux_df['Histories'].values
-        other_df['Time' + str(i)] = aux_df['Time'].values
-        other_df['Mem.' + str(i)] = aux_df['Memory'].values
-        other_df['End states' + str(i)] = aux_df['End States'].values
+        other_df['Histories' + case] = aux_df['Histories'].values
+        other_df['Time' + case] = aux_df['Time'].values
+        other_df['Mem.' + case] = aux_df['Memory'].values
+        other_df['End states' + case] = aux_df['End States'].values
 
         i += 1
 
@@ -148,7 +149,7 @@ def process_dataframe_trso(df, parameter):
 
 
 
-def plot_cactus(file, saved_file, field, labels):
+def plot_cactus(file, saved_file, field, labels, colors):
     n = len(labels) + 1
 
     df = prepare_dataframe_cactus(file, n)
@@ -172,7 +173,7 @@ def plot_cactus(file, saved_file, field, labels):
         algo['Time' + i] = algo['Time' + i].cumsum()
         #algo = algo.dropna(subset='Time'+i)
         # lines = [(i, t) for (i,t) in zip( algo['Time'+i], df.index)]
-        plt.plot(df.index, algo[field + i], label=labels[i_s - 1], linewidth=2)
+        plt.plot(df.index, algo[field + i], label=labels[i_s - 1], linewidth=3, color=colors[i_s - 1])
 
     plt.legend(loc="lower right", borderpad=0.1, fontsize=11)
 
@@ -185,7 +186,7 @@ def plot_cactus(file, saved_file, field, labels):
     return
 
 
-def plot_cactus_mem(file, saved_file, field, labels):
+def plot_cactus_mem(file, saved_file, field, labels, colors):
     n = len(labels) + 1
 
     df = prepare_dataframe_cactus(file, n)
@@ -210,9 +211,9 @@ def plot_cactus_mem(file, saved_file, field, labels):
         # print(algo)
         # lines = [(i, t) for (i,t) in zip( algo['Time'+i], df.index)]
 
-        plt.plot(df.index, algo[field + i], label=labels[i_s - 1], linewidth=2)
+        plt.plot(df.index, algo[field + i], label=labels[i_s - 1], linewidth=3, color=colors[i_s - 1])
 
-    plt.legend(loc="lower right", borderpad=0.1, fontsize=11)
+    plt.legend(loc="upper right", borderpad=0.1, fontsize=11)
 
     print('Saving...')
 
@@ -224,7 +225,7 @@ def plot_cactus_mem(file, saved_file, field, labels):
     return
 
 
-def plot_cactus_histories(file, saved_file, labels):
+def plot_cactus_histories(file, saved_file, labels, colors):
     n = len(labels) + 1
 
     df = prepare_dataframe_cactus(file, n)
@@ -256,7 +257,7 @@ def plot_cactus_histories(file, saved_file, labels):
 
         algo[field + i] = algo[field + i].cumsum()
 
-        plt.plot(df.index, algo[field + i], label=labels[i_s - 1], linewidth=2)
+        plt.plot(df.index, algo[field + i], label=labels[i_s - 1], linewidth=3, color=colors[i_s - 1])
 
     plt.legend(loc="upper right", borderpad=0.1, fontsize=11)
 
@@ -269,9 +270,8 @@ def plot_cactus_histories(file, saved_file, labels):
     return
 
 
-def plot_scalability(file, parameter, saved_file, object_name):
-    n = 5 + 1
-    df = prepare_dataframe_scalability(file, parameter)
+def plot_scalability(file, parameter, saved_file, object_name, n):
+    df = prepare_dataframe_scalability(file, parameter, n - 1)
 
     bench = len(df.index)
     fig = plt.figure()
@@ -288,7 +288,7 @@ def plot_scalability(file, parameter, saved_file, object_name):
 
     cmap = plt.cm.get_cmap('Dark2')
 
-    plt.xlim([1 - 0.05, 5 + 0.05])
+    plt.xlim([1 - 0.05, n - 1 + 0.05])
     ax2.set_ylim([0 - 0.25, 30 + 0.25])
 
     ax2.set_ylim([0 - 0.25, 16 - 0.25])
@@ -312,20 +312,26 @@ def plot_scalability(file, parameter, saved_file, object_name):
     return
 
 
-def calculate_parameters(file, labels):
+def calculate_parameters(mode, labels):
     n = len(labels) + 1
 
-    df = prepare_dataframe_parameters(file, n)
+    folder = getPath(mode)
+    file = folder + '/data'
+
+    df = prepare_dataframe_cactus(file, n)
 
     results = {}
     for i_s in range(1, n):
         i = str(i_s)
         if i_s > 1:
             algo = df[['Benchmark', 'Histories' + i, 'End states' + i, 'Time' + i, 'Mem.' + i, 'Time1']]
+            algo['Mem.' + i] = algo['Mem.' + i].map(lambda x: (x) * 1024)
+
             algo.loc[:, 'SpeedUp' + i] = algo['Time' + i] / algo['Time1']
             results['SpeedUp' + i + '-average'] = algo['SpeedUp' + i].mean()
         else:
             algo = df[['Benchmark', 'Histories' + i, 'End states' + i, 'Time' + i, 'Mem.' + i]]
+            algo['Mem.' + i] = algo['Mem.' + i].map(lambda x: (x) * 1024)
 
             results['SpeedUp' + i + '-average'] = 1
 
@@ -349,9 +355,10 @@ def calculate_parameters(file, labels):
         # results['Histories'+i+'-min'] = algo[field+i].min()
         # results['Histories'+i+'-max'] = algo[field+i].max()
 
-    results = {k: "%.2f" % v for k, v in results.items()}
+    results = {k: "%.5f" % v for k, v in results.items()}
 
-    with open('results.csv', 'w') as f:  # You will need 'wb' mode in Python 2.x
+
+    with open(folder + '/results.csv', 'w') as f:  # You will need 'wb' mode in Python 2.x
         w = csv.DictWriter(f, results.keys())
         w.writeheader()
         w.writerow(results)
@@ -367,27 +374,34 @@ def calculate_parameters_2(file):
 
 def plot_depending_on_mode(mode):
     folder = getPath(mode)
+    labels = ["\\texttt{CC}", "\\texttt{CC} + \\texttt{SI}",
+              "\\texttt{CC} + \\texttt{SER}", "\\texttt{RA} + \\texttt{CC}",
+              "\\texttt{RC} + \\texttt{CC}", "\\texttt{true} + \\texttt{CC}", "DFS(\\texttt{CC})"]
+
+    colors = ['#734d26', '#0066ff', '#cc9900','#009933','#d147a3' , '#5900b3' , '#e63900']
+    n = 6
+    if mode.startswith('demo'):
+        n = 4
     if mode.endswith('application-scalability'):
-        plot_cactus(folder + '/data', folder + '/app-scala-Time', 'Time', labels)
-        plot_cactus_mem(folder + '/data', folder + '/app-scala-Mem', 'Mem', labels)
-        plot_cactus_histories(folder + '/data', folder + '/app-scala-histories', labels)
+        plot_cactus(folder + '/data', folder + '/app-scala-Time', 'Time', labels, colors)
+        plot_cactus_mem(folder + '/data', folder + '/app-scala-Mem', 'Mem', labels, colors)
+        plot_cactus_histories(folder + '/data', folder + '/app-scala-histories', labels, colors)
     elif mode.endswith('session-scalability'):
-        plot_scalability(folder + '/data', 'Session', folder + '/se-scala', 'sessions')
+        plot_scalability(folder + '/data', 'Session', folder + '/se-scala', 'sessions', n)
     elif mode.endswith('transaction-scalability'):
-        plot_scalability(folder + '/data', 'Transaction',  folder + '/tr-scala', 'transactions per session')
+        plot_scalability(folder + '/data', 'Transaction',  folder + '/tr-scala', 'transactions per session', n)
 
 
 
 
 if __name__ == "__main__":
+    plt.rc('text', usetex=True)
     font = {'family': 'serif', 'size': 16, 'serif': ['computer modern roman']}
     plt.rc('font', **font)
     plt.rc('legend', **{'fontsize': 14})
-    labels = ["\\texttt{CC}", "\\texttt{CC} + \\texttt{SI}",
-              "\\texttt{CC} + \\texttt{SER}", "\\texttt{RA} + \\texttt{CC}",
-              "\\texttt{RC} + \\texttt{CC}", "\\texttt{true} + \\texttt{CC}", "DFS(\\texttt{CC})"]
 
     mode = sys.argv[1]
 
+    #calculate_parameters(mode, labels)
     plot_depending_on_mode(mode)
 

@@ -149,9 +149,6 @@ def listFilesThSeScalability(folder, parameter):
     for path, item in files.items():
         for i in item:
             results = process_file_tr_so(path, i, parameter)
-            if results != {}:
-                print(results)
-            print(df.shape)
 
             df_results = pd.DataFrame([results])
             df = pd.concat([df, df_results], ignore_index=True)

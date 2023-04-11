@@ -87,7 +87,7 @@ def prepare_dataframe_parameters(file, n):
     df['Memory'] = df['Memory'].map(lambda x: x)
 
 
-def prepare_dataframe_scalability(file, parameter):
+def prepare_dataframe_scalability(file, parameter, n):
     df = load_csv(file + ".csv")
 
     df['Time'] = df['Time'].map(lambda x: time_to_int(x))
@@ -96,7 +96,7 @@ def prepare_dataframe_scalability(file, parameter):
 
     df['Histories'] = df['Histories'].map(lambda x: x / 1000)
     df['Memory'] = df['Memory'].map(lambda x: x / 1024)
-    return process_dataframe_trso(df, parameter)
+    return process_dataframe_trso(df, parameter, n)
 
 
 def process_dataframe_application(df):
@@ -125,8 +125,8 @@ def process_dataframe_application(df):
     return other_df
 
 
-def process_dataframe_trso(df, parameter):
-    labels_app = ['1', '2', '3', '4', '5']
+def process_dataframe_trso(df, parameter, n):
+    labels_app = [str(i) for i in range(1, n+1)]
 
     i = 1
     # 'Case', 'Base ISO', 'True ISO', 'Histories', 'End States', 'Time', 'Memory'
@@ -138,10 +138,10 @@ def process_dataframe_trso(df, parameter):
     i = 1
     for case in labels_app:
         aux_df = df.loc[(df[parameter] == i)]
-        other_df['Histories' + str(i)] = aux_df['Histories'].values
-        other_df['Time' + str(i)] = aux_df['Time'].values
-        other_df['Mem.' + str(i)] = aux_df['Memory'].values
-        other_df['End states' + str(i)] = aux_df['End States'].values
+        other_df['Histories' + case] = aux_df['Histories'].values
+        other_df['Time' + case] = aux_df['Time'].values
+        other_df['Mem.' + case] = aux_df['Memory'].values
+        other_df['End states' + case] = aux_df['End States'].values
 
         i += 1
 
@@ -270,9 +270,8 @@ def plot_cactus_histories(file, saved_file, labels, colors):
     return
 
 
-def plot_scalability(file, parameter, saved_file, object_name):
-    n = 5 + 1
-    df = prepare_dataframe_scalability(file, parameter)
+def plot_scalability(file, parameter, saved_file, object_name, n):
+    df = prepare_dataframe_scalability(file, parameter, n - 1)
 
     bench = len(df.index)
     fig = plt.figure()
@@ -289,7 +288,7 @@ def plot_scalability(file, parameter, saved_file, object_name):
 
     cmap = plt.cm.get_cmap('Dark2')
 
-    plt.xlim([1 - 0.05, 5 + 0.05])
+    plt.xlim([1 - 0.05, n - 1 + 0.05])
     ax2.set_ylim([0 - 0.25, 30 + 0.25])
 
     ax2.set_ylim([0 - 0.25, 16 - 0.25])
@@ -379,15 +378,18 @@ def plot_depending_on_mode(mode):
               "\\texttt{CC} + \\texttt{SER}", "\\texttt{RA} + \\texttt{CC}",
               "\\texttt{RC} + \\texttt{CC}", "\\texttt{true} + \\texttt{CC}", "DFS(\\texttt{CC})"]
 
-    colors = ['#734d26', '#0066ff', '#cc9900','#009933','#ff00bf' , '#5900b3' , '#ff0000']
+    colors = ['#734d26', '#0066ff', '#cc9900','#009933','#d147a3' , '#5900b3' , '#e63900']
+    n = 6
+    if mode.startswith('demo'):
+        n = 4
     if mode.endswith('application-scalability'):
         plot_cactus(folder + '/data', folder + '/app-scala-Time', 'Time', labels, colors)
         plot_cactus_mem(folder + '/data', folder + '/app-scala-Mem', 'Mem', labels, colors)
         plot_cactus_histories(folder + '/data', folder + '/app-scala-histories', labels, colors)
     elif mode.endswith('session-scalability'):
-        plot_scalability(folder + '/data', 'Session', folder + '/se-scala', 'sessions')
+        plot_scalability(folder + '/data', 'Session', folder + '/se-scala', 'sessions', n)
     elif mode.endswith('transaction-scalability'):
-        plot_scalability(folder + '/data', 'Transaction',  folder + '/tr-scala', 'transactions per session')
+        plot_scalability(folder + '/data', 'Transaction',  folder + '/tr-scala', 'transactions per session', n)
 
 
 
