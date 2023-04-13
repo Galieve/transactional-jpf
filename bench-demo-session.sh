@@ -57,8 +57,6 @@ cd "graphics/files"
 python3 generate_csv.py "demo-session-scalability" 
 python3 graphics-docker.py "demo-session-scalability" 
 
-exit
-
 
 
 

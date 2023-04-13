@@ -395,7 +395,6 @@ def plot_depending_on_mode(mode):
 
 
 if __name__ == "__main__":
-    plt.rc('text', usetex=True)
     font = {'family': 'serif', 'size': 16, 'serif': ['computer modern roman']}
     plt.rc('font', **font)
     plt.rc('legend', **{'fontsize': 14})
