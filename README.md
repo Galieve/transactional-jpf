@@ -84,7 +84,7 @@ For example, one of those final directories will be `bin/benchmarks/transaction-
 Each final folder will contain 1 .out file, corresponding with a cell in Appendix F, Table F2 or Appendix F, Table F3.
 
 
-#### Demo version
+#### Demo versionΩ
 
 One can run the command below to execute a smaller benchmark where only the first two rows and first three columns of Table F2 (respectively F3) are executed. The results of this test case can be found in `bin/benchmarks/demo-session-scalability` (respectively `bin/benchmarks/demo-transaction-scalability`).
 

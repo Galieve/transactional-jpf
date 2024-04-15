@@ -522,6 +522,11 @@ public class TrDatabase extends Database{
                 for (int j = backtrackPoints.get(w.getEventData()); j >= 0; --j) {
                     //TODO: revisar
                     ReadTransactionalEvent r = readEventsPerVariable.get(w.getVariable()).get(j);
+
+                    //Local read
+                    if(r.getWriteEvent().getTransactionId() == r.getTransactionId()) continue;
+
+                    //Cycle
                     if(history.areWRSO_starRelated(r.getTransactionId(), w.getTransactionId())) continue;
 
                     var p = constructNextHistory(w, r);
